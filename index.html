@@ -2115,17 +2115,29 @@ async function loadFriendsActivity() {
 function renderActivityFeed(activities, container) {
   if (!container) return;
   if (!activities.length) {
-    container.innerHTML='<div style="text-align:center;padding:24px;color:var(--ink3)">No recent activity yet.</div>';
+    container.innerHTML = '<div style="text-align:center;padding:24px;color:var(--ink3)">No recent activity yet.</div>';
     return;
   }
+
   container.innerHTML = activities.map(a => {
-    const prof = a.profiles||{};
-    return '<div class="feed-item">'
-      +'<div class="feed-avatar">'+(prof.avatar_emoji||'🌸')+'</div>'
-      +'<div class="feed-text"><strong>'+(prof.username||'Friend')+'</strong> '+activityLabel(a)
-      +'<div class="feed-time">'+formatTimeAgo(a.created_at)+'</div></div>'
-      +'<button class="encourage-btn" id="enc-'+a.id+'" onclick="sendEncouragement(''+a.id+'',this)">🌸 Cheer</button>'
-      +'</div>';
+    const prof = a.profiles || {};
+    const activityId = a.id; // safer
+
+    return `
+      <div class="feed-item">
+        <div class="feed-avatar">${prof.avatar_emoji || '🌸'}</div>
+        <div class="feed-text">
+          <strong>${prof.username || 'Friend'}</strong> ${activityLabel(a)}
+          <div class="feed-time">${formatTimeAgo(a.created_at)}</div>
+        </div>
+        <button 
+          class="encourage-btn" 
+          id="enc-${activityId}" 
+          onclick="sendEncouragement('${activityId}', this)">
+          🌸 Cheer
+        </button>
+      </div>
+    `;
   }).join('');
 }
 
