@@ -2195,21 +2195,60 @@ async function loadFriendsList() {
 async function loadFriendRequests() {
   const el = document.getElementById('friend-requests');
   if (!el) return;
-  const {data: reqs} = await sb.from('friends').select('id,profiles!friends_user_id_fkey(username,avatar_emoji)').eq('friend_id',currentUser.id).eq('status','pending');
-  if (!reqs||!reqs.length) { el.innerHTML='<div style="color:var(--ink3);font-size:14px">No pending requests.</div>'; return; }
-  el.innerHTML = reqs.map(r=>'<div class="friend-card">'
-    +'<div class="friend-avatar">'+(r.profiles?.avatar_emoji||'🌸')+'</div>'
-    +'<div style="flex:1"><div style="font-size:15px;font-weight:600">'+r.profiles?.username+'</div>'
-    +'<div style="font-size:12px;color:var(--ink3)">Wants to study with you!</div></div>'
-    +'<button class="btn btn-primary btn-sm" onclick="acceptFriend(''+r.id+'')">Accept</button>'
-    +'</div>').join('');
-}
 
-async function acceptFriend(id) {
-  await sb.from('friends').update({status:'accepted'}).eq('id',id);
-  loadFriendRequests(); loadFriendsList();
-}
+  const {data: reqs} = await sb.from('friends')
+    .select('id,profiles!friends_user_id_fkey(username,avatar_emoji)')
+    .eq('friend_id', currentUser.id)
+    .eq('status', 'pending');
 
+  if (!reqs || !reqs.length) {
+    el.innerHTML = '<div style="color:var(--ink3);font-size:14px">No pending requests.</div>';
+    return;
+  }
+
+  let html = '';
+  
+  reqs.forEach(r => {
+    const requestId = String(r.id || '');
+    html += `
+      <div class="friend-card">
+        <div class="friend-avatar">${r.profiles?.avatar_emoji || '🌸'}</div>
+        <div style="flex:1">
+          <div style="font-size:15px;font-weight:600">${r.profiles?.username || 'User'}</div>
+          <div style="font-size:12px;color:var(--ink3)">Wants to study with you!</div>
+        </div>
+        <button class="btn btn-primary btn-sm" data-id="${requestId}">Accept</button>
+      </div>
+    `;
+  });
+
+  el.innerHTML = html;
+
+  // Safe event listeners
+  el.querySelectorAll('.btn-primary').forEach(btn => {
+    btn.addEventListener('click', function() {
+      const id = this.getAttribute('data-id');
+      acceptFriend(id);
+    });
+  });
+}
+  
+async function acceptFriend(requestId) {
+  if (!requestId) return;
+  
+  try {
+    await sb.from('friends')
+      .update({ status: 'accepted' })
+      .eq('id', requestId);
+    
+    // Refresh the lists
+    loadFriendRequests();
+    loadFriendsList();
+  } catch (e) {
+    console.error(e);
+    alert('Failed to accept friend request');
+  }
+}
 async function searchFriend() {
   const username = document.getElementById('friend-search-input').value.trim();
   const result = document.getElementById('friend-search-result');
