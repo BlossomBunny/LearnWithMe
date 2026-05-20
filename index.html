@@ -1,0 +1,1689 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>日本語 — Study with Cyrene</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&family=Shippori+Mincho:wght@400;600&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --ink:#1c1624;--ink2:#4a3f5c;--ink3:#8f84a8;
+  --bg:#f5f2ee;--card:#ffffff;--surface:#faf8f6;
+  --border:rgba(100,80,140,0.12);--border2:rgba(100,80,140,0.22);
+  --plum:#7c3aed;--plum2:#a78bfa;--plum3:#ede9fe;
+  --rose:#e11d74;--rose2:#fb7185;--rose3:#fce7f3;
+  --gold:#b45309;--gold2:#fbbf24;--gold3:#fef3c7;
+  --teal:#0d9488;--teal2:#2dd4bf;--teal3:#ccfbf1;
+  --green:#16a34a;--green3:#dcfce7;
+  --red:#dc2626;--red3:#fee2e2;
+  --ff:'DM Sans',sans-serif;--ffj:'Noto Sans JP',sans-serif;--ffs:'Shippori Mincho',serif;
+  --r:12px;--r2:18px;--shadow:0 2px 12px rgba(100,80,140,0.10);
+}
+body{font-family:var(--ff);background:var(--bg);color:var(--ink);min-height:100vh;overflow-x:hidden}
+
+/* ── LAYOUT ── */
+.app{display:grid;grid-template-columns:72px 1fr;grid-template-rows:auto 1fr;min-height:100vh}
+.sidebar{grid-row:1/3;background:var(--ink);display:flex;flex-direction:column;align-items:center;padding:20px 0;gap:6px;position:sticky;top:0;height:100vh}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:18px 28px;background:var(--card);border-bottom:1px solid var(--border);grid-column:2}
+.main{grid-column:2;padding:28px;overflow-y:auto}
+
+/* ── SIDEBAR NAV ── */
+.logo{width:38px;height:38px;background:var(--plum);border-radius:10px;display:flex;align-items:center;justify-content:center;font-family:var(--ffj);font-size:18px;color:#fff;font-weight:700;margin-bottom:14px;cursor:pointer}
+.nav-btn{width:48px;height:48px;border-radius:var(--r);border:none;background:transparent;color:rgba(255,255,255,0.45);cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;transition:all .18s;font-size:10px;padding:0}
+.nav-btn:hover,.nav-btn.active{background:rgba(255,255,255,0.1);color:#fff}
+.nav-btn.active{background:var(--plum)}
+.nav-btn svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.nav-label{font-size:9px;font-weight:500;letter-spacing:.3px;text-transform:uppercase}
+.nav-sep{width:32px;height:1px;background:rgba(255,255,255,0.08);margin:8px 0}
+.xp-bar-wrap{margin-top:auto;display:flex;flex-direction:column;align-items:center;gap:6px;padding-bottom:8px}
+.xp-circle{width:38px;height:38px;position:relative}
+.xp-circle svg{transform:rotate(-90deg)}
+.xp-level{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;color:#fff}
+
+/* ── TOPBAR ── */
+.topbar-left{display:flex;align-items:center;gap:14px}
+.page-title{font-size:18px;font-weight:600;color:var(--ink)}
+.page-sub{font-size:13px;color:var(--ink3)}
+.streak-pill{display:flex;align-items:center;gap:5px;background:var(--gold3);border:1px solid var(--gold2);border-radius:20px;padding:4px 10px;font-size:13px;font-weight:500;color:var(--gold)}
+.xp-pill{display:flex;align-items:center;gap:5px;background:var(--plum3);border:1px solid var(--plum2);border-radius:20px;padding:4px 10px;font-size:13px;font-weight:500;color:var(--plum)}
+
+/* ── CYRENE COMPANION ── */
+.cyrene-bar{display:flex;align-items:center;gap:14px;background:var(--card);border:1px solid var(--border);border-radius:var(--r2);padding:14px 18px;margin-bottom:24px;box-shadow:var(--shadow)}
+.cyrene-avatar{width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,#7c3aed,#e11d74);display:flex;align-items:center;justify-content:center;font-family:var(--ffj);font-size:22px;flex-shrink:0;position:relative}
+.cyrene-avatar::after{content:'';position:absolute;inset:-2px;border-radius:50%;border:2px solid transparent;background:linear-gradient(135deg,#7c3aed,#e11d74) border-box;-webkit-mask:linear-gradient(#fff 0 0) padding-box,linear-gradient(#fff 0 0);-webkit-mask-composite:destination-out;mask-composite:exclude}
+.cyrene-speech{flex:1}
+.cyrene-name{font-size:11px;font-weight:600;color:var(--plum);text-transform:uppercase;letter-spacing:.8px;margin-bottom:3px}
+.cyrene-msg{font-size:14px;color:var(--ink2);line-height:1.5}
+.cyrene-msg b{color:var(--ink);font-weight:500}
+
+/* ── SECTION HEADERS ── */
+.section-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.section-title{font-size:15px;font-weight:600;color:var(--ink)}
+.see-all{font-size:13px;color:var(--plum);cursor:pointer;text-decoration:none;border:none;background:none;font-family:var(--ff);padding:0}
+
+/* ── CARDS & GRIDS ── */
+.grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:28px}
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:28px}
+.grid-2{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-bottom:28px}
+.stat-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r2);padding:18px 20px;box-shadow:var(--shadow)}
+.stat-card .stat-num{font-size:28px;font-weight:600;color:var(--ink);margin-bottom:2px}
+.stat-card .stat-label{font-size:12px;color:var(--ink3);font-weight:500;text-transform:uppercase;letter-spacing:.5px}
+.stat-card .stat-icon{font-size:22px;margin-bottom:8px}
+.mode-card{background:var(--card);border:1.5px solid var(--border);border-radius:var(--r2);padding:22px;cursor:pointer;transition:all .18s;display:flex;flex-direction:column;gap:10px;box-shadow:var(--shadow)}
+.mode-card:hover{border-color:var(--plum2);transform:translateY(-2px);box-shadow:0 6px 20px rgba(124,58,237,0.13)}
+.mode-card.active-mode{border-color:var(--plum);background:var(--plum3)}
+.mode-icon{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px}
+.mode-title{font-size:15px;font-weight:600;color:var(--ink)}
+.mode-desc{font-size:12px;color:var(--ink3);line-height:1.5}
+.mode-count{font-size:11px;font-weight:600;color:var(--plum);background:var(--plum3);padding:2px 8px;border-radius:20px;display:inline-block}
+
+/* ── BUTTONS ── */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;padding:10px 20px;border-radius:var(--r);font-family:var(--ff);font-size:14px;font-weight:500;cursor:pointer;transition:all .15s;border:1.5px solid transparent}
+.btn-primary{background:var(--plum);color:#fff;border-color:var(--plum)}
+.btn-primary:hover{background:#6d28d9}
+.btn-secondary{background:var(--card);color:var(--ink);border-color:var(--border2)}
+.btn-secondary:hover{border-color:var(--plum2);color:var(--plum)}
+.btn-lg{padding:13px 28px;font-size:16px;border-radius:14px}
+.btn-sm{padding:6px 14px;font-size:12px;border-radius:8px}
+.btn-ghost{background:transparent;border-color:transparent;color:var(--ink3)}
+.btn-ghost:hover{color:var(--ink);background:var(--surface)}
+.btn-correct{background:var(--green);color:#fff;border-color:var(--green)}
+.btn-wrong{background:var(--red);color:#fff;border-color:var(--red)}
+
+/* ── PROGRESS ── */
+.progress-track{height:8px;background:var(--border);border-radius:4px;overflow:hidden}
+.progress-fill{height:100%;border-radius:4px;transition:width .4s ease;background:var(--plum)}
+.progress-fill.gold{background:var(--gold2)}
+.progress-fill.teal{background:var(--teal2)}
+
+/* ── FLASHCARD ── */
+.flashcard-wrap{display:flex;flex-direction:column;align-items:center;gap:24px;max-width:600px;margin:0 auto}
+.flashcard{width:100%;min-height:220px;background:var(--card);border:1.5px solid var(--border);border-radius:24px;padding:40px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;cursor:pointer;transition:all .22s;box-shadow:var(--shadow);position:relative;overflow:hidden;text-align:center}
+.flashcard:hover{box-shadow:0 8px 28px rgba(124,58,237,0.15);border-color:var(--plum2)}
+.flashcard.revealed{background:var(--plum3);border-color:var(--plum)}
+.card-kana{font-family:var(--ffj);font-size:72px;color:var(--ink);line-height:1.1}
+.card-kanji{font-family:var(--ffs);font-size:56px;color:var(--ink)}
+.card-reading{font-family:var(--ffj);font-size:22px;color:var(--plum);font-weight:400}
+.card-meaning{font-size:24px;font-weight:600;color:var(--ink)}
+.card-example{font-size:13px;color:var(--ink3);font-family:var(--ffj);line-height:1.6;margin-top:6px}
+.card-type-badge{position:absolute;top:14px;right:14px;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.6px;padding:3px 8px;border-radius:20px;background:var(--plum3);color:var(--plum)}
+.card-hint{font-size:13px;color:var(--ink3);margin-top:4px}
+.srs-buttons{display:flex;gap:10px;width:100%}
+.srs-btn{flex:1;padding:12px;border-radius:var(--r);border:1.5px solid;font-family:var(--ff);font-size:13px;font-weight:500;cursor:pointer;transition:all .15s;display:flex;flex-direction:column;align-items:center;gap:2px}
+.srs-btn .srs-next{font-size:10px;font-weight:400}
+.srs-again{background:var(--red3);border-color:#fca5a5;color:var(--red)}
+.srs-again:hover{background:#fecaca}
+.srs-hard{background:#fff7ed;border-color:#fdba74;color:#c2410c}
+.srs-hard:hover{background:#ffedd5}
+.srs-good{background:var(--green3);border-color:#86efac;color:var(--green)}
+.srs-good:hover{background:#bbf7d0}
+.srs-easy{background:var(--plum3);border-color:var(--plum2);color:var(--plum)}
+.srs-easy:hover{background:#ddd6fe}
+.deck-progress{width:100%;display:flex;align-items:center;gap:12px}
+.deck-progress .dp-num{font-size:13px;color:var(--ink3);white-space:nowrap}
+
+/* ── QUIZ / MCQ ── */
+.quiz-wrap{max-width:560px;margin:0 auto;display:flex;flex-direction:column;gap:20px}
+.quiz-q{background:var(--card);border:1.5px solid var(--border);border-radius:20px;padding:36px;text-align:center;box-shadow:var(--shadow)}
+.quiz-q .q-jp{font-family:var(--ffj);font-size:52px;margin-bottom:8px;color:var(--ink)}
+.quiz-q .q-label{font-size:13px;color:var(--ink3)}
+.mcq-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.mcq-opt{background:var(--card);border:1.5px solid var(--border2);border-radius:var(--r);padding:14px 18px;cursor:pointer;font-size:15px;font-weight:500;transition:all .15s;text-align:left;font-family:var(--ff)}
+.mcq-opt:hover:not(.disabled){border-color:var(--plum);background:var(--plum3);color:var(--plum)}
+.mcq-opt.correct{background:var(--green3);border-color:#86efac;color:var(--green)}
+.mcq-opt.wrong{background:var(--red3);border-color:#fca5a5;color:var(--red)}
+.mcq-opt.disabled{cursor:default}
+.quiz-feedback{background:var(--card);border:1.5px solid var(--border);border-radius:var(--r2);padding:18px 22px;box-shadow:var(--shadow);display:none}
+.quiz-feedback.show{display:block}
+.qf-correct{border-color:#86efac;background:var(--green3)}
+.qf-wrong{border-color:#fca5a5;background:var(--red3)}
+.qf-title{font-size:15px;font-weight:600;margin-bottom:4px}
+.qf-body{font-size:13px;color:var(--ink2);line-height:1.6}
+.qf-example{font-family:var(--ffj);font-size:13px;color:var(--ink2);margin-top:6px}
+
+/* ── GRAMMAR ── */
+.grammar-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r2);overflow:hidden;margin-bottom:16px;box-shadow:var(--shadow)}
+.gc-header{padding:18px 22px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.gc-header:hover{background:var(--surface)}
+.gc-pattern{font-family:var(--ffj);font-size:17px;font-weight:500;color:var(--plum)}
+.gc-meaning{font-size:13px;color:var(--ink3);margin-top:2px}
+.gc-level{font-size:10px;font-weight:600;background:var(--gold3);color:var(--gold);padding:2px 8px;border-radius:20px;flex-shrink:0}
+.gc-body{padding:0 22px 18px;border-top:1px solid var(--border);display:none}
+.gc-body.open{display:block}
+.gc-rule{font-size:14px;color:var(--ink2);line-height:1.7;margin:14px 0 10px}
+.gc-examples{display:flex;flex-direction:column;gap:8px}
+.gc-ex{background:var(--surface);border-radius:var(--r);padding:12px 14px;border-left:3px solid var(--plum)}
+.gc-ex-jp{font-family:var(--ffj);font-size:15px;color:var(--ink);margin-bottom:3px}
+.gc-ex-reading{font-size:12px;color:var(--plum);font-family:var(--ffj);margin-bottom:2px}
+.gc-ex-en{font-size:13px;color:var(--ink3)}
+.gc-chevron{transition:transform .2s;color:var(--ink3);flex-shrink:0}
+.gc-chevron.open{transform:rotate(180deg)}
+
+/* ── READING ── */
+.reading-passage{background:var(--card);border:1px solid var(--border);border-radius:var(--r2);padding:28px;margin-bottom:20px;box-shadow:var(--shadow)}
+.rp-title{font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:.6px;color:var(--plum);margin-bottom:12px}
+.rp-text{font-family:var(--ffj);font-size:18px;line-height:2.2;color:var(--ink)}
+.rp-text .vocab-word{cursor:pointer;border-bottom:2px dotted var(--plum2);color:var(--plum);transition:all .15s}
+.rp-text .vocab-word:hover{background:var(--plum3);border-radius:3px}
+.tooltip-popup{position:fixed;background:var(--ink);color:#fff;border-radius:10px;padding:10px 14px;font-size:13px;pointer-events:none;z-index:999;max-width:200px;line-height:1.5;display:none}
+.tooltip-jp{font-family:var(--ffj);font-size:15px;font-weight:500;margin-bottom:3px}
+.tooltip-reading{font-size:11px;color:var(--plum2);margin-bottom:2px}
+.reading-questions{display:flex;flex-direction:column;gap:12px}
+.rq-item{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:16px 18px}
+.rq-q{font-size:14px;font-weight:500;margin-bottom:12px}
+.rq-opts{display:flex;flex-direction:column;gap:6px}
+.rq-opt{padding:9px 14px;border:1.5px solid var(--border2);border-radius:8px;cursor:pointer;font-size:13px;transition:all .15s}
+.rq-opt:hover:not(.disabled){border-color:var(--plum);background:var(--plum3);color:var(--plum)}
+.rq-opt.correct{background:var(--green3);border-color:#86efac;color:var(--green)}
+.rq-opt.wrong{background:var(--red3);border-color:#fca5a5;color:var(--red)}
+
+/* ── HIRAGANA/KATAKANA GRID ── */
+.kana-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:24px}
+.kana-cell{background:var(--card);border:1.5px solid var(--border);border-radius:var(--r);padding:12px 6px;text-align:center;cursor:pointer;transition:all .15s}
+.kana-cell:hover{border-color:var(--plum2);background:var(--plum3)}
+.kana-cell.mastered{background:var(--green3);border-color:#86efac}
+.kana-cell.learning{background:var(--gold3);border-color:var(--gold2)}
+.kana-char{font-family:var(--ffj);font-size:26px;color:var(--ink);line-height:1.2}
+.kana-rom{font-size:11px;color:var(--ink3);margin-top:3px;font-weight:500}
+
+/* ── TABS ── */
+.tabs{display:flex;gap:4px;background:var(--surface);padding:4px;border-radius:10px;margin-bottom:24px;border:1px solid var(--border)}
+.tab{flex:1;padding:8px 14px;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;transition:all .15s;text-align:center;border:none;background:transparent;color:var(--ink3);font-family:var(--ff)}
+.tab:hover{color:var(--ink)}
+.tab.active{background:var(--card);color:var(--plum);box-shadow:0 1px 4px rgba(0,0,0,0.08)}
+
+/* ── KANA QUIZ ── */
+.kana-quiz-card{background:var(--card);border:1.5px solid var(--border);border-radius:20px;padding:40px;text-align:center;margin-bottom:20px;box-shadow:var(--shadow)}
+.kana-quiz-char{font-family:var(--ffj);font-size:80px;line-height:1;margin-bottom:12px}
+.kana-mcq{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.kana-opt{padding:11px;background:var(--surface);border:1.5px solid var(--border2);border-radius:var(--r);cursor:pointer;font-size:14px;font-weight:500;transition:all .15s;text-align:center}
+.kana-opt:hover:not(.disabled){border-color:var(--plum);background:var(--plum3);color:var(--plum)}
+.kana-opt.correct{background:var(--green3);border-color:#86efac;color:var(--green)}
+.kana-opt.wrong{background:var(--red3);border-color:#fca5a5;color:var(--red)}
+
+/* ── SETTINGS / CHARACTERS ── */
+.char-card{background:var(--card);border:1.5px solid var(--border);border-radius:var(--r2);padding:20px;display:flex;gap:16px;align-items:flex-start}
+.char-avatar{width:56px;height:56px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:26px;flex-shrink:0}
+.char-info .char-name{font-size:16px;font-weight:600;margin-bottom:3px}
+.char-info .char-style{font-size:12px;color:var(--ink3);margin-bottom:8px}
+.char-info .char-quote{font-size:13px;color:var(--ink2);font-style:italic;line-height:1.5}
+.active-badge{font-size:10px;font-weight:600;background:var(--green3);color:var(--green);padding:2px 8px;border-radius:20px;display:inline-block;margin-bottom:6px}
+
+/* ── HIDDEN ── */
+.page{display:none}.page.active{display:block}
+.hidden{display:none!important}
+
+/* ── RESPONSIVE ── */
+@media(max-width:900px){
+  .grid-4{grid-template-columns:repeat(2,1fr)}
+  .grid-3{grid-template-columns:1fr 1fr}
+  .kana-grid{grid-template-columns:repeat(5,1fr)}
+}
+
+/* ── ANIMATIONS ── */
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.page.active{animation:fadeIn .2s ease}
+@keyframes bounce{0%,100%{transform:scale(1)}50%{transform:scale(1.08)}}
+.bounce{animation:bounce .3s ease}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.shake{animation:shake .3s ease}
+</style>
+</head>
+<body>
+
+<div class="tooltip-popup" id="tooltip">
+  <div class="tooltip-jp" id="tt-jp"></div>
+  <div class="tooltip-reading" id="tt-reading"></div>
+  <div id="tt-meaning"></div>
+</div>
+
+<div class="app">
+  <!-- SIDEBAR -->
+  <nav class="sidebar">
+    <div class="logo" onclick="navigate('home')" title="Home">日</div>
+
+    <button class="nav-btn active" id="nav-home" onclick="navigate('home')" title="Home">
+      <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      <span class="nav-label">Home</span>
+    </button>
+    <button class="nav-btn" id="nav-kana" onclick="navigate('kana')" title="Kana">
+      <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M8 12h8M12 8v8"/></svg>
+      <span class="nav-label">Kana</span>
+    </button>
+    <button class="nav-btn" id="nav-vocab" onclick="navigate('vocab')" title="Vocabulary">
+      <svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+      <span class="nav-label">Vocab</span>
+    </button>
+    <button class="nav-btn" id="nav-grammar" onclick="navigate('grammar')" title="Grammar">
+      <svg viewBox="0 0 24 24"><polyline points="4 7 4 4 20 4 20 7"/><line x1="9" y1="20" x2="15" y2="20"/><line x1="12" y1="4" x2="12" y2="20"/></svg>
+      <span class="nav-label">Grammar</span>
+    </button>
+    <button class="nav-btn" id="nav-reading" onclick="navigate('reading')" title="Reading">
+      <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+      <span class="nav-label">Reading</span>
+    </button>
+    <button class="nav-btn" id="nav-quiz" onclick="navigate('quiz')" title="Quiz">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      <span class="nav-label">Quiz</span>
+    </button>
+
+    <div class="nav-sep"></div>
+    <button class="nav-btn" id="nav-settings" onclick="navigate('settings')" title="Settings">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      <span class="nav-label">Settings</span>
+    </button>
+
+    <div class="xp-bar-wrap">
+      <div class="xp-circle">
+        <svg width="38" height="38" viewBox="0 0 38 38">
+          <circle cx="19" cy="19" r="16" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="3"/>
+          <circle cx="19" cy="19" r="16" fill="none" stroke="#a78bfa" stroke-width="3" stroke-dasharray="100.5" id="xp-arc" stroke-dashoffset="70" stroke-linecap="round"/>
+        </svg>
+        <div class="xp-level" id="level-num">1</div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- TOPBAR -->
+  <header class="topbar">
+    <div class="topbar-left">
+      <div>
+        <div class="page-title" id="topbar-title">おはよう！ Welcome back</div>
+        <div class="page-sub" id="topbar-sub">N5 • Beginner</div>
+      </div>
+    </div>
+    <div style="display:flex;gap:10px;align-items:center">
+      <div class="streak-pill">🔥 <span id="streak-count">0</span> day streak</div>
+      <div class="xp-pill">⚡ <span id="xp-count">0</span> XP</div>
+    </div>
+  </header>
+
+  <!-- MAIN CONTENT -->
+  <main class="main">
+
+    <!-- ══ HOME PAGE ══ -->
+    <div class="page active" id="page-home">
+      <div class="cyrene-bar" id="cyrene-bar">
+        <div class="cyrene-avatar">🌸</div>
+        <div class="cyrene-speech">
+          <div class="cyrene-name">Cyrene</div>
+          <div class="cyrene-msg" id="cyrene-msg">Loading...</div>
+        </div>
+      </div>
+
+      <div class="section-head">
+        <div class="section-title">Today's Progress</div>
+      </div>
+      <div class="grid-4" style="margin-bottom:28px">
+        <div class="stat-card">
+          <div class="stat-icon">📚</div>
+          <div class="stat-num" id="stat-reviewed">0</div>
+          <div class="stat-label">Cards Reviewed</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">✅</div>
+          <div class="stat-num" id="stat-correct">0%</div>
+          <div class="stat-label">Accuracy</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">🎯</div>
+          <div class="stat-num" id="stat-due">0</div>
+          <div class="stat-label">Due for Review</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">⭐</div>
+          <div class="stat-num" id="stat-mastered">0</div>
+          <div class="stat-label">Mastered</div>
+        </div>
+      </div>
+
+      <div class="section-head">
+        <div class="section-title">Study Modes</div>
+      </div>
+      <div class="grid-3">
+        <div class="mode-card" onclick="navigate('kana')">
+          <div class="mode-icon" style="background:#ede9fe">🔤</div>
+          <div class="mode-title">Kana Mastery</div>
+          <div class="mode-desc">Learn hiragana & katakana with spaced repetition and visual mnemonics</div>
+          <div class="mode-count" id="mc-kana">Loading...</div>
+        </div>
+        <div class="mode-card" onclick="navigate('vocab')">
+          <div class="mode-icon" style="background:#fce7f3">📖</div>
+          <div class="mode-title">Vocabulary</div>
+          <div class="mode-desc">N5 core vocab — 800 words with readings, meanings & example sentences</div>
+          <div class="mode-count" id="mc-vocab">800 words</div>
+        </div>
+        <div class="mode-card" onclick="navigate('grammar')">
+          <div class="mode-icon" style="background:#ccfbf1">✍️</div>
+          <div class="mode-title">Grammar</div>
+          <div class="mode-desc">Essential N5 grammar patterns with explanations and real examples</div>
+          <div class="mode-count">25 patterns</div>
+        </div>
+        <div class="mode-card" onclick="navigate('reading')">
+          <div class="mode-icon" style="background:#fef3c7">📰</div>
+          <div class="mode-title">Reading</div>
+          <div class="mode-desc">Short passages at N5 level with interactive vocabulary tooltips</div>
+          <div class="mode-count">6 passages</div>
+        </div>
+        <div class="mode-card" onclick="navigate('quiz')">
+          <div class="mode-icon" style="background:#fee2e2">🎮</div>
+          <div class="mode-title">JLPT Quiz</div>
+          <div class="mode-desc">Timed practice tests in the real JLPT format — grammar, vocab & reading</div>
+          <div class="mode-count">Mock tests</div>
+        </div>
+        <div class="mode-card" onclick="navigate('settings')">
+          <div class="mode-icon" style="background:#f0fdf4">⚙️</div>
+          <div class="mode-title">Characters</div>
+          <div class="mode-desc">Choose your study companion — add new characters and teaching styles</div>
+          <div class="mode-count">1 character</div>
+        </div>
+      </div>
+
+      <div class="section-head"><div class="section-title">N5 Kana Progress</div></div>
+      <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--r2);padding:20px;margin-bottom:28px;box-shadow:var(--shadow)">
+        <div style="display:flex;justify-content:space-between;font-size:13px;color:var(--ink3);margin-bottom:8px">
+          <span>Hiragana</span><span id="hp-label">0 / 46</span>
+        </div>
+        <div class="progress-track" style="margin-bottom:14px"><div class="progress-fill" id="hp-bar" style="width:0%"></div></div>
+        <div style="display:flex;justify-content:space-between;font-size:13px;color:var(--ink3);margin-bottom:8px">
+          <span>Katakana</span><span id="kp-label">0 / 46</span>
+        </div>
+        <div class="progress-track"><div class="progress-fill teal" id="kp-bar" style="width:0%"></div></div>
+      </div>
+    </div>
+
+    <!-- ══ KANA PAGE ══ -->
+    <div class="page" id="page-kana">
+      <div class="tabs" id="kana-tabs">
+        <button class="tab active" onclick="switchKanaTab('hiragana',this)">Hiragana</button>
+        <button class="tab" onclick="switchKanaTab('katakana',this)">Katakana</button>
+        <button class="tab" onclick="switchKanaTab('quiz',this)">Quiz Mode</button>
+      </div>
+      <div id="kana-hiragana-content"></div>
+      <div id="kana-katakana-content" class="hidden"></div>
+      <div id="kana-quiz-content" class="hidden">
+        <div class="kana-quiz-card">
+          <div style="font-size:13px;color:var(--ink3);margin-bottom:8px" id="kq-prompt">What is the romaji for this character?</div>
+          <div class="kana-quiz-char" id="kq-char">あ</div>
+          <div style="font-size:12px;color:var(--ink3)" id="kq-score">Score: 0/0</div>
+        </div>
+        <div class="kana-mcq" id="kq-options"></div>
+        <div id="kq-feedback" style="margin-top:14px;display:none;padding:12px 16px;border-radius:var(--r);font-size:14px"></div>
+      </div>
+    </div>
+
+    <!-- ══ VOCAB PAGE ══ -->
+    <div class="page" id="page-vocab">
+      <div class="tabs">
+        <button class="tab active" onclick="switchVocabTab('flashcards',this)">Flashcards (SRS)</button>
+        <button class="tab" onclick="switchVocabTab('browse',this)">Browse All</button>
+      </div>
+      <div id="vocab-flashcards-content">
+        <div class="flashcard-wrap" id="fc-wrap">
+          <div class="deck-progress">
+            <div class="dp-num"><span id="fc-current">1</span> / <span id="fc-total">0</span></div>
+            <div class="progress-track" style="flex:1"><div class="progress-fill" id="fc-progress" style="width:0%"></div></div>
+            <div class="dp-num" id="fc-due-count">0 due</div>
+          </div>
+          <div class="flashcard" id="flashcard" onclick="revealCard()">
+            <div class="card-type-badge" id="fc-badge">vocabulary</div>
+            <div class="card-kana" id="fc-front">—</div>
+            <div class="card-hint" id="fc-hint"></div>
+            <div style="margin-top:16px;font-size:13px;color:var(--ink3)">tap to reveal</div>
+          </div>
+          <div id="fc-back" class="hidden" style="width:100%;display:flex;flex-direction:column;align-items:center;gap:16px">
+            <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--r2);padding:20px 28px;width:100%;text-align:center;box-shadow:var(--shadow)">
+              <div class="card-reading" id="fc-reading"></div>
+              <div class="card-meaning" id="fc-meaning"></div>
+              <div class="card-example" id="fc-example"></div>
+            </div>
+            <div class="srs-buttons">
+              <button class="srs-btn srs-again" onclick="rateCard(0)">Again<span class="srs-next">&lt;1 min</span></button>
+              <button class="srs-btn srs-hard" onclick="rateCard(1)">Hard<span class="srs-next">~10 min</span></button>
+              <button class="srs-btn srs-good" onclick="rateCard(2)">Good<span class="srs-next">1 day</span></button>
+              <button class="srs-btn srs-easy" onclick="rateCard(3)">Easy<span class="srs-next">4 days</span></button>
+            </div>
+          </div>
+          <div id="fc-done" class="hidden" style="text-align:center;padding:40px">
+            <div style="font-size:48px;margin-bottom:12px">🎉</div>
+            <div style="font-size:20px;font-weight:600;margin-bottom:8px">Session complete!</div>
+            <div style="font-size:14px;color:var(--ink3);margin-bottom:24px">All cards reviewed for now.</div>
+            <button class="btn btn-primary" onclick="startNewSession()">Study More</button>
+          </div>
+        </div>
+      </div>
+      <div id="vocab-browse-content" class="hidden">
+        <div style="display:flex;gap:10px;margin-bottom:18px">
+          <input type="text" id="vocab-search" placeholder="Search vocab..." oninput="filterVocab()" style="flex:1;padding:9px 14px;border:1.5px solid var(--border2);border-radius:var(--r);font-family:var(--ff);font-size:14px;outline:none;background:var(--card)">
+          <select id="vocab-filter" onchange="filterVocab()" style="padding:9px 14px;border:1.5px solid var(--border2);border-radius:var(--r);font-family:var(--ff);font-size:14px;background:var(--card);cursor:pointer">
+            <option value="all">All categories</option>
+            <option value="noun">Nouns</option>
+            <option value="verb">Verbs</option>
+            <option value="adj">Adjectives</option>
+            <option value="greeting">Greetings</option>
+            <option value="number">Numbers</option>
+            <option value="time">Time</option>
+          </select>
+        </div>
+        <div id="vocab-list"></div>
+      </div>
+    </div>
+
+    <!-- ══ GRAMMAR PAGE ══ -->
+    <div class="page" id="page-grammar">
+      <div style="margin-bottom:20px;font-size:14px;color:var(--ink3);line-height:1.6">
+        Essential N5 grammar patterns. Click any pattern to see the full explanation and examples.
+      </div>
+      <div id="grammar-list"></div>
+    </div>
+
+    <!-- ══ READING PAGE ══ -->
+    <div class="page" id="page-reading">
+      <div id="reading-select">
+        <div style="margin-bottom:20px;font-size:14px;color:var(--ink3)">Short N5-level passages. Click words for instant translations.</div>
+        <div class="grid-2" id="passage-list"></div>
+      </div>
+      <div id="reading-active" class="hidden">
+        <button class="btn btn-ghost btn-sm" onclick="backToPassages()" style="margin-bottom:18px">← Back to passages</button>
+        <div class="reading-passage">
+          <div class="rp-title" id="ra-title"></div>
+          <div class="rp-text" id="ra-text"></div>
+        </div>
+        <div style="margin-bottom:14px;font-size:15px;font-weight:600">Comprehension Questions</div>
+        <div class="reading-questions" id="ra-questions"></div>
+      </div>
+    </div>
+
+    <!-- ══ QUIZ PAGE ══ -->
+    <div class="page" id="page-quiz">
+      <div id="quiz-menu">
+        <div class="cyrene-bar" style="margin-bottom:24px">
+          <div class="cyrene-avatar">🌸</div>
+          <div class="cyrene-speech">
+            <div class="cyrene-name">Cyrene</div>
+            <div class="cyrene-msg">Ready for a challenge? Pick a quiz type and I'll keep score! 頑張って！</div>
+          </div>
+        </div>
+        <div class="grid-3">
+          <div class="mode-card" onclick="startQuiz('vocab-mcq')">
+            <div class="mode-icon" style="background:#ede9fe">📝</div>
+            <div class="mode-title">Vocabulary MCQ</div>
+            <div class="mode-desc">10 questions — choose the correct meaning for each word</div>
+            <div class="mode-count">10 questions</div>
+          </div>
+          <div class="mode-card" onclick="startQuiz('grammar-mcq')">
+            <div class="mode-icon" style="background:#ccfbf1">🔧</div>
+            <div class="mode-title">Grammar Fill-in</div>
+            <div class="mode-desc">Complete the sentence with the correct grammar pattern</div>
+            <div class="mode-count">10 questions</div>
+          </div>
+          <div class="mode-card" onclick="startQuiz('kana-mcq')">
+            <div class="mode-icon" style="background:#fce7f3">🔤</div>
+            <div class="mode-title">Kana Speed Round</div>
+            <div class="mode-desc">Rapid-fire kana recognition — how fast can you go?</div>
+            <div class="mode-count">20 questions</div>
+          </div>
+        </div>
+      </div>
+      <div id="quiz-active" class="hidden">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
+          <button class="btn btn-ghost btn-sm" onclick="endQuiz()">✕ End Quiz</button>
+          <div style="font-size:13px;color:var(--ink3)">Q <span id="q-num">1</span> / <span id="q-total">10</span></div>
+          <div style="font-size:13px;font-weight:600;color:var(--plum)">Score: <span id="q-score">0</span></div>
+        </div>
+        <div class="progress-track" style="margin-bottom:24px"><div class="progress-fill" id="q-progress" style="width:0%"></div></div>
+        <div class="quiz-wrap">
+          <div class="quiz-q">
+            <div class="q-label" id="q-instruction">What does this word mean?</div>
+            <div class="q-jp" id="q-question">—</div>
+            <div style="font-size:14px;color:var(--ink3);font-family:var(--ffj)" id="q-sub"></div>
+          </div>
+          <div class="mcq-grid" id="q-options"></div>
+          <div class="quiz-feedback" id="q-feedback">
+            <div class="qf-title" id="qf-title"></div>
+            <div class="qf-body" id="qf-body"></div>
+            <div class="qf-example" id="qf-ex"></div>
+            <button class="btn btn-primary btn-sm" style="margin-top:12px" onclick="nextQuestion()">Next →</button>
+          </div>
+        </div>
+      </div>
+      <div id="quiz-results" class="hidden" style="text-align:center;padding:40px;max-width:400px;margin:0 auto">
+        <div style="font-size:56px;margin-bottom:12px" id="qr-emoji">🎉</div>
+        <div style="font-size:24px;font-weight:600;margin-bottom:6px">Quiz Complete!</div>
+        <div style="font-size:16px;color:var(--ink3);margin-bottom:24px"><span id="qr-score">0</span> / <span id="qr-total">10</span> correct</div>
+        <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--r2);padding:20px;margin-bottom:24px;box-shadow:var(--shadow)">
+          <div class="cyrene-msg" id="qr-cyrene"></div>
+        </div>
+        <button class="btn btn-primary" onclick="document.getElementById('quiz-results').classList.add('hidden');document.getElementById('quiz-menu').classList.remove('hidden')">Try Another Quiz</button>
+      </div>
+    </div>
+
+    <!-- ══ SETTINGS PAGE ══ -->
+    <div class="page" id="page-settings">
+      <div style="margin-bottom:24px;font-size:15px;font-weight:600">Study Companion</div>
+      <div style="display:flex;flex-direction:column;gap:14px;margin-bottom:32px" id="char-list"></div>
+
+      <div style="margin-bottom:16px;font-size:15px;font-weight:600">Add New Character</div>
+      <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--r2);padding:22px;box-shadow:var(--shadow);margin-bottom:32px">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px">
+          <div>
+            <label style="font-size:12px;font-weight:600;color:var(--ink3);text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:6px">Name</label>
+            <input type="text" id="new-char-name" placeholder="e.g. Hana" style="width:100%;padding:9px 12px;border:1.5px solid var(--border2);border-radius:var(--r);font-family:var(--ff);font-size:14px;outline:none;background:var(--card)">
+          </div>
+          <div>
+            <label style="font-size:12px;font-weight:600;color:var(--ink3);text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:6px">Emoji Avatar</label>
+            <input type="text" id="new-char-emoji" placeholder="e.g. 🌺" style="width:100%;padding:9px 12px;border:1.5px solid var(--border2);border-radius:var(--r);font-family:var(--ff);font-size:14px;outline:none;background:var(--card)">
+          </div>
+        </div>
+        <div style="margin-bottom:14px">
+          <label style="font-size:12px;font-weight:600;color:var(--ink3);text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:6px">Teaching Style</label>
+          <select id="new-char-style" style="width:100%;padding:9px 12px;border:1.5px solid var(--border2);border-radius:var(--r);font-family:var(--ff);font-size:14px;background:var(--card);cursor:pointer">
+            <option value="playful">Playful & Encouraging</option>
+            <option value="strict">Strict & Precise</option>
+            <option value="calm">Calm & Patient</option>
+            <option value="nerdy">Nerdy & Detailed</option>
+          </select>
+        </div>
+        <div style="margin-bottom:14px">
+          <label style="font-size:12px;font-weight:600;color:var(--ink3);text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:6px">Catchphrase</label>
+          <input type="text" id="new-char-quote" placeholder="e.g. 頑張って！You've got this!" style="width:100%;padding:9px 12px;border:1.5px solid var(--border2);border-radius:var(--r);font-family:var(--ff);font-size:14px;outline:none;background:var(--card)">
+        </div>
+        <button class="btn btn-primary" onclick="addCharacter()">+ Add Character</button>
+      </div>
+
+      <div style="margin-bottom:16px;font-size:15px;font-weight:600">Study Settings</div>
+      <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--r2);padding:22px;box-shadow:var(--shadow)">
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border)">
+          <div><div style="font-size:14px;font-weight:500">Cards per session</div><div style="font-size:12px;color:var(--ink3)">How many flashcards to review at once</div></div>
+          <select id="cards-per-session" style="padding:6px 10px;border:1.5px solid var(--border2);border-radius:8px;font-family:var(--ff);font-size:13px;background:var(--card)">
+            <option value="10">10</option><option value="20" selected>20</option><option value="30">30</option><option value="50">50</option>
+          </select>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border)">
+          <div><div style="font-size:14px;font-weight:500">JLPT Level</div><div style="font-size:12px;color:var(--ink3)">Content difficulty</div></div>
+          <select id="jlpt-level" style="padding:6px 10px;border:1.5px solid var(--border2);border-radius:8px;font-family:var(--ff);font-size:13px;background:var(--card)">
+            <option value="N5" selected>N5 — Beginner</option>
+            <option value="N4">N4 — Elementary</option>
+          </select>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0">
+          <div><div style="font-size:14px;font-weight:500">Show furigana</div><div style="font-size:12px;color:var(--ink3)">Readings above kanji in vocab</div></div>
+          <label style="position:relative;display:inline-block;width:44px;height:24px;cursor:pointer">
+            <input type="checkbox" id="show-furigana" checked style="opacity:0;width:0;height:0">
+            <span style="position:absolute;inset:0;background:var(--plum);border-radius:12px;transition:.2s" id="furigana-toggle"></span>
+            <span style="position:absolute;top:2px;left:2px;width:20px;height:20px;background:#fff;border-radius:50%;transition:.2s" id="furigana-knob"></span>
+          </label>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script>
+// ════════════════════════════════════════════════
+//  DATA — Characters
+// ════════════════════════════════════════════════
+const DEFAULT_CHARACTERS = [
+  {
+    id:'cyrene', name:'Cyrene', emoji:'🌸',
+    style:'playful',
+    color:'linear-gradient(135deg,#7c3aed,#e11d74)',
+    catchphrase:'頑張って！',
+    greetings:[
+      "おはよう！ Ready to learn some Japanese today? Let's go! ✨",
+      "Hey! You're back! 嬉しい！ I missed you. Let's study!",
+      "良い調子！ You're on a roll. Let's keep that streak going!",
+      "今日も頑張ろう！ Another day, another adventure in Japanese!",
+    ],
+    correct:["正解！ Nailed it! 🎉","That's right! You're getting so good at this!","完璧！ Perfect! Keep it up!","Yes!! I knew you'd get it! ✨"],
+    wrong:["Oops! Don't worry — mistakes are how we learn! 💪","Almost! Let's remember this one together.","It's okay! Even I had to study hard once upon a time 😄","がんばって！ You'll get it next time!"],
+    sessionStart:"Let's start! I'll be right here cheering you on 🌸",
+    quizStart:"Ooh a quiz! Show me what you've got! 頑張って！",
+    quizGood:"Wow, look at you go! 最高！ Amazing score!",
+    quizOk:"Not bad at all! A bit more practice and you'll be unstoppable 💪",
+    quizPoor:"It's fine! Everyone starts somewhere. Let's study more together 🌸",
+  }
+];
+
+// ════════════════════════════════════════════════
+//  DATA — Hiragana & Katakana
+// ════════════════════════════════════════════════
+const HIRAGANA = [
+  {kana:'あ',rom:'a'},{kana:'い',rom:'i'},{kana:'う',rom:'u'},{kana:'え',rom:'e'},{kana:'お',rom:'o'},
+  {kana:'か',rom:'ka'},{kana:'き',rom:'ki'},{kana:'く',rom:'ku'},{kana:'け',rom:'ke'},{kana:'こ',rom:'ko'},
+  {kana:'さ',rom:'sa'},{kana:'し',rom:'shi'},{kana:'す',rom:'su'},{kana:'せ',rom:'se'},{kana:'そ',rom:'so'},
+  {kana:'た',rom:'ta'},{kana:'ち',rom:'chi'},{kana:'つ',rom:'tsu'},{kana:'て',rom:'te'},{kana:'と',rom:'to'},
+  {kana:'な',rom:'na'},{kana:'に',rom:'ni'},{kana:'ぬ',rom:'nu'},{kana:'ね',rom:'ne'},{kana:'の',rom:'no'},
+  {kana:'は',rom:'ha'},{kana:'ひ',rom:'hi'},{kana:'ふ',rom:'fu'},{kana:'へ',rom:'he'},{kana:'ほ',rom:'ho'},
+  {kana:'ま',rom:'ma'},{kana:'み',rom:'mi'},{kana:'む',rom:'mu'},{kana:'め',rom:'me'},{kana:'も',rom:'mo'},
+  {kana:'や',rom:'ya'},{kana:'ゆ',rom:'yu'},{kana:'よ',rom:'yo'},
+  {kana:'ら',rom:'ra'},{kana:'り',rom:'ri'},{kana:'る',rom:'ru'},{kana:'れ',rom:'re'},{kana:'ろ',rom:'ro'},
+  {kana:'わ',rom:'wa'},{kana:'を',rom:'wo'},{kana:'ん',rom:'n'},
+];
+const KATAKANA = [
+  {kana:'ア',rom:'a'},{kana:'イ',rom:'i'},{kana:'ウ',rom:'u'},{kana:'エ',rom:'e'},{kana:'オ',rom:'o'},
+  {kana:'カ',rom:'ka'},{kana:'キ',rom:'ki'},{kana:'ク',rom:'ku'},{kana:'ケ',rom:'ke'},{kana:'コ',rom:'ko'},
+  {kana:'サ',rom:'sa'},{kana:'シ',rom:'shi'},{kana:'ス',rom:'su'},{kana:'セ',rom:'se'},{kana:'ソ',rom:'so'},
+  {kana:'タ',rom:'ta'},{kana:'チ',rom:'chi'},{kana:'ツ',rom:'tsu'},{kana:'テ',rom:'te'},{kana:'ト',rom:'to'},
+  {kana:'ナ',rom:'na'},{kana:'ニ',rom:'ni'},{kana:'ヌ',rom:'nu'},{kana:'ネ',rom:'ne'},{kana:'ノ',rom:'no'},
+  {kana:'ハ',rom:'ha'},{kana:'ヒ',rom:'hi'},{kana:'フ',rom:'fu'},{kana:'ヘ',rom:'he'},{kana:'ホ',rom:'ho'},
+  {kana:'マ',rom:'ma'},{kana:'ミ',rom:'mi'},{kana:'ム',rom:'mu'},{kana:'メ',rom:'me'},{kana:'モ',rom:'mo'},
+  {kana:'ヤ',rom:'ya'},{kana:'ユ',rom:'yu'},{kana:'ヨ',rom:'yo'},
+  {kana:'ラ',rom:'ra'},{kana:'リ',rom:'ri'},{kana:'ル',rom:'ru'},{kana:'レ',rom:'re'},{kana:'ロ',rom:'ro'},
+  {kana:'ワ',rom:'wa'},{kana:'ヲ',rom:'wo'},{kana:'ン',rom:'n'},
+];
+
+// ════════════════════════════════════════════════
+//  DATA — N5 Vocabulary (representative set, easily expandable)
+// ════════════════════════════════════════════════
+const VOCAB = [
+  // Greetings
+  {jp:'おはようございます',read:'ohayou gozaimasu',en:'Good morning (polite)',cat:'greeting',ex:'おはようございます、田中さん。Good morning, Mr. Tanaka.'},
+  {jp:'こんにちは',read:'konnichiwa',en:'Hello / Good afternoon',cat:'greeting',ex:'こんにちは！Hello!'},
+  {jp:'こんばんは',read:'konbanwa',en:'Good evening',cat:'greeting',ex:'こんばんは。Good evening.'},
+  {jp:'ありがとうございます',read:'arigatou gozaimasu',en:'Thank you (polite)',cat:'greeting',ex:'ありがとうございます！Thank you very much!'},
+  {jp:'すみません',read:'sumimasen',en:'Excuse me / Sorry',cat:'greeting',ex:'すみません、ちょっと。Excuse me, a moment.'},
+  {jp:'はい',read:'hai',en:'Yes',cat:'greeting',ex:'はい、そうです。Yes, that is right.'},
+  {jp:'いいえ',read:'iie',en:'No',cat:'greeting',ex:'いいえ、ちがいます。No, that is wrong.'},
+  {jp:'さようなら',read:'sayounara',en:'Goodbye',cat:'greeting',ex:'さようなら！Goodbye!'},
+  {jp:'よろしくお願いします',read:'yoroshiku onegaishimasu',en:'Nice to meet you / Please',cat:'greeting',ex:'よろしくお願いします。Nice to meet you.'},
+  {jp:'おやすみなさい',read:'oyasumi nasai',en:'Good night',cat:'greeting',ex:'おやすみなさい。Good night.'},
+  // Numbers
+  {jp:'いち',read:'ichi',en:'One (1)',cat:'number',ex:'いちまい。One sheet.'},
+  {jp:'に',read:'ni',en:'Two (2)',cat:'number',ex:'にほん。Two (long things).'},
+  {jp:'さん',read:'san',en:'Three (3)',cat:'number',ex:'さんにん。Three people.'},
+  {jp:'し／よん',read:'shi / yon',en:'Four (4)',cat:'number',ex:'よんじかん。Four hours.'},
+  {jp:'ご',read:'go',en:'Five (5)',cat:'number',ex:'ごふん。Five minutes.'},
+  {jp:'ろく',read:'roku',en:'Six (6)',cat:'number',ex:'ろくじ。6 o\'clock.'},
+  {jp:'なな／しち',read:'nana / shichi',en:'Seven (7)',cat:'number',ex:'しちがつ。July.'},
+  {jp:'はち',read:'hachi',en:'Eight (8)',cat:'number',ex:'はちじ。8 o\'clock.'},
+  {jp:'きゅう／く',read:'kyuu / ku',en:'Nine (9)',cat:'number',ex:'くがつ。September.'},
+  {jp:'じゅう',read:'juu',en:'Ten (10)',cat:'number',ex:'じゅうえん。Ten yen.'},
+  {jp:'ひゃく',read:'hyaku',en:'One hundred (100)',cat:'number',ex:'ひゃくえん。100 yen.'},
+  {jp:'せん',read:'sen',en:'One thousand (1000)',cat:'number',ex:'せんえん。1000 yen.'},
+  // Time
+  {jp:'いま',read:'ima',en:'Now',cat:'time',ex:'いまなんじですか。What time is it now?'},
+  {jp:'きょう',read:'kyou',en:'Today',cat:'time',ex:'きょうはなんにちですか。What date is today?'},
+  {jp:'あした',read:'ashita',en:'Tomorrow',cat:'time',ex:'あしたあいましょう。Let\'s meet tomorrow.'},
+  {jp:'きのう',read:'kinou',en:'Yesterday',cat:'time',ex:'きのうえいがをみました。I watched a movie yesterday.'},
+  {jp:'まいにち',read:'mainichi',en:'Every day',cat:'time',ex:'まいにちべんきょうします。I study every day.'},
+  {jp:'あさ',read:'asa',en:'Morning',cat:'time',ex:'あさごはんをたべます。I eat breakfast in the morning.'},
+  {jp:'ひる',read:'hiru',en:'Noon / Daytime',cat:'time',ex:'ひるごはん。Lunch.'},
+  {jp:'よる',read:'yoru',en:'Night / Evening',cat:'time',ex:'よるおそくまでべんきょうします。I study until late at night.'},
+  // Nouns - People
+  {jp:'ひと',read:'hito',en:'Person',cat:'noun',ex:'あのひとはだれですか。Who is that person?'},
+  {jp:'わたし',read:'watashi',en:'I / Me',cat:'noun',ex:'わたしはがくせいです。I am a student.'},
+  {jp:'あなた',read:'anata',en:'You',cat:'noun',ex:'あなたのなまえはなんですか。What is your name?'},
+  {jp:'かれ',read:'kare',en:'He / Him',cat:'noun',ex:'かれはせんせいです。He is a teacher.'},
+  {jp:'かのじょ',read:'kanojo',en:'She / Her',cat:'noun',ex:'かのじょはがくせいです。She is a student.'},
+  {jp:'ともだち',read:'tomodachi',en:'Friend',cat:'noun',ex:'わたしのともだちはやさしいです。My friend is kind.'},
+  {jp:'せんせい',read:'sensei',en:'Teacher',cat:'noun',ex:'せんせいはにほんじんです。The teacher is Japanese.'},
+  {jp:'がくせい',read:'gakusei',en:'Student',cat:'noun',ex:'わたしはがくせいです。I am a student.'},
+  // Nouns - Places
+  {jp:'がっこう',read:'gakkou',en:'School',cat:'noun',ex:'まいにちがっこうへいきます。I go to school every day.'},
+  {jp:'うち／いえ',read:'uchi / ie',en:'House / Home',cat:'noun',ex:'いえにかえります。I return home.'},
+  {jp:'みせ',read:'mise',en:'Shop / Store',cat:'noun',ex:'みせでかいます。I buy it at the store.'},
+  {jp:'えき',read:'eki',en:'Train station',cat:'noun',ex:'えきのちかくにすんでいます。I live near the station.'},
+  {jp:'としょかん',read:'toshokan',en:'Library',cat:'noun',ex:'としょかんでほんをよみます。I read books at the library.'},
+  {jp:'びょういん',read:'byouin',en:'Hospital',cat:'noun',ex:'びょういんへいきます。I go to the hospital.'},
+  // Nouns - Food
+  {jp:'たべもの',read:'tabemono',en:'Food',cat:'noun',ex:'にほんのたべものがすきです。I like Japanese food.'},
+  {jp:'のみもの',read:'nomimono',en:'Drink',cat:'noun',ex:'なんかのみものはありますか。Do you have any drinks?'},
+  {jp:'みず',read:'mizu',en:'Water',cat:'noun',ex:'みずをのみます。I drink water.'},
+  {jp:'ごはん',read:'gohan',en:'Rice / Meal',cat:'noun',ex:'ごはんをたべます。I eat rice / a meal.'},
+  {jp:'パン',read:'pan',en:'Bread',cat:'noun',ex:'パンをかいます。I buy bread.'},
+  // Verbs
+  {jp:'たべる',read:'taberu',en:'To eat',cat:'verb',ex:'りんごをたべます。I eat an apple.'},
+  {jp:'のむ',read:'nomu',en:'To drink',cat:'verb',ex:'みずをのみます。I drink water.'},
+  {jp:'みる',read:'miru',en:'To see / watch',cat:'verb',ex:'えいがをみます。I watch a movie.'},
+  {jp:'きく',read:'kiku',en:'To listen / hear',cat:'verb',ex:'おんがくをききます。I listen to music.'},
+  {jp:'よむ',read:'yomu',en:'To read',cat:'verb',ex:'ほんをよみます。I read a book.'},
+  {jp:'かく',read:'kaku',en:'To write',cat:'verb',ex:'てがみをかきます。I write a letter.'},
+  {jp:'はなす',read:'hanasu',en:'To speak / talk',cat:'verb',ex:'にほんごをはなします。I speak Japanese.'},
+  {jp:'いく',read:'iku',en:'To go',cat:'verb',ex:'がっこうへいきます。I go to school.'},
+  {jp:'くる',read:'kuru',en:'To come',cat:'verb',ex:'うちにきます。I come to the house.'},
+  {jp:'かえる',read:'kaeru',en:'To return',cat:'verb',ex:'いえにかえります。I return home.'},
+  {jp:'かう',read:'kau',en:'To buy',cat:'verb',ex:'パンをかいます。I buy bread.'},
+  {jp:'わかる',read:'wakaru',en:'To understand',cat:'verb',ex:'にほんごがわかります。I understand Japanese.'},
+  {jp:'する',read:'suru',en:'To do',cat:'verb',ex:'べんきょうをします。I study (lit. do studying).'},
+  {jp:'ある',read:'aru',en:'To exist (inanimate)',cat:'verb',ex:'ほんがあります。There is a book.'},
+  {jp:'いる',read:'iru',en:'To exist (animate)',cat:'verb',ex:'ねこがいます。There is a cat.'},
+  // Adjectives
+  {jp:'おおきい',read:'ookii',en:'Big / Large',cat:'adj',ex:'おおきいいえ。A big house.'},
+  {jp:'ちいさい',read:'chiisai',en:'Small / Little',cat:'adj',ex:'ちいさいねこ。A small cat.'},
+  {jp:'あたらしい',read:'atarashii',en:'New',cat:'adj',ex:'あたらしいほん。A new book.'},
+  {jp:'ふるい',read:'furui',en:'Old (things)',cat:'adj',ex:'ふるいくるま。An old car.'},
+  {jp:'いい／よい',read:'ii / yoi',en:'Good',cat:'adj',ex:'いいてんきですね。Good weather, isn\'t it?'},
+  {jp:'わるい',read:'warui',en:'Bad',cat:'adj',ex:'わるいてんきですね。Bad weather, isn\'t it?'},
+  {jp:'たかい',read:'takai',en:'Expensive / Tall',cat:'adj',ex:'たかいたてもの。A tall building.'},
+  {jp:'やすい',read:'yasui',en:'Cheap / Inexpensive',cat:'adj',ex:'やすいくだもの。Cheap fruit.'},
+  {jp:'おいしい',read:'oishii',en:'Delicious',cat:'adj',ex:'このりょうりはおいしいです。This dish is delicious.'},
+  {jp:'かわいい',read:'kawaii',en:'Cute',cat:'adj',ex:'かわいいねこですね。What a cute cat.'},
+  {jp:'きれいな',read:'kirei na',en:'Beautiful / Clean',cat:'adj',ex:'きれいなはな。Beautiful flowers.'},
+  {jp:'しずかな',read:'shizuka na',en:'Quiet / Calm',cat:'adj',ex:'しずかなまち。A quiet town.'},
+];
+
+// ════════════════════════════════════════════════
+//  DATA — N5 Grammar Patterns
+// ════════════════════════════════════════════════
+const GRAMMAR = [
+  {
+    pattern:'〜は〜です',eng:'[Topic] is [noun/adj]',level:'N5',
+    rule:'The は (wa) particle marks the topic of the sentence. です (desu) acts as "is/am/are" at the end of a sentence. This is the most fundamental Japanese sentence structure.',
+    examples:[
+      {jp:'わたしはがくせいです。',read:'Watashi wa gakusei desu.',en:'I am a student.'},
+      {jp:'これはほんです。',read:'Kore wa hon desu.',en:'This is a book.'},
+      {jp:'かれはせんせいです。',read:'Kare wa sensei desu.',en:'He is a teacher.'},
+    ]
+  },
+  {
+    pattern:'〜が好きです／嫌いです',eng:'I like/dislike [noun]',level:'N5',
+    rule:'が (ga) is used with 好き (suki = like) and 嫌い (kirai = dislike). The thing you like or dislike is marked with が, not を.',
+    examples:[
+      {jp:'すしがすきです。',read:'Sushi ga suki desu.',en:'I like sushi.'},
+      {jp:'にほんごがすきです。',read:'Nihongo ga suki desu.',en:'I like Japanese.'},
+      {jp:'からいたべものがきらいです。',read:'Karai tabemono ga kirai desu.',en:'I dislike spicy food.'},
+    ]
+  },
+  {
+    pattern:'〜を〜ます',eng:'[Subject] does [verb] to [object]',level:'N5',
+    rule:'を (wo/o) marks the direct object of a verb — the thing that receives the action. Verb stems + ます (masu) make polite present/future tense.',
+    examples:[
+      {jp:'ほんをよみます。',read:'Hon wo yomimasu.',en:'I read a book.'},
+      {jp:'みずをのみます。',read:'Mizu wo nomimasu.',en:'I drink water.'},
+      {jp:'にほんごをべんきょうします。',read:'Nihongo wo benkyou shimasu.',en:'I study Japanese.'},
+    ]
+  },
+  {
+    pattern:'〜に行きます／来ます',eng:'Go/come to [place]',level:'N5',
+    rule:'に (ni) marks the destination when used with movement verbs like 行く (iku = go) and 来る (kuru = come). Think of it as "toward" a place.',
+    examples:[
+      {jp:'がっこうにいきます。',read:'Gakkou ni ikimasu.',en:'I go to school.'},
+      {jp:'にほんにきます。',read:'Nihon ni kimasu.',en:'I come to Japan.'},
+      {jp:'うちにかえります。',read:'Uchi ni kaerimasu.',en:'I return home.'},
+    ]
+  },
+  {
+    pattern:'〜で〜ます',eng:'Do [verb] at/by [place/means]',level:'N5',
+    rule:'で (de) marks the place where an action occurs, or the means/tool used for an action. Different from に which shows destination.',
+    examples:[
+      {jp:'としょかんでほんをよみます。',read:'Toshokan de hon wo yomimasu.',en:'I read books at the library.'},
+      {jp:'バスでいきます。',read:'Basu de ikimasu.',en:'I go by bus.'},
+      {jp:'はしでたべます。',read:'Hashi de tabemasu.',en:'I eat with chopsticks.'},
+    ]
+  },
+  {
+    pattern:'〜も',eng:'[Also/too]',level:'N5',
+    rule:'も (mo) replaces は or が to mean "also" or "too". It adds the marked item to a previously mentioned group or statement.',
+    examples:[
+      {jp:'わたしもがくせいです。',read:'Watashi mo gakusei desu.',en:'I am also a student.'},
+      {jp:'すしもさしみもすきです。',read:'Sushi mo sashimi mo suki desu.',en:'I like both sushi and sashimi.'},
+    ]
+  },
+  {
+    pattern:'〜ない (negative)',eng:'Do not [verb]',level:'N5',
+    rule:'To make a verb negative in plain form, change the final う sound to あ + ない. For polite speech, replace ます with ません (masen).',
+    examples:[
+      {jp:'わかりません。',read:'Wakarimasen.',en:'I do not understand.'},
+      {jp:'たべません。',read:'Tabemasen.',en:'I do not eat.'},
+      {jp:'にほんごをはなさない。',read:'Nihongo wo hanasanai.',en:'I don\'t speak Japanese. (casual)'},
+    ]
+  },
+  {
+    pattern:'〜ましたか (past question)',eng:'Did you [verb]?',level:'N5',
+    rule:'ました (mashita) is the polite past tense. Adding か (ka) at the end makes it a question. Japanese questions don\'t change word order — just add か.',
+    examples:[
+      {jp:'たべましたか。',read:'Tabemashita ka.',en:'Did you eat?'},
+      {jp:'もうみましたか。',read:'Mou mimashita ka.',en:'Have you already seen it?'},
+      {jp:'にほんにいきましたか。',read:'Nihon ni ikimashita ka.',en:'Did you go to Japan?'},
+    ]
+  },
+  {
+    pattern:'〜たい',eng:'Want to [verb]',level:'N5',
+    rule:'Attach たい (tai) to the verb stem (remove ます) to express desire to do something. たい conjugates like an い-adjective.',
+    examples:[
+      {jp:'にほんごをはなしたいです。',read:'Nihongo wo hanashitai desu.',en:'I want to speak Japanese.'},
+      {jp:'にほんにいきたい。',read:'Nihon ni ikitai.',en:'I want to go to Japan.'},
+      {jp:'すしをたべたいです。',read:'Sushi wo tabetai desu.',en:'I want to eat sushi.'},
+    ]
+  },
+  {
+    pattern:'〜てください',eng:'Please do [verb]',level:'N5',
+    rule:'て form of verb + ください (kudasai) is a polite request. The て-form is a connector form. For Group 1 verbs: replace final う with って/いて etc.',
+    examples:[
+      {jp:'みてください。',read:'Mite kudasai.',en:'Please look / watch.'},
+      {jp:'ちょっとまってください。',read:'Chotto matte kudasai.',en:'Please wait a moment.'},
+      {jp:'ゆっくりはなしてください。',read:'Yukkuri hanashite kudasai.',en:'Please speak slowly.'},
+    ]
+  },
+  {
+    pattern:'〜ています',eng:'Is doing / is in a state of',level:'N5',
+    rule:'て form + います (imasu) indicates an ongoing action or a resulting state. Like English "-ing" but also used for states (e.g. wearing, being married).',
+    examples:[
+      {jp:'いまたべています。',read:'Ima tabete imasu.',en:'I am eating now.'},
+      {jp:'にほんごをべんきょうしています。',read:'Nihongo wo benkyou shite imasu.',en:'I am studying Japanese.'},
+      {jp:'かれはけっこんしています。',read:'Kare wa kekkon shite imasu.',en:'He is married.'},
+    ]
+  },
+  {
+    pattern:'〜から〜まで',eng:'From [X] to/until [Y]',level:'N5',
+    rule:'から (kara) = from. まで (made) = until/to. Used for both time ranges and physical distances.',
+    examples:[
+      {jp:'くじからごじまではたらきます。',read:'Ku-ji kara go-ji made hatarakimasu.',en:'I work from 9 to 5.'},
+      {jp:'えきからうちまであるきます。',read:'Eki kara uchi made arukimasu.',en:'I walk from the station to home.'},
+    ]
+  },
+  {
+    pattern:'〜と〜',eng:'[A] and [B] (exhaustive list)',level:'N5',
+    rule:'と (to) connects nouns in an exhaustive list, meaning "A and B (and that\'s it)". Different from や (ya) which means "A and B (among others)".',
+    examples:[
+      {jp:'パンとたまごをかいました。',read:'Pan to tamago wo kaimashita.',en:'I bought bread and eggs (and nothing else).'},
+      {jp:'いぬとねこがいます。',read:'Inu to neko ga imasu.',en:'There is a dog and a cat.'},
+    ]
+  },
+  {
+    pattern:'〜が あります／います',eng:'There is [object]',level:'N5',
+    rule:'あります (arimasu) is used for inanimate objects. います (imasu) is used for animate beings (people, animals). The subject is marked with が.',
+    examples:[
+      {jp:'つくえのうえにほんがあります。',read:'Tsukue no ue ni hon ga arimasu.',en:'There is a book on the desk.'},
+      {jp:'こうえんにこどもがいます。',read:'Kouen ni kodomo ga imasu.',en:'There are children in the park.'},
+    ]
+  },
+  {
+    pattern:'〜ましょう',eng:'Let\'s [verb]',level:'N5',
+    rule:'Replace ます (masu) with ましょう (mashou) to suggest doing something together. It\'s a warm, friendly invitation.',
+    examples:[
+      {jp:'たべましょう！',read:'Tabemashou!',en:'Let\'s eat!'},
+      {jp:'いっしょにいきましょう。',read:'Issho ni ikimashou.',en:'Let\'s go together.'},
+      {jp:'にほんごをれんしゅうしましょう。',read:'Nihongo wo renshuu shimashou.',en:'Let\'s practice Japanese.'},
+    ]
+  },
+];
+
+// ════════════════════════════════════════════════
+//  DATA — Reading Passages
+// ════════════════════════════════════════════════
+const PASSAGES = [
+  {
+    id:'intro',
+    title:'はじめまして — Nice to Meet You',
+    level:'N5',
+    text:[
+      {jp:'わたし',read:'watashi',en:'I'},{jp:'は',read:'wa',en:'(topic marker)'},
+      {jp:'たなか',read:'Tanaka',en:'Tanaka'},{jp:'です。',read:'desu.',en:'am.'},
+      ' ',
+      {jp:'にほんじん',read:'Nihonjin',en:'Japanese person'},{jp:'です。',read:'desu.',en:'I am Japanese.'},
+      ' ',
+      {jp:'とうきょう',read:'Tōkyō',en:'Tokyo'},{jp:'に',read:'ni',en:'in'},{jp:'すんでいます。',read:'sunde imasu.',en:'I live.'},
+      '\n',
+      {jp:'まいにち',read:'mainichi',en:'every day'},{jp:'がっこう',read:'gakkou',en:'school'},{jp:'で',read:'de',en:'at'},
+      {jp:'にほんご',read:'nihongo',en:'Japanese'},{jp:'を',read:'wo',en:'(object marker)'},
+      {jp:'べんきょうします。',read:'benkyou shimasu.',en:'I study.'},
+      ' ',
+      {jp:'にほんご',read:'nihongo',en:'Japanese'},{jp:'は',read:'wa',en:'(topic)'},{jp:'むずかしい',read:'muzukashii',en:'difficult'},{jp:'ですが、',read:'desu ga,',en:'is, but'},
+      {jp:'たのしい',read:'tanoshii',en:'fun'},{jp:'です。',read:'desu.',en:'it is.'},
+    ],
+    questions:[
+      {q:'Where does Tanaka live?',opts:['Tokyo','Osaka','Kyoto','Nara'],ans:0,explain:'「とうきょうにすんでいます」means "I live in Tokyo".'},
+      {q:'What does Tanaka study?',opts:['English','Chinese','Japanese','Korean'],ans:2,explain:'「にほんごをべんきょうします」means "I study Japanese".'},
+      {q:'How does Tanaka feel about Japanese?',opts:['Easy and boring','Difficult but fun','Easy and fun','Difficult and boring'],ans:1,explain:'「むずかしいですが、たのしいです」means "It is difficult, but fun".'},
+    ]
+  },
+  {
+    id:'weather',
+    title:'てんき — The Weather',
+    level:'N5',
+    text:[
+      {jp:'きょう',read:'kyou',en:'today'},{jp:'は',read:'wa',en:'(topic)'},{jp:'いい',read:'ii',en:'good'},{jp:'てんき',read:'tenki',en:'weather'},{jp:'です。',read:'desu.',en:'It is.'},
+      ' ',
+      {jp:'そと',read:'soto',en:'outside'},{jp:'は',read:'wa',en:'(topic)'},{jp:'あたたかい',read:'atatakai',en:'warm'},{jp:'です。',read:'desu.',en:'It is.'},
+      '\n',
+      {jp:'わたし',read:'watashi',en:'I'},{jp:'は',read:'wa',en:'(topic)'},{jp:'こうえん',read:'kouen',en:'park'},{jp:'で',read:'de',en:'at'},
+      {jp:'さんぽ',read:'sanpo',en:'walk'},{jp:'を',read:'wo',en:'(object)'},{jp:'します。',read:'shimasu.',en:'I will go for a walk.'},
+    ],
+    questions:[
+      {q:'What is the weather like today?',opts:['Rainy','Cold','Good / Fine','Cloudy'],ans:2,explain:'「いいてんきです」means "the weather is good".'},
+      {q:'Where will the narrator go?',opts:['The library','The station','The school','The park'],ans:3,explain:'「こうえんでさんぽをします」means "I will take a walk in the park".'},
+    ]
+  },
+  {
+    id:'food',
+    title:'レストランで — At the Restaurant',
+    level:'N5',
+    text:[
+      {jp:'レストラン',read:'resutoran',en:'restaurant'},{jp:'で',read:'de',en:'at'},{jp:'ひるごはん',read:'hirugohan',en:'lunch'},{jp:'を',read:'wo',en:'(object)'},{jp:'たべます。',read:'tabemasu.',en:'I eat.'},
+      '\n',
+      {jp:'メニュー',read:'menyuu',en:'menu'},{jp:'を',read:'wo',en:'(object)'},{jp:'みます。',read:'mimasu.',en:'I look at the menu.'},
+      ' ',
+      {jp:'すし',read:'sushi',en:'sushi'},{jp:'が',read:'ga',en:'(subject)'},{jp:'おいしそう',read:'oishisou',en:'looks delicious'},{jp:'です。',read:'desu.',en:'It does.'},
+      '\n',
+      {jp:'てんいん',read:'ten\'in',en:'staff member'},{jp:'に',read:'ni',en:'to'},{jp:'「すみません！',read:'Sumimasen!',en:'Excuse me!'},
+      {jp:'すしをひとつ',read:'sushi wo hitotsu',en:'one sushi'},{jp:'ください」',read:'kudasai',en:'please'},
+      {jp:'といいます。',read:'to iimasu.',en:'I say.'},
+    ],
+    questions:[
+      {q:'What meal is being eaten?',opts:['Breakfast','Lunch','Dinner','Snack'],ans:1,explain:'「ひるごはん」means "lunch".'},
+      {q:'What does the narrator order?',opts:['Ramen','Tempura','Sushi','Bread'],ans:2,explain:'「すしをひとつください」means "one sushi please".'},
+    ]
+  },
+];
+
+// ════════════════════════════════════════════════
+//  STATE
+// ════════════════════════════════════════════════
+let state = {
+  xp: 0,
+  level: 1,
+  streak: 0,
+  lastStudyDate: null,
+  reviewedToday: 0,
+  correctToday: 0,
+  totalToday: 0,
+  characters: JSON.parse(JSON.stringify(DEFAULT_CHARACTERS)),
+  activeCharacter: 'cyrene',
+  kanaProgress: {},    // kana.rom -> {correct,wrong,interval,nextReview}
+  vocabProgress: {},   // vocab index -> {correct,wrong,interval,nextReview,ease}
+  sessionQueue: [],
+  sessionIndex: 0,
+  sessionRevealed: false,
+  kqIndex: 0, kqScore: 0, kqTotal: 0,
+  kqSet: [],
+  quizType: null,
+  quizQuestions: [],
+  quizIndex: 0,
+  quizScore: 0,
+};
+
+function loadState(){
+  try{const s=localStorage.getItem('nihongo_state');if(s){const p=JSON.parse(s);Object.assign(state,p);}}catch(e){}
+}
+function saveState(){
+  try{localStorage.setItem('nihongo_state',JSON.stringify(state));}catch(e){}
+}
+loadState();
+checkStreak();
+
+// ════════════════════════════════════════════════
+//  SRS ENGINE
+// ════════════════════════════════════════════════
+const SRS_INTERVALS = [0, 600000, 86400000, 345600000]; // again, hard, good, easy (ms)
+
+function getSrsNext(progress, rating) {
+  const ease = progress.ease || 2.5;
+  if (rating === 0) return { interval: 60000, ease: Math.max(1.3, ease - 0.2), nextReview: Date.now() + 60000 };
+  if (rating === 1) return { interval: 600000, ease: Math.max(1.3, ease - 0.15), nextReview: Date.now() + 600000 };
+  const interval = rating === 3 ? (progress.interval || 86400000) * ease * 1.3
+                                : (progress.interval || 86400000) * ease;
+  return { interval, ease: Math.min(3.0, ease + (rating === 3 ? 0.15 : 0)), nextReview: Date.now() + interval };
+}
+
+function getDueVocab() {
+  const now = Date.now();
+  return VOCAB.map((v,i) => ({v,i}))
+    .filter(({i}) => {
+      const p = state.vocabProgress[i];
+      if (!p) return true; // new card
+      return p.nextReview <= now;
+    })
+    .slice(0, parseInt(document.getElementById('cards-per-session')?.value||20));
+}
+
+function getDueKana(set) {
+  const now = Date.now();
+  return set.filter(k => {
+    const p = state.kanaProgress[k.rom];
+    if (!p) return true;
+    return p.nextReview <= now;
+  });
+}
+
+// ════════════════════════════════════════════════
+//  NAVIGATION
+// ════════════════════════════════════════════════
+const PAGES = ['home','kana','vocab','grammar','reading','quiz','settings'];
+const PAGE_TITLES = {
+  home:'おはよう！ Welcome back', kana:'Kana Mastery', vocab:'Vocabulary',
+  grammar:'Grammar Patterns', reading:'Reading Practice', quiz:'JLPT Quiz', settings:'Settings'
+};
+const PAGE_SUBS = {
+  home:'N5 • Beginner', kana:'Hiragana & Katakana', vocab:'N5 Core Vocabulary',
+  grammar:'N5 Grammar', reading:'N5 Reading', quiz:'Practice Tests', settings:'Preferences'
+};
+
+function navigate(page) {
+  PAGES.forEach(p => {
+    document.getElementById('page-'+p).classList.toggle('active', p === page);
+    const nb = document.getElementById('nav-'+p);
+    if(nb) nb.classList.toggle('active', p === page);
+  });
+  document.getElementById('topbar-title').textContent = PAGE_TITLES[page];
+  document.getElementById('topbar-sub').textContent = PAGE_SUBS[page];
+  if (page === 'home') renderHome();
+  if (page === 'kana') renderKanaGrid();
+  if (page === 'vocab') initVocabSession();
+  if (page === 'grammar') renderGrammar();
+  if (page === 'reading') renderPassageList();
+  if (page === 'settings') renderSettings();
+}
+
+// ════════════════════════════════════════════════
+//  CHARACTER SYSTEM
+// ════════════════════════════════════════════════
+function getChar() {
+  return state.characters.find(c=>c.id===state.activeCharacter) || state.characters[0];
+}
+function charSay(key) {
+  const c = getChar();
+  if (!c[key]) return c.catchphrase || '頑張って！';
+  if (Array.isArray(c[key])) return c[key][Math.floor(Math.random()*c[key].length)];
+  return c[key];
+}
+function setCyrenMsg(msg) {
+  const el = document.getElementById('cyrene-msg');
+  if (el) el.innerHTML = msg;
+}
+
+// ════════════════════════════════════════════════
+//  HOME PAGE
+// ════════════════════════════════════════════════
+function renderHome() {
+  const c = getChar();
+  const avatar = document.querySelector('.cyrene-avatar');
+  if(avatar) avatar.textContent = c.emoji;
+  setCyrenMsg(charSay('greetings'));
+
+  const due = getDueVocab().length;
+  const mastered = Object.values(state.vocabProgress).filter(p=>p.interval>3000000).length;
+  const acc = state.totalToday > 0 ? Math.round((state.correctToday/state.totalToday)*100) : 0;
+
+  document.getElementById('stat-reviewed').textContent = state.reviewedToday;
+  document.getElementById('stat-correct').textContent = acc + '%';
+  document.getElementById('stat-due').textContent = due;
+  document.getElementById('stat-mastered').textContent = mastered;
+
+  const hMastered = Object.entries(state.kanaProgress).filter(([k,v])=>HIRAGANA.some(h=>h.rom===k) && v.correct>=3).length;
+  const kMastered = Object.entries(state.kanaProgress).filter(([k,v])=>KATAKANA.some(k2=>k2.rom===k) && v.correct>=3).length;
+  document.getElementById('hp-label').textContent = hMastered+' / 46';
+  document.getElementById('kp-label').textContent = kMastered+' / 46';
+  document.getElementById('hp-bar').style.width = Math.round(hMastered/46*100)+'%';
+  document.getElementById('kp-bar').style.width = Math.round(kMastered/46*100)+'%';
+
+  const dueCt = getDueKana([...HIRAGANA,...KATAKANA]).length;
+  document.getElementById('mc-kana').textContent = dueCt > 0 ? dueCt+' due for review' : 'All caught up!';
+  updateXP();
+}
+
+// ════════════════════════════════════════════════
+//  XP & STREAK
+// ════════════════════════════════════════════════
+function addXP(amount) {
+  state.xp += amount;
+  state.level = Math.floor(state.xp / 200) + 1;
+  updateXP();
+  saveState();
+}
+
+function updateXP() {
+  const lvl = state.level;
+  const xpInLevel = state.xp % 200;
+  const pct = xpInLevel / 200;
+  const circumference = 2 * Math.PI * 16;
+  const offset = circumference * (1 - pct);
+  const arc = document.getElementById('xp-arc');
+  if(arc) arc.style.strokeDashoffset = offset;
+  const lvlEl = document.getElementById('level-num');
+  if(lvlEl) lvlEl.textContent = lvl;
+  const xpEl = document.getElementById('xp-count');
+  if(xpEl) xpEl.textContent = state.xp;
+  const strEl = document.getElementById('streak-count');
+  if(strEl) strEl.textContent = state.streak;
+}
+
+function checkStreak() {
+  const today = new Date().toDateString();
+  if (state.lastStudyDate !== today) {
+    const yesterday = new Date(Date.now()-86400000).toDateString();
+    if (state.lastStudyDate === yesterday) state.streak++;
+    else if (state.lastStudyDate !== today) state.streak = state.lastStudyDate ? 0 : 0;
+    state.lastStudyDate = today;
+    saveState();
+  }
+}
+
+// ════════════════════════════════════════════════
+//  KANA
+// ════════════════════════════════════════════════
+let kanaTab = 'hiragana';
+
+function renderKanaGrid() {
+  renderKanaSet('hiragana', HIRAGANA, document.getElementById('kana-hiragana-content'));
+  renderKanaSet('katakana', KATAKANA, document.getElementById('kana-katakana-content'));
+}
+
+function renderKanaSet(type, set, container) {
+  if (!container) return;
+  const p = state.kanaProgress;
+  let html = `<div style="margin-bottom:14px;font-size:13px;color:var(--ink3)">
+    Click any character to study it. <span style="color:var(--green);font-weight:500">■</span> Mastered &nbsp;
+    <span style="color:var(--gold);font-weight:500">■</span> Learning &nbsp;
+    <span style="color:var(--ink3);font-weight:500">■</span> Not started
+  </div>
+  <div class="kana-grid">`;
+  set.forEach(k => {
+    const prog = p[type+'-'+k.rom] || p[k.rom] || {};
+    const cls = prog.correct >= 3 ? 'mastered' : prog.correct >= 1 ? 'learning' : '';
+    html += `<div class="kana-cell ${cls}" onclick="showKanaDetail('${k.kana}','${k.rom}','${type}')">
+      <div class="kana-char">${k.kana}</div>
+      <div class="kana-rom">${k.rom}</div>
+    </div>`;
+  });
+  html += '</div>';
+  html += `<button class="btn btn-primary" onclick="startKanaQuiz('${type}')" style="margin-top:8px">Quiz this set →</button>`;
+  container.innerHTML = html;
+}
+
+function showKanaDetail(kana, rom, type) {
+  // Flash the cell with a quick animation
+  const existing = document.getElementById('kana-detail-modal');
+  if(existing) existing.remove();
+  const div = document.createElement('div');
+  div.id = 'kana-detail-modal';
+  div.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:200;display:flex;align-items:center;justify-content:center';
+  div.innerHTML=`<div style="background:var(--card);border-radius:20px;padding:36px;text-align:center;max-width:280px;width:90%;position:relative">
+    <button onclick="this.closest('#kana-detail-modal').remove()" style="position:absolute;top:12px;right:14px;background:none;border:none;font-size:18px;cursor:pointer;color:var(--ink3)">✕</button>
+    <div style="font-family:var(--ffj);font-size:80px;line-height:1.1;margin-bottom:8px">${kana}</div>
+    <div style="font-size:22px;font-weight:600;color:var(--plum);margin-bottom:4px">${rom}</div>
+    <div style="font-size:13px;color:var(--ink3);margin-bottom:20px">${type}</div>
+    <button class="btn btn-primary" onclick="this.closest('#kana-detail-modal').remove();startKanaQuizSingle('${kana}','${rom}','${type}')">Practice this →</button>
+  </div>`;
+  div.addEventListener('click',e=>{if(e.target===div)div.remove();});
+  document.body.appendChild(div);
+}
+
+function switchKanaTab(tab, btn) {
+  kanaTab = tab;
+  document.querySelectorAll('#kana-tabs .tab').forEach(t=>t.classList.remove('active'));
+  btn.classList.add('active');
+  ['hiragana','katakana','quiz'].forEach(t => {
+    const el = document.getElementById('kana-'+t+'-content');
+    if(el) el.classList.toggle('hidden', t !== tab);
+  });
+  if (tab === 'quiz') startKanaQuiz(null);
+}
+
+let kqSet=[], kqIdx=0, kqScore=0;
+function startKanaQuiz(type) {
+  const set = type === 'hiragana' ? HIRAGANA : type === 'katakana' ? KATAKANA : [...HIRAGANA,...KATAKANA];
+  kqSet = shuffle([...set]);
+  kqIdx = 0; kqScore = 0;
+  renderKanaQuestion();
+}
+
+function startKanaQuizSingle(kana, rom, type) {
+  switchKanaTab('quiz', document.querySelectorAll('#kana-tabs .tab')[2]);
+  kqSet = shuffle([...(type==='hiragana'?HIRAGANA:KATAKANA)]);
+  // Put this one first
+  kqSet = [kqSet.find(k=>k.rom===rom)||kqSet[0], ...kqSet.filter(k=>k.rom!==rom)];
+  kqIdx=0; kqScore=0;
+  renderKanaQuestion();
+}
+
+function renderKanaQuestion() {
+  if (kqIdx >= kqSet.length) {
+    document.getElementById('kq-char').textContent='🎉';
+    document.getElementById('kq-prompt').textContent='Complete! Score: '+kqScore+'/'+kqSet.length;
+    document.getElementById('kq-options').innerHTML=`<button class="btn btn-primary" onclick="startKanaQuiz(null)" style="grid-column:span 4">Play Again</button>`;
+    document.getElementById('kq-score').textContent='';
+    return;
+  }
+  const q = kqSet[kqIdx];
+  document.getElementById('kq-char').textContent = q.kana;
+  document.getElementById('kq-prompt').textContent = 'What is the romaji for this character?';
+  document.getElementById('kq-score').textContent = 'Score: '+kqScore+'/'+kqIdx;
+  document.getElementById('kq-feedback').style.display='none';
+
+  const allRom = [...new Set([...HIRAGANA,...KATAKANA].map(k=>k.rom))];
+  const wrong = shuffle(allRom.filter(r=>r!==q.rom)).slice(0,3);
+  const opts = shuffle([q.rom, ...wrong]);
+  document.getElementById('kq-options').innerHTML = opts.map(o =>
+    `<div class="kana-opt" onclick="checkKanaOpt(this,'${o}','${q.rom}','${q.kana}')">${o}</div>`
+  ).join('');
+}
+
+function checkKanaOpt(el, chosen, correct, kana) {
+  document.querySelectorAll('.kana-opt').forEach(o=>{o.classList.add('disabled');o.style.pointerEvents='none';});
+  const progressKey = correct;
+  const prog = state.kanaProgress[progressKey] || {correct:0,wrong:0};
+  if (chosen === correct) {
+    el.classList.add('correct');
+    prog.correct = (prog.correct||0)+1;
+    kqScore++;
+    addXP(5);
+    const fb = document.getElementById('kq-feedback');
+    fb.style.display='block';fb.style.background='var(--green3)';fb.style.color='var(--green)';fb.style.borderRadius='var(--r)';fb.style.padding='10px 14px';
+    fb.textContent = charSay('correct') + ' ✓ '+kana+' = '+correct;
+  } else {
+    el.classList.add('wrong');
+    document.querySelectorAll('.kana-opt').forEach(o=>{if(o.textContent===correct)o.classList.add('correct');});
+    prog.wrong = (prog.wrong||0)+1;
+    const fb = document.getElementById('kq-feedback');
+    fb.style.display='block';fb.style.background='var(--red3)';fb.style.color='var(--red)';fb.style.borderRadius='var(--r)';fb.style.padding='10px 14px';
+    fb.textContent = charSay('wrong') + ' — '+kana+' is "'+correct+'"';
+  }
+  state.kanaProgress[progressKey] = prog;
+  saveState();
+  setTimeout(()=>{kqIdx++;renderKanaQuestion();},1400);
+}
+
+// ════════════════════════════════════════════════
+//  VOCAB FLASHCARDS (SRS)
+// ════════════════════════════════════════════════
+let sessionQueue=[], sessionIdx=0, sessionRevealed=false;
+
+function initVocabSession() {
+  const due = getDueVocab();
+  sessionQueue = due.map(({v,i})=>({...v,idx:i}));
+  if (sessionQueue.length === 0) {
+    // Show all-done state
+    document.getElementById('flashcard').style.display='none';
+    document.getElementById('fc-back').classList.add('hidden');
+    document.getElementById('fc-done').classList.remove('hidden');
+    document.getElementById('deck-progress') && (document.getElementById('deck-progress').style.display='none');
+    return;
+  }
+  sessionIdx = 0; sessionRevealed = false;
+  document.getElementById('fc-done').classList.add('hidden');
+  document.getElementById('fc-back').classList.add('hidden');
+  document.getElementById('flashcard').style.display='flex';
+  updateFCDisplay();
+}
+
+function updateFCDisplay() {
+  if (sessionIdx >= sessionQueue.length) {
+    document.getElementById('flashcard').style.display='none';
+    document.getElementById('fc-back').classList.add('hidden');
+    document.getElementById('fc-done').classList.remove('hidden');
+    setCyrenMsg(charSay('greetings'));
+    return;
+  }
+  const card = sessionQueue[sessionIdx];
+  document.getElementById('fc-front').textContent = card.jp;
+  document.getElementById('fc-front').className = card.jp.length < 4 ? 'card-kana' : 'card-reading';
+  document.getElementById('fc-hint').textContent = card.cat ? '['+card.cat+']' : '';
+  document.getElementById('fc-badge').textContent = card.cat || 'vocabulary';
+  document.getElementById('flashcard').classList.remove('revealed');
+  document.getElementById('fc-back').classList.add('hidden');
+
+  const el = document.getElementById('flashcard');
+  el.style.display='flex';
+  el.querySelector('div:last-child').style.display='block';
+  document.getElementById('fc-current').textContent = sessionIdx+1;
+  document.getElementById('fc-total').textContent = sessionQueue.length;
+  document.getElementById('fc-due-count').textContent = (sessionQueue.length-sessionIdx)+' left';
+  document.getElementById('fc-progress').style.width = Math.round(sessionIdx/sessionQueue.length*100)+'%';
+  sessionRevealed = false;
+}
+
+function revealCard() {
+  if (sessionRevealed) return;
+  sessionRevealed = true;
+  const card = sessionQueue[sessionIdx];
+  document.getElementById('flashcard').classList.add('revealed');
+  document.getElementById('flashcard').querySelector('div:last-child').style.display='none';
+  document.getElementById('fc-reading').textContent = card.read;
+  document.getElementById('fc-meaning').textContent = card.en;
+  document.getElementById('fc-example').textContent = card.ex || '';
+  document.getElementById('fc-back').classList.remove('hidden');
+}
+
+function rateCard(rating) {
+  if (!sessionRevealed) return;
+  const card = sessionQueue[sessionIdx];
+  const prog = state.vocabProgress[card.idx] || {correct:0,wrong:0,ease:2.5,interval:0};
+  const next = getSrsNext(prog, rating);
+  state.vocabProgress[card.idx] = {...prog,...next,
+    correct: prog.correct + (rating>=2?1:0),
+    wrong: prog.wrong + (rating<2?1:0)
+  };
+  state.reviewedToday++;
+  state.totalToday++;
+  if (rating >= 2) { state.correctToday++; addXP(10); }
+  saveState();
+  sessionIdx++;
+  updateFCDisplay();
+}
+
+function startNewSession() {
+  initVocabSession();
+}
+
+function switchVocabTab(tab, btn) {
+  document.querySelectorAll('#page-vocab .tab').forEach(t=>t.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('vocab-flashcards-content').classList.toggle('hidden', tab!=='flashcards');
+  document.getElementById('vocab-browse-content').classList.toggle('hidden', tab!=='browse');
+  if (tab === 'browse') renderVocabBrowse();
+}
+
+function renderVocabBrowse(filter='all', search='') {
+  const list = document.getElementById('vocab-list');
+  if (!list) return;
+  let items = VOCAB.filter(v => {
+    const matchCat = filter==='all' || v.cat===filter;
+    const matchSearch = !search || v.jp.includes(search)||v.read.toLowerCase().includes(search.toLowerCase())||v.en.toLowerCase().includes(search.toLowerCase());
+    return matchCat && matchSearch;
+  });
+  list.innerHTML = items.map((v,i) => `
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:13px 16px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center">
+      <div>
+        <span style="font-family:var(--ffj);font-size:18px;margin-right:10px;color:var(--ink)">${v.jp}</span>
+        <span style="font-size:13px;color:var(--plum)">${v.read}</span>
+        <div style="font-size:12px;color:var(--ink3);margin-top:2px">${v.en}</div>
+      </div>
+      <span style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;background:var(--plum3);color:var(--plum);padding:2px 8px;border-radius:20px">${v.cat}</span>
+    </div>
+  `).join('');
+}
+
+function filterVocab() {
+  const search = document.getElementById('vocab-search').value;
+  const filter = document.getElementById('vocab-filter').value;
+  renderVocabBrowse(filter, search);
+}
+
+// ════════════════════════════════════════════════
+//  GRAMMAR
+// ════════════════════════════════════════════════
+function renderGrammar() {
+  document.getElementById('grammar-list').innerHTML = GRAMMAR.map((g,i) => `
+    <div class="grammar-card">
+      <div class="gc-header" onclick="toggleGrammar(${i})">
+        <div>
+          <div class="gc-pattern">${g.pattern}</div>
+          <div class="gc-meaning">${g.eng}</div>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center">
+          <span class="gc-level">${g.level}</span>
+          <svg class="gc-chevron" id="gc-chev-${i}" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+      </div>
+      <div class="gc-body" id="gc-body-${i}">
+        <div class="gc-rule">${g.rule}</div>
+        <div class="gc-examples">${g.examples.map(e=>`
+          <div class="gc-ex">
+            <div class="gc-ex-jp">${e.jp}</div>
+            <div class="gc-ex-reading">${e.read}</div>
+            <div class="gc-ex-en">${e.en}</div>
+          </div>`).join('')}
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function toggleGrammar(i) {
+  const body = document.getElementById('gc-body-'+i);
+  const chev = document.getElementById('gc-chev-'+i);
+  const open = body.classList.toggle('open');
+  chev.classList.toggle('open', open);
+}
+
+// ════════════════════════════════════════════════
+//  READING
+// ════════════════════════════════════════════════
+function renderPassageList() {
+  document.getElementById('passage-list').innerHTML = PASSAGES.map(p=>`
+    <div class="mode-card" onclick="openPassage('${p.id}')">
+      <div class="mode-icon" style="background:var(--gold3)">📖</div>
+      <div class="mode-title">${p.title}</div>
+      <div class="mode-desc">Click any word for instant translation. Comprehension questions included.</div>
+      <div class="mode-count">${p.questions.length} questions</div>
+    </div>
+  `).join('');
+}
+
+function openPassage(id) {
+  const p = PASSAGES.find(x=>x.id===id);
+  if(!p) return;
+  document.getElementById('reading-select').classList.add('hidden');
+  document.getElementById('reading-active').classList.remove('hidden');
+  document.getElementById('ra-title').textContent = p.title;
+
+  // Build interactive text
+  let html = '';
+  p.text.forEach(part => {
+    if (typeof part === 'string') {
+      html += part === '\n' ? '<br>' : ' ';
+    } else {
+      html += `<span class="vocab-word" data-jp="${part.jp}" data-read="${part.read}" data-en="${part.en}" 
+        onmouseenter="showTip(event,this)" onmouseleave="hideTip()">${part.jp}</span>`;
+    }
+  });
+  document.getElementById('ra-text').innerHTML = html;
+
+  // Questions
+  document.getElementById('ra-questions').innerHTML = p.questions.map((q,qi)=>`
+    <div class="rq-item">
+      <div class="rq-q">${qi+1}. ${q.q}</div>
+      <div class="rq-opts">${q.opts.map((o,oi)=>`
+        <div class="rq-opt" onclick="checkReadingQ(this,${oi},${q.ans},'${q.explain.replace(/'/g,"\\'")}',${qi})">
+          ${String.fromCharCode(65+oi)}. ${o}
+        </div>`).join('')}
+      </div>
+    </div>
+  `).join('');
+}
+
+function showTip(e, el) {
+  const t = document.getElementById('tooltip');
+  document.getElementById('tt-jp').textContent = el.dataset.jp;
+  document.getElementById('tt-reading').textContent = el.dataset.read;
+  document.getElementById('tt-meaning').textContent = el.dataset.en;
+  t.style.display='block';
+  t.style.left = Math.min(e.clientX+10, window.innerWidth-220)+'px';
+  t.style.top = (e.clientY-60)+'px';
+}
+function hideTip() { document.getElementById('tooltip').style.display='none'; }
+
+function checkReadingQ(el, chosen, correct, explain, qi) {
+  const parent = el.parentElement;
+  parent.querySelectorAll('.rq-opt').forEach(o=>{o.classList.add('disabled');o.style.pointerEvents='none';});
+  if (chosen === correct) {
+    el.classList.add('correct');
+    addXP(15);
+    setCyrenMsg(charSay('correct')+' — '+explain);
+  } else {
+    el.classList.add('wrong');
+    parent.querySelectorAll('.rq-opt')[correct].classList.add('correct');
+    setCyrenMsg(charSay('wrong')+' — '+explain);
+  }
+}
+
+function backToPassages() {
+  document.getElementById('reading-select').classList.remove('hidden');
+  document.getElementById('reading-active').classList.add('hidden');
+}
+
+// ════════════════════════════════════════════════
+//  QUIZ ENGINE
+// ════════════════════════════════════════════════
+let quizQs=[], quizIdx=0, quizScore=0;
+
+function startQuiz(type) {
+  document.getElementById('quiz-menu').classList.add('hidden');
+  document.getElementById('quiz-results').classList.add('hidden');
+  document.getElementById('quiz-active').classList.remove('hidden');
+
+  if (type === 'vocab-mcq') quizQs = buildVocabMCQ(10);
+  else if (type === 'grammar-mcq') quizQs = buildGrammarMCQ(10);
+  else if (type === 'kana-mcq') quizQs = buildKanaMCQ(20);
+
+  quizIdx=0; quizScore=0;
+  document.getElementById('q-total').textContent = quizQs.length;
+  renderQuizQuestion();
+}
+
+function buildVocabMCQ(n) {
+  const pool = shuffle([...VOCAB]).slice(0,n);
+  return pool.map(v => {
+    const wrong = shuffle(VOCAB.filter(w=>w.en!==v.en)).slice(0,3).map(w=>w.en);
+    return {
+      instruction:'What does this word mean?', question:v.jp, sub:v.read,
+      answer:v.en, options:shuffle([v.en,...wrong]),
+      explain:v.jp+' ('+v.read+') means: '+v.en, example:v.ex||''
+    };
+  });
+}
+
+function buildGrammarMCQ(n) {
+  const pool = shuffle([...GRAMMAR]).slice(0,n);
+  return pool.map(g => {
+    const ex = g.examples[0];
+    const wrongAnswers = shuffle(GRAMMAR.filter(og=>og.pattern!==g.pattern)).slice(0,3).map(og=>og.eng);
+    return {
+      instruction:'What does this grammar pattern mean?', question:g.pattern, sub:'',
+      answer:g.eng, options:shuffle([g.eng,...wrongAnswers]),
+      explain:g.pattern+' — '+g.eng, example:ex.jp+' → '+ex.en
+    };
+  });
+}
+
+function buildKanaMCQ(n) {
+  const pool = shuffle([...HIRAGANA,...KATAKANA]).slice(0,n);
+  const allRom = [...new Set([...HIRAGANA,...KATAKANA].map(k=>k.rom))];
+  return pool.map(k => {
+    const wrong = shuffle(allRom.filter(r=>r!==k.rom)).slice(0,3);
+    return {
+      instruction:'What is the romaji reading?', question:k.kana, sub:'',
+      answer:k.rom, options:shuffle([k.rom,...wrong]),
+      explain:k.kana+' is read as "'+k.rom+'"', example:''
+    };
+  });
+}
+
+function renderQuizQuestion() {
+  if (quizIdx >= quizQs.length) { showQuizResults(); return; }
+  const q = quizQs[quizIdx];
+  document.getElementById('q-num').textContent = quizIdx+1;
+  document.getElementById('q-progress').style.width = Math.round(quizIdx/quizQs.length*100)+'%';
+  document.getElementById('q-score').textContent = quizScore;
+  document.getElementById('q-instruction').textContent = q.instruction;
+  document.getElementById('q-question').textContent = q.question;
+  document.getElementById('q-sub').textContent = q.sub;
+  document.getElementById('q-feedback').classList.remove('show','qf-correct','qf-wrong');
+
+  document.getElementById('q-options').innerHTML = q.options.map(o=>`
+    <button class="mcq-opt" onclick="checkQuizOpt(this,'${escQ(o)}','${escQ(q.answer)}',${quizIdx})">${o}</button>
+  `).join('');
+}
+
+function escQ(s){ return s.replace(/'/g,"\\'").replace(/"/g,'&quot;'); }
+
+function checkQuizOpt(el, chosen, correct, qi) {
+  document.querySelectorAll('.mcq-opt').forEach(o=>{o.classList.add('disabled');});
+  const q = quizQs[qi];
+  const fb = document.getElementById('q-feedback');
+  if (chosen === correct) {
+    el.classList.add('correct');
+    quizScore++;
+    document.getElementById('q-score').textContent = quizScore;
+    fb.classList.add('show','qf-correct');
+    document.getElementById('qf-title').textContent = '✓ Correct! '+charSay('correct');
+    addXP(10);
+  } else {
+    el.classList.add('wrong');
+    document.querySelectorAll('.mcq-opt').forEach(o=>{if(o.textContent.trim()===correct)o.classList.add('correct');});
+    fb.classList.add('show','qf-wrong');
+    document.getElementById('qf-title').textContent = '✗ Not quite — '+charSay('wrong');
+  }
+  document.getElementById('qf-body').textContent = q.explain;
+  document.getElementById('qf-ex').textContent = q.example;
+}
+
+function nextQuestion() { quizIdx++; renderQuizQuestion(); }
+function endQuiz() {
+  document.getElementById('quiz-active').classList.add('hidden');
+  document.getElementById('quiz-menu').classList.remove('hidden');
+}
+
+function showQuizResults() {
+  document.getElementById('quiz-active').classList.add('hidden');
+  document.getElementById('quiz-results').classList.remove('hidden');
+  document.getElementById('qr-score').textContent = quizScore;
+  document.getElementById('qr-total').textContent = quizQs.length;
+  const pct = quizScore/quizQs.length;
+  document.getElementById('qr-emoji').textContent = pct>=0.8?'🏆':pct>=0.6?'😊':'💪';
+  const c = getChar();
+  document.getElementById('qr-cyrene').innerHTML = pct>=0.8 ? charSay('quizGood') : pct>=0.5 ? charSay('quizOk') : charSay('quizPoor');
+  addXP(quizScore * 15);
+}
+
+// ════════════════════════════════════════════════
+//  SETTINGS / CHARACTERS
+// ════════════════════════════════════════════════
+function renderSettings() {
+  document.getElementById('char-list').innerHTML = state.characters.map(c=>`
+    <div class="char-card">
+      <div class="char-avatar" style="background:${c.color||'var(--plum3)'}">${c.emoji}</div>
+      <div class="char-info" style="flex:1">
+        ${c.id===state.activeCharacter?'<span class="active-badge">✓ Active</span>':''}
+        <div class="char-name">${c.name}</div>
+        <div class="char-style">Style: ${c.style}</div>
+        <div class="char-quote">"${c.catchphrase}"</div>
+      </div>
+      ${c.id!==state.activeCharacter?`<button class="btn btn-secondary btn-sm" onclick="selectChar('${c.id}')">Select</button>`:''}
+    </div>
+  `).join('');
+}
+
+function selectChar(id) {
+  state.activeCharacter = id;
+  saveState();
+  renderSettings();
+}
+
+function addCharacter() {
+  const name = document.getElementById('new-char-name').value.trim();
+  const emoji = document.getElementById('new-char-emoji').value.trim() || '👤';
+  const style = document.getElementById('new-char-style').value;
+  const quote = document.getElementById('new-char-quote').value.trim() || '頑張って！';
+  if (!name) { alert('Please enter a name'); return; }
+
+  const styleDialogue = {
+    playful:{correct:['Great job! 🎉','Yes! You got it!'],wrong:['Oops! Let\'s try again 💪','Almost there!'],greetings:['Hey! Ready to learn?','Let\'s go! 頑張って！']},
+    strict:{correct:['Correct. Proceed.','Acceptable.'],wrong:['Incorrect. Review this.','Wrong. Remember it.'],greetings:['Begin your studies.','Today\'s session starts now.']},
+    calm:{correct:['Well done.','That\'s right. Good work.'],wrong:['Not quite. Take your time.','Almost. No rush.'],greetings:['Good to see you.','Ready when you are.']},
+    nerdy:{correct:['Excellent! Etymologically speaking...','Correct! Note the kanji origin...'],wrong:['Interesting error! The nuance here is...','Not quite — the grammar rule states...'],greetings:['Today we explore Japanese linguistics!','Another session of systematic study!']},
+  };
+  const d = styleDialogue[style]||styleDialogue.playful;
+  const id = 'char_'+Date.now();
+  state.characters.push({id, name, emoji, style, catchphrase:quote,
+    greetings:d.greetings, correct:d.correct, wrong:d.wrong,
+    color:'var(--teal3)', quizGood:'Great score!', quizOk:'Good effort!', quizPoor:'Keep studying!'
+  });
+  saveState();
+  renderSettings();
+  document.getElementById('new-char-name').value='';
+  document.getElementById('new-char-emoji').value='';
+  document.getElementById('new-char-quote').value='';
+}
+
+// ════════════════════════════════════════════════
+//  UTILS
+// ════════════════════════════════════════════════
+function shuffle(arr) {
+  const a=[...arr];
+  for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}
+  return a;
+}
+
+// ════════════════════════════════════════════════
+//  INIT
+// ════════════════════════════════════════════════
+renderHome();
+updateXP();
+</script>
+</body>
+</html>
