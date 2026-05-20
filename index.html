@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>日本語 — Study with Cyrene</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&family=Shippori+Mincho:wght@400;600&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
@@ -56,6 +57,40 @@ body{font-family:var(--ff);background:var(--bg);color:var(--ink);min-height:100v
 .cyrene-name{font-size:11px;font-weight:600;color:var(--plum);text-transform:uppercase;letter-spacing:.8px;margin-bottom:3px}
 .cyrene-msg{font-size:14px;color:var(--ink2);line-height:1.5}
 .cyrene-msg b{color:var(--ink);font-weight:500}
+
+
+/* ── AUTH SCREEN ── */
+#auth-screen{position:fixed;inset:0;background:var(--bg);z-index:500;display:flex;align-items:center;justify-content:center}
+#auth-screen.hidden{display:none}
+.auth-card{background:var(--card);border:1px solid var(--border2);border-radius:24px;padding:44px 40px;width:400px;box-shadow:0 8px 40px rgba(100,80,140,0.14)}
+.auth-logo{font-family:var(--ffj);font-size:48px;text-align:center;margin-bottom:8px}
+.auth-title{font-size:22px;font-weight:600;text-align:center;margin-bottom:4px}
+.auth-sub{font-size:13px;color:var(--ink3);text-align:center;margin-bottom:28px}
+.auth-tabs{display:flex;gap:4px;background:var(--surface);padding:4px;border-radius:10px;margin-bottom:24px;border:1px solid var(--border)}
+.auth-tab{flex:1;padding:8px;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;border:none;background:transparent;color:var(--ink3);font-family:var(--ff);transition:all .15s}
+.auth-tab.active{background:var(--card);color:var(--plum);box-shadow:0 1px 4px rgba(0,0,0,0.08)}
+.auth-field{margin-bottom:14px}
+.auth-field label{font-size:12px;font-weight:600;color:var(--ink3);text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:6px}
+.auth-field input{width:100%;padding:11px 14px;border:1.5px solid var(--border2);border-radius:var(--r);font-family:var(--ff);font-size:14px;outline:none;background:var(--card);transition:border-color .15s}
+.auth-field input:focus{border-color:var(--plum)}
+.auth-err{font-size:13px;color:var(--red);margin-bottom:12px;min-height:18px}
+.auth-btn{width:100%;padding:13px;background:var(--plum);color:#fff;border:none;border-radius:var(--r);font-family:var(--ff);font-size:15px;font-weight:600;cursor:pointer;transition:background .15s;margin-top:4px}
+.auth-btn:hover{background:#6d28d9}
+.auth-btn:disabled{opacity:.6;cursor:not-allowed}
+/* ── FRIENDS ── */
+.feed-item{background:var(--card);border:1px solid var(--border);border-radius:var(--r2);padding:14px 18px;display:flex;align-items:center;gap:14px;margin-bottom:10px;box-shadow:var(--shadow)}
+.feed-avatar{width:40px;height:40px;border-radius:50%;background:var(--plum3);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+.feed-text{flex:1;font-size:14px;color:var(--ink2);line-height:1.4}
+.feed-text strong{color:var(--ink);font-weight:600}
+.feed-time{font-size:11px;color:var(--ink3);margin-top:2px}
+.encourage-btn{background:var(--rose3);border:1px solid #f9a8d4;border-radius:20px;padding:5px 12px;font-size:13px;cursor:pointer;transition:all .15s;color:var(--rose);font-family:var(--ff)}
+.encourage-btn:hover{transform:scale(1.05)}
+.encourage-btn.sent{background:var(--green3);border-color:#86efac;color:var(--green);cursor:default}
+.friend-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r2);padding:16px 18px;display:flex;align-items:center;gap:14px;margin-bottom:10px}
+.friend-avatar{width:44px;height:44px;border-radius:50%;background:var(--plum3);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+.sync-pill{font-size:11px;color:var(--ink3);display:flex;align-items:center;gap:5px}
+.loading-spinner{display:inline-block;width:14px;height:14px;border:2px solid var(--border2);border-top-color:var(--plum);border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
 
 /* ── SECTION HEADERS ── */
 .section-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
@@ -238,7 +273,33 @@ body{font-family:var(--ff);background:var(--bg);color:var(--ink);min-height:100v
   <div id="tt-meaning"></div>
 </div>
 
-<div class="app">
+
+<div id="auth-screen">
+  <div class="auth-card">
+    <div class="auth-logo">日</div>
+    <div class="auth-title">Study with Cyrene</div>
+    <div class="auth-sub">Your Japanese learning companion — N5 to N1</div>
+    <div class="auth-tabs">
+      <button class="auth-tab active" onclick="switchAuthTab('login',this)">Sign in</button>
+      <button class="auth-tab" onclick="switchAuthTab('signup',this)">Create account</button>
+    </div>
+    <div id="auth-login">
+      <div class="auth-field"><label>Email</label><input type="email" id="login-email" placeholder="you@example.com"></div>
+      <div class="auth-field"><label>Password</label><input type="password" id="login-password" placeholder="••••••••"></div>
+      <div class="auth-err" id="login-err"></div>
+      <button class="auth-btn" id="login-btn" onclick="doLogin()">Sign in</button>
+    </div>
+    <div id="auth-signup" style="display:none">
+      <div class="auth-field"><label>Username</label><input type="text" id="signup-username" placeholder="e.g. sakura_learner"></div>
+      <div class="auth-field"><label>Email</label><input type="email" id="signup-email" placeholder="you@example.com"></div>
+      <div class="auth-field"><label>Password</label><input type="password" id="signup-password" placeholder="min. 6 characters"></div>
+      <div class="auth-err" id="signup-err"></div>
+      <button class="auth-btn" id="signup-btn" onclick="doSignup()">Create account</button>
+    </div>
+  </div>
+</div>
+
+<div class="app" id="main-app" style="display:none">
   <!-- SIDEBAR -->
   <nav class="sidebar">
     <div class="logo" onclick="navigate('home')" title="Home">日</div>
@@ -269,6 +330,10 @@ body{font-family:var(--ff);background:var(--bg);color:var(--ink);min-height:100v
     </button>
 
     <div class="nav-sep"></div>
+    <button class="nav-btn" id="nav-friends" onclick="navigate('friends')" title="Friends">
+      <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      <span class="nav-label">Friends</span>
+    </button>
     <button class="nav-btn" id="nav-settings" onclick="navigate('settings')" title="Settings">
       <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
       <span class="nav-label">Settings</span>
@@ -294,7 +359,7 @@ body{font-family:var(--ff);background:var(--bg);color:var(--ink);min-height:100v
       </div>
     </div>
     <div style="display:flex;gap:10px;align-items:center">
-      <div class="streak-pill">🔥 <span id="streak-count">0</span> day streak</div>
+      <span class="sync-pill" id="sync-status"></span><div class="streak-pill">🔥 <span id="streak-count">0</span> day streak</div>
       <div class="xp-pill">⚡ <span id="xp-count">0</span> XP</div>
     </div>
   </header>
@@ -390,6 +455,10 @@ body{font-family:var(--ff);background:var(--bg);color:var(--ink);min-height:100v
           <span>Katakana</span><span id="kp-label">0 / 46</span>
         </div>
         <div class="progress-track"><div class="progress-fill teal" id="kp-bar" style="width:0%"></div></div>
+      </div>
+      <div id="friends-feed-section" style="display:none">
+        <div class="section-head"><div class="section-title">Friends Activity</div></div>
+        <div id="friends-feed"></div>
       </div>
     </div>
 
@@ -559,6 +628,34 @@ body{font-family:var(--ff);background:var(--bg);color:var(--ink);min-height:100v
       </div>
     </div>
 
+
+    <!-- ══ FRIENDS PAGE ══ -->
+    <div class="page" id="page-friends">
+      <div class="tabs" id="friends-tabs">
+        <button class="tab active" onclick="switchFriendsTab('activity',this)">Activity</button>
+        <button class="tab" onclick="switchFriendsTab('friends',this)">Friends</button>
+        <button class="tab" onclick="switchFriendsTab('add',this)">Add Friend</button>
+      </div>
+      <div id="friends-activity-content">
+        <div id="activity-list"><div style="text-align:center;padding:40px;color:var(--ink3)">Loading activity...</div></div>
+      </div>
+      <div id="friends-friends-content" class="hidden">
+        <div id="friends-list"><div style="text-align:center;padding:40px;color:var(--ink3)">Loading...</div></div>
+      </div>
+      <div id="friends-add-content" class="hidden">
+        <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--r2);padding:24px;box-shadow:var(--shadow);margin-bottom:24px">
+          <div style="font-size:15px;font-weight:600;margin-bottom:16px">Find a friend by username</div>
+          <div style="display:flex;gap:10px">
+            <input type="text" id="friend-search-input" placeholder="e.g. sakura_learner" style="flex:1;padding:11px 14px;border:1.5px solid var(--border2);border-radius:var(--r);font-family:var(--ff);font-size:14px;outline:none;background:var(--card)">
+            <button class="btn btn-primary" onclick="searchFriend()">Search</button>
+          </div>
+          <div id="friend-search-result" style="margin-top:16px"></div>
+        </div>
+        <div style="font-size:15px;font-weight:600;margin-bottom:12px">Pending requests</div>
+        <div id="friend-requests"><div style="color:var(--ink3);font-size:14px">No pending requests.</div></div>
+      </div>
+    </div>
+
     <!-- ══ SETTINGS PAGE ══ -->
     <div class="page" id="page-settings">
       <div style="margin-bottom:24px;font-size:15px;font-weight:600">Study Companion</div>
@@ -592,6 +689,12 @@ body{font-family:var(--ff);background:var(--bg);color:var(--ink);min-height:100v
         <button class="btn btn-primary" onclick="addCharacter()">+ Add Character</button>
       </div>
 
+      <div style="margin-bottom:16px;font-size:15px;font-weight:600">Account</div>
+      <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--r2);padding:22px;box-shadow:var(--shadow);margin-bottom:28px">
+        <div style="font-size:14px;color:var(--ink2);margin-bottom:4px">Signed in as <strong id="settings-username"></strong></div>
+        <div style="font-size:12px;color:var(--ink3);margin-bottom:16px" id="settings-email"></div>
+        <button class="btn btn-secondary btn-sm" onclick="doLogout()">Sign out</button>
+      </div>
       <div style="margin-bottom:16px;font-size:15px;font-weight:600">Study Settings</div>
       <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--r2);padding:22px;box-shadow:var(--shadow)">
         <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border)">
@@ -622,6 +725,17 @@ body{font-family:var(--ff);background:var(--bg);color:var(--ink);min-height:100v
 </div>
 
 <script>
+// ════════════════════════════════════════════════
+//  SUPABASE
+// ════════════════════════════════════════════════
+const SUPA_URL = 'https://bnvsljdopxccnncihsvw.supabase.co';
+const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJudnNsamRvcHhjY25uY2loc3Z3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkyNzk1NDAsImV4cCI6MjA5NDg1NTU0MH0.jZ3O6ufE5ohmkMvgySYfMyJVKDTYWkudGA2XE-vQ-MM';
+const sb = supabase.createClient(SUPA_URL, SUPA_KEY);
+
+let currentUser = null;
+let profile = null;
+let realtimeChannel = null;
+
 // ════════════════════════════════════════════════
 //  DATA — Characters
 // ════════════════════════════════════════════════
@@ -1684,6 +1798,459 @@ function shuffle(arr) {
 // ════════════════════════════════════════════════
 renderHome();
 updateXP();
+
+
+// ════════════════════════════════════════════════
+//  AUTH FUNCTIONS
+// ════════════════════════════════════════════════
+function switchAuthTab(tab, btn) {
+  document.querySelectorAll('.auth-tab').forEach(t=>t.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('auth-login').style.display = tab==='login'?'block':'none';
+  document.getElementById('auth-signup').style.display = tab==='signup'?'block':'none';
+}
+
+async function doLogin() {
+  const email = document.getElementById('login-email').value.trim();
+  const password = document.getElementById('login-password').value;
+  const btn = document.getElementById('login-btn');
+  const err = document.getElementById('login-err');
+  err.textContent=''; btn.disabled=true; btn.textContent='Signing in...';
+  const {error} = await sb.auth.signInWithPassword({email, password});
+  if (error) { err.textContent=error.message; btn.disabled=false; btn.textContent='Sign in'; }
+}
+
+async function doSignup() {
+  const username = document.getElementById('signup-username').value.trim();
+  const email = document.getElementById('signup-email').value.trim();
+  const password = document.getElementById('signup-password').value;
+  const btn = document.getElementById('signup-btn');
+  const err = document.getElementById('signup-err');
+  err.textContent='';
+  if (!username) { err.textContent='Please choose a username'; return; }
+  btn.disabled=true; btn.textContent='Creating account...';
+  const {error} = await sb.auth.signUp({email, password, options:{data:{username, display_name:username}}});
+  if (error) { err.textContent=error.message; btn.disabled=false; btn.textContent='Create account'; }
+  else { err.style.color='var(--green)'; err.textContent='Check your email to confirm, then sign in!'; btn.textContent='Done ✓'; }
+}
+
+async function doLogout() {
+  if (realtimeChannel) sb.removeChannel(realtimeChannel);
+  await sb.auth.signOut();
+  currentUser=null; profile=null;
+  document.getElementById('main-app').style.display='none';
+  document.getElementById('auth-screen').classList.remove('hidden');
+}
+
+// Listen for auth state changes
+sb.auth.onAuthStateChange(async (event, session) => {
+  if (session?.user) {
+    currentUser = session.user;
+    document.getElementById('auth-screen').classList.add('hidden');
+    document.getElementById('main-app').style.display='grid';
+    await loadUserData();
+    setupRealtime();
+    navigate('home');
+  } else {
+    document.getElementById('main-app').style.display='none';
+    document.getElementById('auth-screen').classList.remove('hidden');
+  }
+});
+
+// ════════════════════════════════════════════════
+//  DATA SYNC
+// ════════════════════════════════════════════════
+function setSyncStatus(msg, loading=false) {
+  const el = document.getElementById('sync-status');
+  if (!el) return;
+  el.innerHTML = loading ? '<div class="loading-spinner"></div> '+msg : msg;
+}
+
+async function loadUserData() {
+  setSyncStatus('Syncing...', true);
+  const {data: prof} = await sb.from('profiles').select('*').eq('id', currentUser.id).single();
+  if (prof) {
+    profile = prof;
+    // Load kana progress
+    const {data: kp} = await sb.from('progress_kana').select('*').eq('user_id', currentUser.id);
+    state.kanaProgress = {};
+    (kp||[]).forEach(r => {
+      state.kanaProgress[r.kana_key] = {correct:r.correct, wrong:r.wrong, interval_ms:r.interval_ms, next_review:new Date(r.next_review).getTime()};
+    });
+    // Load vocab progress
+    const {data: vp} = await sb.from('progress_vocab').select('*').eq('user_id', currentUser.id);
+    state.vocabProgress = {};
+    (vp||[]).forEach(r => {
+      state.vocabProgress[r.vocab_index] = {correct:r.correct, wrong:r.wrong, ease:parseFloat(r.ease), interval_ms:r.interval_ms, next_review:new Date(r.next_review).getTime()};
+    });
+    // Load custom characters
+    const {data: chars} = await sb.from('characters').select('*').eq('user_id', currentUser.id);
+    if (chars && chars.length) {
+      const extra = chars.map(c => ({
+        id:c.char_id, name:c.name, emoji:c.emoji, style:c.style,
+        ...(c.dialogue||{}),
+        catchphrase: c.dialogue?.catchphrase||'頑張って！'
+      }));
+      state.characters = [...DEFAULT_CHARACTERS, ...extra];
+    }
+    // Sync profile stats into state
+    state.xp = prof.xp||0;
+    state.level = prof.level||1;
+    state.streak = prof.streak||0;
+    state.reviewedToday = prof.reviewed_today||0;
+    state.correctToday = prof.correct_today||0;
+    state.totalToday = prof.total_today||0;
+  }
+  setSyncStatus('');
+  updateXP();
+  // Update settings page account info
+  const su = document.getElementById('settings-username');
+  const se = document.getElementById('settings-email');
+  if (su && profile) su.textContent = profile.username||'';
+  if (se && currentUser) se.textContent = currentUser.email||'';
+}
+
+async function saveProfileField(updates) {
+  if (!currentUser) return;
+  await sb.from('profiles').update(updates).eq('id', currentUser.id);
+  if (profile) Object.assign(profile, updates);
+}
+
+async function saveKanaProgressDB(romKey, data) {
+  if (!currentUser) return;
+  await sb.from('progress_kana').upsert({
+    user_id:currentUser.id, kana_key:romKey,
+    correct:data.correct||0, wrong:data.wrong||0,
+    interval_ms:data.interval_ms||0,
+    next_review:new Date(data.next_review||Date.now()).toISOString(),
+    updated_at:new Date().toISOString()
+  }, {onConflict:'user_id,kana_key'});
+}
+
+async function saveVocabProgressDB(idx, data) {
+  if (!currentUser) return;
+  await sb.from('progress_vocab').upsert({
+    user_id:currentUser.id, vocab_index:idx,
+    correct:data.correct||0, wrong:data.wrong||0,
+    ease:data.ease||2.5, interval_ms:data.interval_ms||0,
+    next_review:new Date(data.next_review||Date.now()).toISOString(),
+    updated_at:new Date().toISOString()
+  }, {onConflict:'user_id,vocab_index'});
+}
+
+async function logActivity(type, payload={}) {
+  if (!currentUser) return;
+  await sb.from('activity').insert({user_id:currentUser.id, type, payload});
+}
+
+// Patch addXP to also persist
+const _origAddXP = addXP;
+addXP = async function(amount) {
+  _origAddXP(amount);
+  if (!currentUser || !profile) return;
+  const newXp = (profile.xp||0) + amount;
+  const newLevel = Math.floor(newXp/200)+1;
+  const leveledUp = newLevel > (profile.level||1);
+  await saveProfileField({xp:newXp, level:newLevel});
+  state.xp = newXp; state.level = newLevel;
+  if (leveledUp) logActivity('level_up', {level:newLevel});
+  updateXP();
+};
+
+// Patch checkStreak to persist
+const _origCheckStreak = checkStreak;
+checkStreak = async function() {
+  if (!profile) return;
+  const today = new Date().toDateString();
+  const last = profile.last_study_date ? new Date(profile.last_study_date).toDateString() : null;
+  if (last === today) return;
+  const yesterday = new Date(Date.now()-86400000).toDateString();
+  const newStreak = last===yesterday ? (profile.streak||0)+1 : 1;
+  state.streak = newStreak;
+  await saveProfileField({streak:newStreak, last_study_date:new Date().toISOString().split('T')[0]});
+  if (newStreak>1 && newStreak%7===0) logActivity('streak',{days:newStreak});
+  updateXP();
+};
+
+// Patch rateCard to persist vocab progress
+const _origRateCard = rateCard;
+rateCard = async function(rating) {
+  if (!sessionRevealed) return;
+  const card = sessionQueue[sessionIdx];
+  const prog = state.vocabProgress[card.idx] || {correct:0,wrong:0,ease:2.5,interval_ms:0};
+  const next = getSrsNext(prog, rating);
+  const updated = {...prog,...next, correct:prog.correct+(rating>=2?1:0), wrong:prog.wrong+(rating<2?1:0)};
+  state.vocabProgress[card.idx] = updated;
+  await saveVocabProgressDB(card.idx, updated);
+  if (rating >= 2) {
+    await addXP(10);
+    state.reviewedToday++;
+    state.correctToday++;
+    state.totalToday++;
+    await saveProfileField({reviewed_today:state.reviewedToday, correct_today:state.correctToday, total_today:state.totalToday});
+    if ([10,50,100,250].includes(state.reviewedToday)) logActivity('vocab_milestone',{count:state.reviewedToday});
+  } else {
+    state.totalToday++;
+    await saveProfileField({total_today:state.totalToday});
+  }
+  sessionIdx++;
+  updateFCDisplay();
+};
+
+// Patch kana check to persist
+const _origCheckKanaOpt = checkKanaOpt;
+checkKanaOpt = async function(el, chosen, correct, kana) {
+  document.querySelectorAll('.kana-opt').forEach(o=>{o.classList.add('disabled');o.style.pointerEvents='none';});
+  const prog = state.kanaProgress[correct] || {correct:0,wrong:0};
+  const fb = document.getElementById('kq-feedback');
+  if (chosen===correct) {
+    el.classList.add('correct'); prog.correct=(prog.correct||0)+1; kqScore++;
+    fb.style.display='block';fb.style.background='var(--green3)';fb.style.color='var(--green)';fb.style.padding='10px 14px';fb.style.borderRadius='var(--r)';
+    fb.textContent = charSay('correct')+' ✓ '+kana+' = '+correct;
+    await addXP(5);
+    if (prog.correct===3) logActivity('kana_mastered',{kana, script:HIRAGANA.some(h=>h.rom===correct)?'hiragana':'katakana'});
+  } else {
+    el.classList.add('wrong'); document.querySelectorAll('.kana-opt').forEach(o=>{if(o.textContent===correct)o.classList.add('correct');});
+    prog.wrong=(prog.wrong||0)+1;
+    fb.style.display='block';fb.style.background='var(--red3)';fb.style.color='var(--red)';fb.style.padding='10px 14px';fb.style.borderRadius='var(--r)';
+    fb.textContent = charSay('wrong')+' — '+kana+' is "'+correct+'"';
+  }
+  state.kanaProgress[correct] = prog;
+  await saveKanaProgressDB(correct, prog);
+  setTimeout(()=>{kqIdx++;renderKanaQuestion();},1400);
+};
+
+// ════════════════════════════════════════════════
+//  REALTIME
+// ════════════════════════════════════════════════
+function setupRealtime() {
+  if (realtimeChannel) sb.removeChannel(realtimeChannel);
+  realtimeChannel = sb.channel('nihongo-activity')
+    .on('postgres_changes', {event:'INSERT', schema:'public', table:'activity'}, () => {
+      if (document.getElementById('page-friends').classList.contains('active') ||
+          document.getElementById('page-home').classList.contains('active')) {
+        loadFriendsActivity();
+      }
+    })
+    .subscribe();
+}
+
+// ════════════════════════════════════════════════
+//  FRIENDS
+// ════════════════════════════════════════════════
+function formatTimeAgo(iso) {
+  const diff = (Date.now()-new Date(iso).getTime())/1000;
+  if (diff<60) return 'just now';
+  if (diff<3600) return Math.floor(diff/60)+'m ago';
+  if (diff<86400) return Math.floor(diff/3600)+'h ago';
+  return Math.floor(diff/86400)+'d ago';
+}
+
+function activityLabel(a) {
+  const t=a.type, p=a.payload||{};
+  if (t==='streak') return 'hit a <strong>'+p.days+'-day streak</strong> 🔥';
+  if (t==='level_up') return 'reached <strong>Level '+p.level+'</strong> ⭐';
+  if (t==='kana_mastered') return 'mastered <strong>'+p.kana+'</strong> in '+(p.script||'kana')+'!';
+  if (t==='quiz_complete') return 'scored <strong>'+p.score+'/'+p.total+'</strong> on a quiz 🎯';
+  if (t==='vocab_milestone') return 'learned their <strong>'+p.count+'th word</strong> 📖';
+  return 'studied Japanese';
+}
+
+async function loadFriendsActivity() {
+  if (!currentUser) return;
+  const {data: friendRows} = await sb.from('friends')
+    .select('user_id,friend_id')
+    .or('user_id.eq.'+currentUser.id+',friend_id.eq.'+currentUser.id)
+    .eq('status','accepted');
+
+  const feedSection = document.getElementById('friends-feed-section');
+  const actList = document.getElementById('activity-list');
+
+  if (!friendRows || !friendRows.length) {
+    if (actList) actList.innerHTML='<div style="text-align:center;padding:40px;color:var(--ink3)"><div style="font-size:32px;margin-bottom:12px">👥</div>No friends yet! Go to Add Friend to invite someone.</div>';
+    if (feedSection) feedSection.style.display='none';
+    return;
+  }
+
+  const friendIds = friendRows.map(r=>r.user_id===currentUser.id?r.friend_id:r.user_id);
+  const {data: activities} = await sb.from('activity')
+    .select('*,profiles(username,avatar_emoji)')
+    .in('user_id', friendIds)
+    .order('created_at',{ascending:false})
+    .limit(20);
+
+  if (actList) renderActivityFeed(activities||[], actList);
+
+  const homeFeed = document.getElementById('friends-feed');
+  if (homeFeed && activities && activities.length) {
+    if (feedSection) feedSection.style.display='block';
+    renderActivityFeed((activities||[]).slice(0,3), homeFeed);
+  }
+}
+
+function renderActivityFeed(activities, container) {
+  if (!container) return;
+  if (!activities.length) {
+    container.innerHTML='<div style="text-align:center;padding:24px;color:var(--ink3)">No recent activity yet.</div>';
+    return;
+  }
+  container.innerHTML = activities.map(a => {
+    const prof = a.profiles||{};
+    return '<div class="feed-item">'
+      +'<div class="feed-avatar">'+(prof.avatar_emoji||'🌸')+'</div>'
+      +'<div class="feed-text"><strong>'+(prof.username||'Friend')+'</strong> '+activityLabel(a)
+      +'<div class="feed-time">'+formatTimeAgo(a.created_at)+'</div></div>'
+      +'<button class="encourage-btn" id="enc-'+a.id+'" onclick="sendEncouragement(''+a.id+'',this)">🌸 Cheer</button>'
+      +'</div>';
+  }).join('');
+}
+
+async function sendEncouragement(activityId, btn) {
+  if (btn.classList.contains('sent')) return;
+  btn.classList.add('sent'); btn.textContent='🌸 Sent!';
+  const {data: act} = await sb.from('activity').select('encouragements').eq('id',activityId).single();
+  const existing = act?.encouragements||[];
+  existing.push({from_id:currentUser.id, emoji:'🌸', at:new Date().toISOString()});
+  await sb.from('activity').update({encouragements:existing}).eq('id',activityId);
+}
+
+async function loadFriendsList() {
+  const el = document.getElementById('friends-list');
+  if (!el) return;
+  const {data: r1} = await sb.from('friends').select('friend_id,profiles!friends_friend_id_fkey(username,avatar_emoji,xp,streak)').eq('user_id',currentUser.id).eq('status','accepted');
+  const {data: r2} = await sb.from('friends').select('user_id,profiles!friends_user_id_fkey(username,avatar_emoji,xp,streak)').eq('friend_id',currentUser.id).eq('status','accepted');
+  const all = [...(r1||[]).map(r=>r.profiles), ...(r2||[]).map(r=>r.profiles)].filter(Boolean);
+  if (!all.length) { el.innerHTML='<div style="text-align:center;padding:32px;color:var(--ink3)">No friends yet. Use the Add Friend tab!</div>'; return; }
+  el.innerHTML = all.map(f=>'<div class="friend-card">'
+    +'<div class="friend-avatar">'+(f.avatar_emoji||'🌸')+'</div>'
+    +'<div style="flex:1"><div style="font-size:15px;font-weight:600;margin-bottom:2px">'+f.username+'</div>'
+    +'<div style="font-size:12px;color:var(--ink3)">⚡ '+(f.xp||0)+' XP &nbsp;🔥 '+(f.streak||0)+' day streak</div></div>'
+    +'</div>').join('');
+}
+
+async function loadFriendRequests() {
+  const el = document.getElementById('friend-requests');
+  if (!el) return;
+  const {data: reqs} = await sb.from('friends').select('id,profiles!friends_user_id_fkey(username,avatar_emoji)').eq('friend_id',currentUser.id).eq('status','pending');
+  if (!reqs||!reqs.length) { el.innerHTML='<div style="color:var(--ink3);font-size:14px">No pending requests.</div>'; return; }
+  el.innerHTML = reqs.map(r=>'<div class="friend-card">'
+    +'<div class="friend-avatar">'+(r.profiles?.avatar_emoji||'🌸')+'</div>'
+    +'<div style="flex:1"><div style="font-size:15px;font-weight:600">'+r.profiles?.username+'</div>'
+    +'<div style="font-size:12px;color:var(--ink3)">Wants to study with you!</div></div>'
+    +'<button class="btn btn-primary btn-sm" onclick="acceptFriend(''+r.id+'')">Accept</button>'
+    +'</div>').join('');
+}
+
+async function acceptFriend(id) {
+  await sb.from('friends').update({status:'accepted'}).eq('id',id);
+  loadFriendRequests(); loadFriendsList();
+}
+
+async function searchFriend() {
+  const username = document.getElementById('friend-search-input').value.trim();
+  const result = document.getElementById('friend-search-result');
+  if (!username) return;
+  const {data} = await sb.from('profiles').select('id,username,avatar_emoji,xp,streak').eq('username',username).neq('id',currentUser.id).single();
+  if (!data) { result.innerHTML='<div style="color:var(--ink3);font-size:14px">No user found with that username.</div>'; return; }
+  result.innerHTML = '<div class="friend-card">'
+    +'<div class="friend-avatar">'+(data.avatar_emoji||'🌸')+'</div>'
+    +'<div style="flex:1"><div style="font-size:15px;font-weight:600">'+data.username+'</div>'
+    +'<div style="font-size:12px;color:var(--ink3)">⚡ '+(data.xp||0)+' XP &nbsp;🔥 '+(data.streak||0)+' day streak</div></div>'
+    +'<button class="btn btn-primary btn-sm" onclick="sendFriendRequest(''+data.id+'',this)">+ Add</button>'
+    +'</div>';
+}
+
+async function sendFriendRequest(friendId, btn) {
+  btn.disabled=true; btn.textContent='Sent! ✓';
+  await sb.from('friends').insert({user_id:currentUser.id, friend_id:friendId, status:'pending'});
+}
+
+function switchFriendsTab(tab, btn) {
+  document.querySelectorAll('#friends-tabs .tab').forEach(t=>t.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('friends-activity-content').style.display = tab==='activity'?'block':'none';
+  document.getElementById('friends-friends-content').style.display = tab==='friends'?'block':'none';
+  document.getElementById('friends-add-content').style.display = tab==='add'?'block':'none';
+  if (tab==='activity') loadFriendsActivity();
+  if (tab==='friends') loadFriendsList();
+  if (tab==='add') loadFriendRequests();
+}
+
+// ════════════════════════════════════════════════
+//  PATCH NAVIGATE FOR FRIENDS + SETTINGS
+// ════════════════════════════════════════════════
+const _origNavigate = navigate;
+navigate = function(page) {
+  const PAGES_EXT = ['home','kana','vocab','grammar','reading','quiz','friends','settings'];
+  const PAGE_TITLES_EXT = {home:'おはよう！ Welcome back',kana:'Kana Mastery',vocab:'Vocabulary',grammar:'Grammar Patterns',reading:'Reading Practice',quiz:'JLPT Quiz',friends:'Friends',settings:'Settings'};
+  const PAGE_SUBS_EXT = {home:'N5 • Beginner',kana:'Hiragana & Katakana',vocab:'N5 Core Vocabulary',grammar:'N5 Grammar',reading:'N5 Reading',quiz:'Practice Tests',friends:'Study Together',settings:'Preferences'};
+
+  PAGES_EXT.forEach(p => {
+    const el = document.getElementById('page-'+p);
+    const nb = document.getElementById('nav-'+p);
+    if (el) el.classList.toggle('active', p===page);
+    if (nb) nb.classList.toggle('active', p===page);
+  });
+  const titleEl = document.getElementById('topbar-title');
+  const subEl = document.getElementById('topbar-sub');
+  if (titleEl) titleEl.textContent = PAGE_TITLES_EXT[page]||page;
+  if (subEl) subEl.textContent = PAGE_SUBS_EXT[page]||'';
+
+  if (page==='home') renderHome();
+  if (page==='kana') renderKanaGrid();
+  if (page==='vocab') initVocabSession();
+  if (page==='grammar') renderGrammar();
+  if (page==='reading') renderPassageList();
+  if (page==='settings') renderSettingsExt();
+  if (page==='friends') {
+    loadFriendsActivity();
+    document.getElementById('friends-activity-content').style.display='block';
+    document.getElementById('friends-friends-content').style.display='none';
+    document.getElementById('friends-add-content').style.display='none';
+  }
+};
+
+function renderSettingsExt() {
+  renderSettings();
+  const su = document.getElementById('settings-username');
+  const se = document.getElementById('settings-email');
+  if (su && profile) su.textContent = profile.username||'';
+  if (se && currentUser) se.textContent = currentUser.email||'';
+}
+
+// Patch addCharacter to also save to Supabase
+const _origAddCharacter = addCharacter;
+addCharacter = async function() {
+  const name = document.getElementById('new-char-name').value.trim();
+  const emoji = document.getElementById('new-char-emoji').value.trim()||'👤';
+  const style = document.getElementById('new-char-style').value;
+  const quote = document.getElementById('new-char-quote').value.trim()||'頑張って！';
+  if (!name) { alert('Please enter a name'); return; }
+
+  const styleMap = {
+    playful:{correct:['Great job! 🎉','Yes!'],wrong:['Oops! 💪','Almost!'],greetings:['Hey! Ready?','頑張って！']},
+    strict:{correct:['Correct.','Acceptable.'],wrong:['Incorrect.','Wrong.'],greetings:['Begin your studies.','Session starting.']},
+    calm:{correct:['Well done.','That's right.'],wrong:['Take your time.','Almost.'],greetings:['Good to see you.','Ready when you are.']},
+    nerdy:{correct:['Excellent!','Correct!'],wrong:['Interesting error!','Not quite...'],greetings:['Today we explore Japanese!','Another session!']}
+  };
+  const d = styleMap[style]||styleMap.playful;
+  const charId = 'char_'+Date.now();
+  const newChar = {id:charId,name,emoji,style,catchphrase:quote,...d,quizGood:'Great score!',quizOk:'Keep it up!',quizPoor:'Keep studying!'};
+  state.characters.push(newChar);
+
+  if (currentUser) {
+    await sb.from('characters').insert({
+      user_id:currentUser.id, char_id:charId, name, emoji, style,
+      dialogue:{...d,catchphrase:quote}
+    });
+  }
+  renderSettings();
+  document.getElementById('new-char-name').value='';
+  document.getElementById('new-char-emoji').value='';
+  document.getElementById('new-char-quote').value='';
+};
+
+
 </script>
 </body>
 </html>
