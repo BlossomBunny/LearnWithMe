@@ -1096,15 +1096,26 @@ let state = {
   sessionQueue: [], sessionIndex: 0, sessionRevealed: false,
 };
 
-// Load/Save state
 function loadState() {
   try {
     const s = localStorage.getItem('nihongo_state');
     if (s) Object.assign(state, JSON.parse(s));
   } catch(e) {}
 }
+
 function saveState() {
   try { localStorage.setItem('nihongo_state', JSON.stringify(state)); } catch(e) {}
+}
+
+function checkStreak() {
+  const today = new Date().toDateString();
+  if (state.lastStudyDate !== today) {
+    const yesterday = new Date(Date.now() - 86400000).toDateString();
+    if (state.lastStudyDate === yesterday) state.streak++;
+    else state.streak = state.lastStudyDate ? 1 : 0;
+    state.lastStudyDate = today;
+    saveState();
+  }
 }
 loadState();
 checkStreak();
