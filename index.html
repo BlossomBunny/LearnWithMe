@@ -2114,40 +2114,68 @@ async function loadFriendsActivity() {
 
 function renderActivityFeed(activities, container) {
   if (!container) return;
-  if (!activities.length) {
+  
+  if (!activities || !activities.length) {
     container.innerHTML = '<div style="text-align:center;padding:24px;color:var(--ink3)">No recent activity yet.</div>';
     return;
   }
 
-  container.innerHTML = activities.map(a => {
+  let html = '';
+  
+  activities.forEach(a => {
     const prof = a.profiles || {};
-    const activityId = a.id; // safer
+    const activityId = String(a.id || '');
 
-    return `
+    html += `
       <div class="feed-item">
         <div class="feed-avatar">${prof.avatar_emoji || '🌸'}</div>
         <div class="feed-text">
           <strong>${prof.username || 'Friend'}</strong> ${activityLabel(a)}
           <div class="feed-time">${formatTimeAgo(a.created_at)}</div>
         </div>
-        <button 
-          class="encourage-btn" 
-          id="enc-${activityId}" 
-          onclick="sendEncouragement('${activityId}', this)">
-          🌸 Cheer
-        </button>
+        <button class="encourage-btn" data-id="${activityId}">🌸 Cheer</button>
       </div>
     `;
-  }).join('');
-}
+  });
 
+  container.innerHTML = html;
+
+  // Add click listeners safely
+  container.querySelectorAll('.encourage-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+      const id = this.getAttribute('data-id');
+      sendEncouragement(id, this);
+    });
+  });
+}
 async function sendEncouragement(activityId, btn) {
-  if (btn.classList.contains('sent')) return;
-  btn.classList.add('sent'); btn.textContent='🌸 Sent!';
-  const {data: act} = await sb.from('activity').select('encouragements').eq('id',activityId).single();
-  const existing = act?.encouragements||[];
-  existing.push({from_id:currentUser.id, emoji:'🌸', at:new Date().toISOString()});
-  await sb.from('activity').update({encouragements:existing}).eq('id',activityId);
+  if (!activityId || btn.classList.contains('sent')) return;
+
+  btn.classList.add('sent');
+  btn.textContent = '🌸 Sent!';
+  btn.disabled = true;
+
+  try {
+    const { data: act } = await sb.from('activity')
+      .select('encouragements')
+      .eq('id', activityId)
+      .single();
+
+    const existing = act?.encouragements || [];
+    existing.push({
+      from_id: currentUser?.id,
+      emoji: '🌸',
+      at: new Date().toISOString()
+    });
+
+    await sb.from('activity')
+      .update({ encouragements: existing })
+      .eq('id', activityId);
+  } catch (e) {
+    console.error('Failed to send encouragement:', e);
+    btn.textContent = '❌ Error';
+    setTimeout(() => { btn.disabled = false; }, 2000);
+  }
 }
 
 async function loadFriendsList() {
