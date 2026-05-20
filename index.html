@@ -726,7 +726,7 @@ body{font-family:var(--ff);background:var(--bg);color:var(--ink);min-height:100v
 
 <script>
 // ════════════════════════════════════════════════
-//  SUPABASE
+//  SUPABASE + DATA 
 // ════════════════════════════════════════════════
 const SUPA_URL = 'https://bnvsljdopxccnncihsvw.supabase.co';
 const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJudnNsamRvcHhjY25uY2loc3Z3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkyNzk1NDAsImV4cCI6MjA5NDg1NTU0MH0.jZ3O6ufE5ohmkMvgySYfMyJVKDTYWkudGA2XE-vQ-MM';
@@ -735,7 +735,7 @@ const sb = supabase.createClient(SUPA_URL, SUPA_KEY);
 let currentUser = null;
 let profile = null;
 let realtimeChannel = null;
-
+  
 // ════════════════════════════════════════════════
 //  DATA — Characters
 // ════════════════════════════════════════════════
@@ -1084,41 +1084,23 @@ const PASSAGES = [
   },
 ];
 
-// ════════════════════════════════════════════════
-//  STATE
-// ════════════════════════════════════════════════
+// STATE
 let state = {
-  xp: 0,
-  level: 1,
-  streak: 0,
-  lastStudyDate: null,
-  reviewedToday: 0,
-  correctToday: 0,
-  totalToday: 0,
+  xp: 0, level: 1, streak: 0, lastStudyDate: null,
+  reviewedToday: 0, correctToday: 0, totalToday: 0,
   characters: JSON.parse(JSON.stringify(DEFAULT_CHARACTERS)),
   activeCharacter: 'cyrene',
-  kanaProgress: {},    // kana.rom -> {correct,wrong,interval,nextReview}
-  vocabProgress: {},   // vocab index -> {correct,wrong,interval,nextReview,ease}
-  sessionQueue: [],
-  sessionIndex: 0,
-  sessionRevealed: false,
-  kqIndex: 0, kqScore: 0, kqTotal: 0,
-  kqSet: [],
-  quizType: null,
-  quizQuestions: [],
-  quizIndex: 0,
-  quizScore: 0,
+  kanaProgress: {}, vocabProgress: {},
+  sessionQueue: [], sessionIndex: 0, sessionRevealed: false,
+  kqIndex: 0, kqScore: 0,
+  quizType: null, quizQuestions: [], quizIndex: 0, quizScore: 0,
 };
 
-function loadState(){
-  try{const s=localStorage.getItem('nihongo_state');if(s){const p=JSON.parse(s);Object.assign(state,p);}}catch(e){}
-}
-function saveState(){
-  try{localStorage.setItem('nihongo_state',JSON.stringify(state));}catch(e){}
-}
+function loadState(){ try { const s=localStorage.getItem('nihongo_state'); if(s) Object.assign(state, JSON.parse(s)); } catch(e){} }
+function saveState(){ try { localStorage.setItem('nihongo_state', JSON.stringify(state)); } catch(e){} }
 loadState();
 checkStreak();
-
+  
 // ════════════════════════════════════════════════
 //  SRS ENGINE
 // ════════════════════════════════════════════════
@@ -1183,22 +1165,64 @@ function navigate(page) {
 }
 
 // ════════════════════════════════════════════════
-//  CHARACTER SYSTEM
+//  CORE FUNCTIONS
 // ════════════════════════════════════════════════
 function getChar() {
-  return state.characters.find(c=>c.id===state.activeCharacter) || state.characters[0];
-}
-function charSay(key) {
-  const c = getChar();
-  if (!c[key]) return c.catchphrase || '頑張って！';
-  if (Array.isArray(c[key])) return c[key][Math.floor(Math.random()*c[key].length)];
-  return c[key];
-}
-function setCyrenMsg(msg) {
-  const el = document.getElementById('cyrene-msg');
-  if (el) el.innerHTML = msg;
+  return state.characters.find(c => c.id === state.activeCharacter) || state.characters[0];
 }
 
+function charSay(key) {
+  const c = getChar();
+  if (Array.isArray(c[key])) return c[key][Math.floor(Math.random()*c[key].length)];
+  return c[key] || c.catchphrase || '頑張って！';
+}
+
+function setCyrenMsg(msg) {
+  const el = document.getElementById('cyrene-msg');
+  if (el) el.textContent = msg;
+}
+
+// Navigation
+function navigate(page) {
+  ['home','kana','vocab','grammar','reading','quiz','friends','settings'].forEach(p => {
+    const el = document.getElementById('page-'+p);
+    const nb = document.getElementById('nav-'+p);
+    if (el) el.classList.toggle('active', p === page);
+    if (nb) nb.classList.toggle('active', p === page);
+  });
+
+  document.getElementById('topbar-title').textContent = {
+    home:'おはよう！ Welcome back', kana:'Kana Mastery', vocab:'Vocabulary',
+    grammar:'Grammar Patterns', reading:'Reading Practice', quiz:'JLPT Quiz',
+    friends:'Friends', settings:'Settings'
+  }[page] || page;
+
+  document.getElementById('topbar-sub').textContent = {
+    home:'N5 • Beginner', kana:'Hiragana & Katakana', vocab:'N5 Core Vocabulary',
+    grammar:'N5 Grammar', reading:'N5 Reading', quiz:'Practice Tests',
+    friends:'Study Together', settings:'Preferences'
+  }[page] || '';
+
+  if (page === 'home') renderHome();
+  if (page === 'kana') renderKanaGrid();
+  if (page === 'vocab') initVocabSession();
+  if (page === 'grammar') renderGrammar();
+  if (page === 'reading') renderPassageList();
+  if (page === 'settings') renderSettings();
+  if (page === 'friends') {
+    document.getElementById('friends-activity-content').style.display = 'block';
+    loadFriendsActivity();
+  }
+}
+
+// Auth helpers
+function switchAuthTab(tab, btn) {
+  document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('auth-login').style.display = tab === 'login' ? 'block' : 'none';
+  document.getElementById('auth-signup').style.display = tab === 'signup' ? 'block' : 'none';
+}
+  
 // ════════════════════════════════════════════════
 //  HOME PAGE
 // ════════════════════════════════════════════════
@@ -2250,7 +2274,13 @@ addCharacter = async function() {
   document.getElementById('new-char-quote').value='';
 };
 
+  // INIT
+function initApp() {
+  renderHome();
+  updateXP();
+  navigate('home');
+}
 
+// Start the app
+window.onload = initApp;
 </script>
-</body>
-</html>
