@@ -763,8 +763,10 @@ function renderHome() {
 //  KANA MODULE (Fixed Index Reference)
 // ═══════════════════════════════════════════
 function renderKanaGrids() {
-  renderGrid(HG, document.getElementById('kt-h'));
-  renderGrid(KT, document.getElementById('kt-k'));
+  html += `<button class="btn btn-primary btn-sm" onclick="startKanaQuiz('hiragana')">Quiz Hiragana →</button>`;
+  html += `<button class="btn btn-primary btn-sm" onclick="startKanaQuiz('katakana')">Quiz Katakana →</button>`;
+  <button class="btn btn-secondary" onclick="startKanaQuiz('all')">Full Kana Review (All)</button>
+  
 }
 function renderGrid(set, el) {
   let html = '<div class="kana-grid">';
@@ -788,10 +790,17 @@ function kanaTab(t, btn) {
 }
 
 let kQSet = [], kQIdx = 0, kQScore = 0;
-function startKanaQuiz() {
-  kQSet = shuffle([...HG,...KT]); kQIdx = 0; kQScore = 0;
+// Add a parameter to the quiz function to define the set
+function startKanaQuiz(type = 'all') {
+  if (type === 'hiragana') kQSet = shuffle([...HG]);
+  else if (type === 'katakana') kQSet = shuffle([...KT]);
+  else kQSet = shuffle([...HG, ...KT]); // Default 'all'
+  
+  kQIdx = 0;
+  kQScore = 0;
   renderKQ();
 }
+    
 function renderKQ() {
   if (kQIdx >= kQSet.length) return; // Add end screen logic here
   const q = kQSet[kQIdx];
@@ -805,31 +814,59 @@ function renderKQ() {
   ).join('');
 }
 async function checkKQ(el, chosen, correct, kana) {
+  // 1. Disable all buttons so user can't click twice
   document.querySelectorAll('.mcq-opt').forEach(b => b.classList.add('disabled'));
+  
   const prog = KANA_P[correct] || {correct:0, wrong:0};
   const isCorrect = chosen === correct;
+  const feedbackEl = document.getElementById('kq-fb'); // Ensure this div exists in your HTML
   
+  // 2. Visual & Data Feedback
   if (isCorrect) {
     el.classList.add('correct');
-    prog.correct++; kQScore++;
+    prog.correct++; 
+    kQScore++;
     await addXP(5);
+    
+    // Pedagogical feedback: Positive reinforcement
+    feedbackEl.style.display = 'block';
+    feedbackEl.style.color = 'var(--green)';
+    feedbackEl.innerHTML = `<strong>Correct!</strong> ${kana} is ${correct}. ${charSay('correct')}`;
   } else {
     el.classList.add('wrong');
     prog.wrong++;
+    
+    // Pedagogical feedback: Corrective explanation
+    feedbackEl.style.display = 'block';
+    feedbackEl.style.color = 'var(--red)';
+    feedbackEl.innerHTML = `<strong>Not quite.</strong> ${kana} is actually <strong>${correct}</strong>. ${charSay('wrong')}`;
   }
   
-  KANA_P[correct] = prog; // Update memory
+  // 3. Sync to memory & DB
+  KANA_P[correct] = prog;
   
-  // Safe async upsert
   if(USER) {
     await SB.from('progress_kana').upsert({
-      user_id: USER.id, kana_key: correct, correct: prog.correct, wrong: prog.wrong, updated_at: new Date().toISOString()
+      user_id: USER.id, 
+      kana_key: correct, 
+      correct: prog.correct, 
+      wrong: prog.wrong, 
+      updated_at: new Date().toISOString()
     }, {onConflict: 'user_id,kana_key'});
   }
   
-  setTimeout(() => { kQIdx++; renderKQ(); }, 1200);
+  // 4. Advance after delay
+  setTimeout(() => { 
+    kQIdx++; 
+    if (kQIdx < kQSet.length) {
+        renderKQ(); 
+    } else {
+        // Handle quiz end
+        document.getElementById('kq-char').textContent = 'Done!';
+        feedbackEl.innerHTML = `Quiz finished! Final score: ${kQScore}/${kQSet.length}`;
+    }
+  }, 2000); // Increased delay to 2 seconds so the user can read the explanation
 }
-
 // ═══════════════════════════════════════════
 //  OTHER MODULES (Stubs mapped for structure - fill your exact logic here)
 // ═══════════════════════════════════════════
