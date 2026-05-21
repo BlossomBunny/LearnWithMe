@@ -956,11 +956,17 @@ async function doSignup() {
 }
 
 async function doLogout() {
-  // Close modal and reset body scroll in case companion modal was open
   closeCompanionModal();
   if (RT_CHANNEL) { SB.removeChannel(RT_CHANNEL); RT_CHANNEL = null; }
-  await SB.auth.signOut();
-  // onAuthStateChange handles the rest
+  // Force UI reset immediately — don't wait for onAuthStateChange
+  USER = null; PROFILE = null; KANA_P = {}; VOCAB_P = {};
+  document.getElementById('main-app').classList.add('hidden');
+  document.getElementById('auth-screen').classList.remove('hidden');
+  const btn = document.getElementById('login-btn');
+  if (btn) { btn.disabled = false; btn.textContent = 'Sign in'; }
+  document.getElementById('login-err').textContent = '';
+  // Sign out in background
+  SB.auth.signOut().catch(() => {});
 }
 
 // ── THE SINGLE AUTH LISTENER ───────────────
@@ -1243,6 +1249,7 @@ function renderKQ() {
     document.getElementById('kq-opts').innerHTML = '<button class="btn btn-primary" style="grid-column:span 4" onclick="startKanaQuiz(kQCurrentSet)">Play Again (' + againLabel + ')</button>';
     document.getElementById('kq-score').textContent  = '';
     setTimeout(() => openCompanionModal(msg), 300);
+    setTimeout(() => openCompanionModal(msg), 300);
     return;
   }
   const q = kQSet[kQIdx];
@@ -1266,97 +1273,57 @@ function renderKQ() {
 }
 
 async function checkKQ(el, chosen, correct, kana) {
-  correct = window._kqCorrect; // use current question's correct answer
-  document.querySelectorAll('.kana-opt').forEach(o => { o.classList.add('disabled'); o.style.pointerEvents = 'none'; });
+  correct = window._kqCorrect; // use current question correct answer
+  kana = document.getElementById('kq-char').textContent;
+  
+  // Disable all options immediately
+  document.querySelectorAll('.kana-opt').forEach(o => {
+    o.classList.add('disabled');
+    o.style.pointerEvents = 'none';
+  });
+  
   const prog = KANA_P[correct] || { correct: 0, wrong: 0 };
-  const fb   = document.getElementById('kq-fb');
-  if (chosen === correct) {
+  const fb = document.getElementById('kq-fb');
+  const isCorrect = chosen === correct;
+  
+  if (isCorrect) {
     el.classList.add('correct');
     prog.correct = (prog.correct || 0) + 1;
     kQScore++;
-    fb.style.cssText = 'display:block;background:var(--green3);color:var(--green);padding:9px 13px;border-radius:var(--r);font-size:12.5px';
-    fb.textContent   = charSay('correct') + '  ' + (window._kqShowCharMode ? kana + ' = ' + correct : correct + ' = ' + kana);
-    await addXP(5);
-    if (prog.correct === 3) logActivity('kana_mastered', { kana, script: HG.some(h => h.r === correct) ? 'hiragana' : 'katakana' });
+    fb.style.cssText = 'display:block;background:var(--green3);color:var(--green);padding:9px 13px;border-radius:var(--r);font-size:12.5px;margin-top:8px';
+    fb.textContent = charSay('correct') + '  ✓ ' + (window._kqShowCharMode ? kana + ' = ' + correct : correct + ' = ' + kana);
   } else {
     el.classList.add('wrong');
-    document.querySelectorAll('.kana-opt').forEach(o => { if (o.textContent.trim() === correct) o.classList.add('correct'); });
+    document.querySelectorAll('.kana-opt').forEach(o => {
+      if (o.textContent.trim() === correct) o.classList.add('correct');
+    });
     prog.wrong = (prog.wrong || 0) + 1;
-    fb.style.cssText = 'display:block;background:var(--red3);color:var(--red);padding:9px 13px;border-radius:var(--r);font-size:12.5px';
-    fb.textContent   = charSay('wrong') + ' — ' + (window._kqShowCharMode ? kana + ' = ' + correct : correct + ' is ' + kana);
+    fb.style.cssText = 'display:block;background:var(--red3);color:var(--red);padding:9px 13px;border-radius:var(--r);font-size:12.5px;margin-top:8px';
+    fb.textContent = charSay('wrong') + ' — ' + (window._kqShowCharMode ? kana + ' = ' + correct : correct + ' is ' + kana);
   }
+  
   KANA_P[correct] = prog;
+  
+  // Advance to next question after delay — do this FIRST, save to DB after
+  setTimeout(() => {
+    kQIdx++;
+    renderKQ();
+  }, 1400);
+  
+  // Save progress and XP in background — errors won't block the quiz
   if (USER) {
-    await SB.from('progress_kana').upsert(
-      { user_id: USER.id, kana_key: correct, correct: prog.correct, wrong: prog.wrong, next_review: new Date().toISOString(), updated_at: new Date().toISOString() },
+    SB.from('progress_kana').upsert(
+      { user_id: USER.id, kana_key: correct, correct: prog.correct, wrong: prog.wrong,
+        next_review: new Date().toISOString(), updated_at: new Date().toISOString() },
       { onConflict: 'user_id,kana_key' }
-    );
-  }
-  setTimeout(() => { kQIdx++; renderKQ(); }, 1400);
-}
-
-// ═══════════════════════════════════════════
-//  VOCAB SRS
-// ═══════════════════════════════════════════
-let fcQueue = [], fcIdx = 0, fcRevealed = false;
-
-function getDueVocab() {
-  const now = Date.now();
-  return VOCAB.map((v, i) => ({ v, i }))
-    .filter(({ i }) => { const p = VOCAB_P[i]; return !p || p.next_review <= now; })
-    .slice(0, 20);
-}
-
-function initVocabFC() {
-  const due = getDueVocab();
-  fcQueue   = due.map(({ v, i }) => ({ ...v, idx: i }));
-  fcIdx     = 0;
-  fcRevealed = false;
-  document.getElementById('fc-done').classList.add('hidden');
-  document.getElementById('fc-back').classList.add('hidden');
-  const fc = document.getElementById('flashcard');
-  if (!fcQueue.length) {
-    fc.style.display = 'none';
-    document.getElementById('fc-done').classList.remove('hidden');
-  } else {
-    fc.style.display = 'flex';
-    updateFC();
+    ).catch(() => {});
+    if (isCorrect) {
+      addXP(5).catch(() => {});
+      if (prog.correct === 3) logActivity('kana_mastered', { kana, script: HG.some(h => h.r === correct) ? 'hiragana' : 'katakana' }).catch(() => {});
+    }
   }
 }
 
-function updateFC() {
-  if (fcIdx >= fcQueue.length) {
-    document.getElementById('flashcard').style.display = 'none';
-    document.getElementById('fc-back').classList.add('hidden');
-    document.getElementById('fc-done').classList.remove('hidden');
-    return;
-  }
-  const card = fcQueue[fcIdx];
-  const fe   = document.getElementById('fc-front');
-  fe.textContent = card.j;
-  fe.className   = 'card-main' + (card.j.length > 4 ? ' sm' : '');
-  document.getElementById('fc-cat').textContent   = '[' + card.c + ']';
-  document.getElementById('fc-badge').textContent = card.c || 'vocab';
-  document.getElementById('flashcard').classList.remove('revealed');
-  document.getElementById('fc-back').classList.add('hidden');
-  document.getElementById('flashcard').style.display = 'flex';
-  document.getElementById('fc-cur').textContent  = fcIdx + 1;
-  document.getElementById('fc-tot').textContent  = fcQueue.length;
-  document.getElementById('fc-left').textContent = (fcQueue.length - fcIdx) + ' left';
-  document.getElementById('fc-bar').style.width  = Math.round(fcIdx / fcQueue.length * 100) + '%';
-  fcRevealed = false;
-}
-
-function revealCard() {
-  if (fcRevealed) return;
-  fcRevealed = true;
-  const card = fcQueue[fcIdx];
-  document.getElementById('flashcard').classList.add('revealed');
-  document.getElementById('fc-reading').textContent = card.r;
-  document.getElementById('fc-meaning').textContent = card.e;
-  document.getElementById('fc-ex').textContent      = card.x || '';
-  document.getElementById('fc-back').classList.remove('hidden');
-}
 
 async function rateCard(rating) {
   if (!fcRevealed) return;
