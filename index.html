@@ -1,69 +1,1125 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Learn With Me — JP!</title>h</title>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&family=Shippori+Mincho:wght@400;600&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
-<style>
-*{box-sizing:border-box;margin:0;padding:0}
-:root{
-  --ink:#1c1624;--ink2:#4a3f5c;--ink3:#8f84a8;
-  --bg:#f5f2ee;--card:#ffffff;--surface:#faf8f6;
-  --border:rgba(100,80,140,0.12);--border2:rgba(100,80,140,0.22);
-  --plum:#7c3aed;--plum2:#a78bfa;--plum3:#ede9fe;
-  --rose:#e11d74;--rose2:#fb7185;--rose3:#fce7f3;
-  --gold:#b45309;--gold2:#fbbf24;--gold3:#fef3c7;
-  --teal:#0d9488;--teal2:#2dd4bf;--teal3:#ccfbf1;
-  --green:#16a34a;--green3:#dcfce7;
-  --red:#dc2626;--red3:#fee2e2;
-  --ff:'DM Sans',sans-serif;--ffj:'Noto Sans JP',sans-serif;--ffs:'Shippori Mincho',serif;
-  --r:12px;--r2:18px;--shadow:0 2px 12px rgba(100,80,140,0.10);
+// ═══════════════════════════════════════════
+//  SUPABASE CLIENT
+// ═══════════════════════════════════════════
+const SB = supabase.createClient(
+  'https://bnvsljdopxccnncihsvw.supabase.co',
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJudnNsamRvcHhjY25uY2loc3Z3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkyNzk1NDAsImV4cCI6MjA5NDg1NTU0MH0.jZ3O6ufE5ohmkMvgySYfMyJVKDTYWkudGA2XE-vQ-MM'
+);
+
+// ═══════════════════════════════════════════
+//  STATE — single source of truth, no localStorage
+// ═══════════════════════════════════════════
+let USER     = null;  // Supabase auth user
+let PROFILE  = null;  // profiles row
+let KANA_P   = {};    // romKey -> {correct, wrong}
+let VOCAB_P  = {};    // index  -> {correct, wrong, ease, interval_ms, next_review}
+let ACTIVE_CHAR = 'cyrene';
+let RT_CHANNEL  = null;
+
+// ═══════════════════════════════════════════
+//  CHARACTERS  (portraits are repo-root images)
+// ═══════════════════════════════════════════
+const CHARS = {
+  cyrene: {
+    id: 'cyrene', name: 'Cyrene', emoji: '🌸',
+    portrait: './cyrene.jpg',
+    color: 'linear-gradient(135deg,#c084fc,#f472b6)',
+    nameColor: '#9333ea',
+    greetings: [
+      "おはよう… I've been keeping a little hope warm for your return. Ready to study together? 🌸",
+      "Every word you learn is a small lantern lit. Let's light a few more today. 頑張って！",
+      "I'm glad you're here. Even quiet steps forward are still steps. 良い調子！",
+      "Something gentle told me you'd come back today. Let's make it count. ✨",
+    ],
+    correct: [
+      "正解！ That felt right, didn't it? You're growing. 🌸",
+      "That's exactly it. I knew you had it in you. ✨",
+      "完璧！ Perfect. Small victories are still victories worth keeping.",
+      "正解！ You're doing beautifully. I'm proud of you.",
+    ],
+    wrong: [
+      "Oh… that one slipped past you. But that's okay — let's hold onto it gently and try again.",
+      "Not quite — but every mistake is a memory being made. You'll know this one next time.",
+      "Don't be too hard on yourself. Even I needed time. がんばって！",
+      "Almost — let's sit with this one a little longer and it'll stick. 💙",
+    ],
+    quizGood: "最高！ That score is something to be cherished. You've worked so hard for this. 🌸",
+    quizOk:   "A kind effort, and kind efforts grow into something beautiful with time. 💪",
+    quizPoor: "It's alright. Every attempt is a seed. Let's water it together and try again. 🌸",
+  },
+  aventurine: {
+    id: 'aventurine', name: 'Aventurine', emoji: '🎲',
+    portrait: './aventurine.jpg',
+    color: 'linear-gradient(135deg,#fbbf24,#f59e0b)',
+    nameColor: '#d97706',
+    greetings: [
+      "Well, well — you're back. I had a *feeling* today's odds were in your favour. Shall we place a bet on how much you learn? 🎲",
+      "Ah, the student returns. I've been… keeping your seat warm. Don't read into it. Let's go.",
+      "You know, most people fold when it gets hard. You didn't. Interesting. 今日も頑張ろう！",
+      "I don't do encouragement. I do *calculated confidence*. And mine in you? Currently very high. 😏",
+    ],
+    correct: [
+      "Ha! Called it. 正解！ The odds were always in your favour — you just had to believe that.",
+      "Well played. 完璧！ I almost doubted you. Almost.",
+      "正解！ See? A little risk, a big reward. That's the game.",
+      "Now *that's* what I'm talking about. You've got good instincts. ✨",
+    ],
+    wrong: [
+      "Hmm. The house wins one. Don't let it rattle you — even I've taken a loss or two. Recalibrate.",
+      "Wrong bet this time. But the next hand's already being dealt. Stay in the game.",
+      "Everyone's luck dips. The smart ones don't walk away — they double down on studying. 😏",
+      "Not ideal. But I didn't get where I am by quitting after a setback. Neither will you.",
+    ],
+    quizGood: "...I'll admit, that impressed me. 最高！ Not many pull off a score like that. Well played. 🎲",
+    quizOk:   "Decent. Not spectacular, but decent has potential. Sharpen up and go again.",
+    quizPoor: "Rough round. But the best gamblers lose gracefully and come back smarter. So — again?",
+  },
+  itto: {
+    id: 'itto', name: 'Itto', emoji: '🐉',
+    portrait: './itto.jpg',
+    color: 'linear-gradient(135deg,#ef4444,#dc2626)',
+    nameColor: '#dc2626',
+    greetings: [
+      "YO!! You showed up!! The ARATAKI GANG is PUMPED!! 今日も頑張ろう, let's DO THIS!! 🐉💪",
+      "HEYYY!! I was WAITING for you!! Nobody studies harder than US!! LET'S GOOO!!",
+      "OH YEAH!! Another day, another chance to be ABSOLUTELY UNSTOPPABLE at Japanese!! READY?! 🔥",
+      "The GREAT and POWERFUL Arataki Itto has been warming up!! NOW YOU'RE HERE!! LET'S SMASH IT!!",
+    ],
+    correct: [
+      "YOOOOO!! 正解!! That's INCREDIBLE!! You're a LEGEND!! 🐉🔥",
+      "YEAH YEAH YEAH!! 完璧!! The gang is going WILD right now!! SO PROUD!!",
+      "THAT'S MY STUDENT!! 正解!! We are UNSTOPPABLE!!",
+      "WHOOOOO!! You're on FIRE!! Keep going, KEEP GOING!! ⚡",
+    ],
+    wrong: [
+      "Aw MAN!! But hey — even Itto gets knocked down sometimes!! The real L is STAYING down!! GET UP!!",
+      "OKAY OKAY that one was sneaky!! But we don't QUIT!! Try again and CRUSH IT!! 💪",
+      "Hmph!! That answer tried to beat us!! But we're TOUGHER!! がんばって!!",
+      "Not today, wrong answer!! We're gonna MEMORIZE THIS and come back SWINGING!! 🐉",
+    ],
+    quizGood: "OHHHHH!! THAT SCORE!! 最高!! THE ARATAKI GANG IS GOING ABSOLUTELY NUTS RIGHT NOW!! 🐉🔥🐉🔥",
+    quizOk:   "HEY that's SOLID!! Not bad at ALL!! More practice and we'll be LEGENDARY!! 💪",
+    quizPoor: "Okay LISTEN!! We just needed a WARM UP ROUND!! Now we're WARMED UP!! GO AGAIN!! 🔥",
+  },
+};
+
+function getChar() { return CHARS[ACTIVE_CHAR] || CHARS.cyrene; }
+function charSay(key) {
+  const c = getChar(), v = c[key];
+  if (!v) return c.greetings[0];
+  return Array.isArray(v) ? v[Math.floor(Math.random() * v.length)] : v;
 }
-body{font-family:var(--ff);background:var(--bg);color:var(--ink);min-height:100vh;overflow-x:hidden}
+function renderPortrait(el, charId) {
+  if (!el) return;
+  const c = CHARS[charId || ACTIVE_CHAR];
+  if (c.portrait) {
+    el.innerHTML = `<img src="${c.portrait}" alt="${c.name}" onerror="this.parentElement.innerHTML='<span style=font-size:24px>${c.emoji}</span>'">`;
+    el.style.background = 'transparent';
+  } else {
+    el.style.background = c.color;
+    el.innerHTML = `<span style="font-size:24px">${c.emoji}</span>`;
+  }
+}
 
-/* ── LAYOUT ── */
-.app{display:grid;grid-template-columns:72px 1fr;grid-template-rows:auto 1fr;min-height:100vh}
-.sidebar{grid-row:1/3;background:var(--ink);display:flex;flex-direction:column;align-items:center;padding:20px 0;gap:6px;position:sticky;top:0;height:100vh}
-.topbar{display:flex;align-items:center;justify-content:space-between;padding:18px 28px;background:var(--card);border-bottom:1px solid var(--border);grid-column:2}
-.main{grid-column:2;padding:28px;overflow-y:auto}
+// ═══════════════════════════════════════════
+//  KANA DATA
+// ═══════════════════════════════════════════
+const HG = [
+  {k:'あ',r:'a'},{k:'い',r:'i'},{k:'う',r:'u'},{k:'え',r:'e'},{k:'お',r:'o'},
+  {k:'か',r:'ka'},{k:'き',r:'ki'},{k:'く',r:'ku'},{k:'け',r:'ke'},{k:'こ',r:'ko'},
+  {k:'さ',r:'sa'},{k:'し',r:'shi'},{k:'す',r:'su'},{k:'せ',r:'se'},{k:'そ',r:'so'},
+  {k:'た',r:'ta'},{k:'ち',r:'chi'},{k:'つ',r:'tsu'},{k:'て',r:'te'},{k:'と',r:'to'},
+  {k:'な',r:'na'},{k:'に',r:'ni'},{k:'ぬ',r:'nu'},{k:'ね',r:'ne'},{k:'の',r:'no'},
+  {k:'は',r:'ha'},{k:'ひ',r:'hi'},{k:'ふ',r:'fu'},{k:'へ',r:'he'},{k:'ほ',r:'ho'},
+  {k:'ま',r:'ma'},{k:'み',r:'mi'},{k:'む',r:'mu'},{k:'め',r:'me'},{k:'も',r:'mo'},
+  {k:'や',r:'ya'},{k:'ゆ',r:'yu'},{k:'よ',r:'yo'},
+  {k:'ら',r:'ra'},{k:'り',r:'ri'},{k:'る',r:'ru'},{k:'れ',r:'re'},{k:'ろ',r:'ro'},
+  {k:'わ',r:'wa'},{k:'を',r:'wo'},{k:'ん',r:'n'},
+];
+const KT = [
+  {k:'ア',r:'a'},{k:'イ',r:'i'},{k:'ウ',r:'u'},{k:'エ',r:'e'},{k:'オ',r:'o'},
+  {k:'カ',r:'ka'},{k:'キ',r:'ki'},{k:'ク',r:'ku'},{k:'ケ',r:'ke'},{k:'コ',r:'ko'},
+  {k:'サ',r:'sa'},{k:'シ',r:'shi'},{k:'ス',r:'su'},{k:'セ',r:'se'},{k:'ソ',r:'so'},
+  {k:'タ',r:'ta'},{k:'チ',r:'chi'},{k:'ツ',r:'tsu'},{k:'テ',r:'te'},{k:'ト',r:'to'},
+  {k:'ナ',r:'na'},{k:'ニ',r:'ni'},{k:'ヌ',r:'nu'},{k:'ネ',r:'ne'},{k:'ノ',r:'no'},
+  {k:'ハ',r:'ha'},{k:'ヒ',r:'hi'},{k:'フ',r:'fu'},{k:'ヘ',r:'he'},{k:'ホ',r:'ho'},
+  {k:'マ',r:'ma'},{k:'ミ',r:'mi'},{k:'ム',r:'mu'},{k:'メ',r:'me'},{k:'モ',r:'mo'},
+  {k:'ヤ',r:'ya'},{k:'ユ',r:'yu'},{k:'ヨ',r:'yo'},
+  {k:'ラ',r:'ra'},{k:'リ',r:'ri'},{k:'ル',r:'ru'},{k:'レ',r:'re'},{k:'ロ',r:'ro'},
+  {k:'ワ',r:'wa'},{k:'ヲ',r:'wo'},{k:'ン',r:'n'},
+];
+const ALL_ROM = [...new Set([...HG,...KT].map(x => x.r))];
 
-/* ── SIDEBAR NAV ── */
-.logo{width:38px;height:38px;background:var(--plum);border-radius:10px;display:flex;align-items:center;justify-content:center;font-family:var(--ffj);font-size:18px;color:#fff;font-weight:700;margin-bottom:14px;cursor:pointer}
-.nav-btn{width:48px;height:48px;border-radius:var(--r);border:none;background:transparent;color:rgba(255,255,255,0.45);cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;transition:all .18s;font-size:10px;padding:0}
-.nav-btn:hover,.nav-btn.active{background:rgba(255,255,255,0.1);color:#fff}
-.nav-btn.active{background:var(--plum)}
-.nav-btn svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
-.nav-label{font-size:9px;font-weight:500;letter-spacing:.3px;text-transform:uppercase}
-.nav-sep{width:32px;height:1px;background:rgba(255,255,255,0.08);margin:8px 0}
-.xp-bar-wrap{margin-top:auto;display:flex;flex-direction:column;align-items:center;gap:6px;padding-bottom:8px}
-.xp-circle{width:38px;height:38px;position:relative}
-.xp-circle svg{transform:rotate(-90deg)}
-.xp-level{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;color:#fff}
+// ═══════════════════════════════════════════
+//  VOCAB DATA
+// ═══════════════════════════════════════════
+const VOCAB = [
+  {j:'おはようございます',r:'ohayou gozaimasu',e:'Good morning (polite)',c:'greeting',x:'おはようございます！今日もいい天気ですね。'},
+  {j:'こんにちは',r:'konnichiwa',e:'Hello / Good afternoon',c:'greeting',x:'こんにちは！お元気ですか？'},
+  {j:'こんばんは',r:'konbanwa',e:'Good evening',c:'greeting',x:'こんばんは。今日も一日お疲れ様でした。'},
+  {j:'ありがとうございます',r:'arigatou gozaimasu',e:'Thank you (polite)',c:'greeting',x:'ありがとうございます！助かりました。'},
+  {j:'すみません',r:'sumimasen',e:'Excuse me / Sorry',c:'greeting',x:'すみません、ちょっとよろしいですか？'},
+  {j:'はい',r:'hai',e:'Yes',c:'greeting',x:'はい、そうです。'},
+  {j:'いいえ',r:'iie',e:'No',c:'greeting',x:'いいえ、違います。'},
+  {j:'さようなら',r:'sayounara',e:'Goodbye',c:'greeting',x:'さようなら、また明日！'},
+  {j:'はじめまして',r:'hajimemashite',e:'Nice to meet you',c:'greeting',x:'はじめまして、田中です。'},
+  {j:'よろしくおねがいします',r:'yoroshiku onegaishimasu',e:'Please treat me well / Nice to meet you',c:'greeting',x:'よろしくお願いします！'},
+  {j:'いち',r:'ichi',e:'One (1)',c:'number',x:'リンゴをいちつください。'},
+  {j:'に',r:'ni',e:'Two (2)',c:'number',x:'にほん。'},
+  {j:'さん',r:'san',e:'Three (3)',c:'number',x:'さんにん。'},
+  {j:'よん',r:'yon',e:'Four (4)',c:'number',x:'よんじかん。'},
+  {j:'ご',r:'go',e:'Five (5)',c:'number',x:'ごふん。'},
+  {j:'ろく',r:'roku',e:'Six (6)',c:'number',x:'ろくじ。'},
+  {j:'なな',r:'nana',e:'Seven (7)',c:'number',x:'ななにん。'},
+  {j:'はち',r:'hachi',e:'Eight (8)',c:'number',x:'はちじ。'},
+  {j:'きゅう',r:'kyuu',e:'Nine (9)',c:'number',x:'きゅうふん。'},
+  {j:'じゅう',r:'juu',e:'Ten (10)',c:'number',x:'じゅうえん。'},
+  {j:'いま',r:'ima',e:'Now',c:'time',x:'いま何時ですか？'},
+  {j:'きょう',r:'kyou',e:'Today',c:'time',x:'今日は何日ですか？'},
+  {j:'あした',r:'ashita',e:'Tomorrow',c:'time',x:'明日会いましょう。'},
+  {j:'きのう',r:'kinou',e:'Yesterday',c:'time',x:'昨日映画を見ました。'},
+  {j:'まいにち',r:'mainichi',e:'Every day',c:'time',x:'毎日勉強します。'},
+  {j:'ことし',r:'kotoshi',e:'This year',c:'time',x:'今年日本語を勉強します。'},
+  {j:'わたし',r:'watashi',e:'I / Me',c:'noun',x:'私は学生です。'},
+  {j:'あなた',r:'anata',e:'You',c:'noun',x:'あなたは先生ですか？'},
+  {j:'ともだち',r:'tomodachi',e:'Friend',c:'noun',x:'私の友達はとても優しい。'},
+  {j:'せんせい',r:'sensei',e:'Teacher',c:'noun',x:'先生は日本人です。'},
+  {j:'がくせい',r:'gakusei',e:'Student',c:'noun',x:'私は学生です。'},
+  {j:'がっこう',r:'gakkou',e:'School',c:'noun',x:'毎日学校へ行きます。'},
+  {j:'えき',r:'eki',e:'Train station',c:'noun',x:'駅の近く。'},
+  {j:'みず',r:'mizu',e:'Water',c:'noun',x:'水を飲みます。'},
+  {j:'ごはん',r:'gohan',e:'Rice / Meal',c:'noun',x:'ご飯を食べます。'},
+  {j:'ほん',r:'hon',e:'Book',c:'noun',x:'本を読みます。'},
+  {j:'くるま',r:'kuruma',e:'Car',c:'noun',x:'車で行きます。'},
+  {j:'いぬ',r:'inu',e:'Dog',c:'noun',x:'かわいいいぬ。'},
+  {j:'ねこ',r:'neko',e:'Cat',c:'noun',x:'ねこが好きです。'},
+  {j:'たべる',r:'taberu',e:'To eat',c:'verb',x:'りんごを食べます。'},
+  {j:'のむ',r:'nomu',e:'To drink',c:'verb',x:'水を飲みます。'},
+  {j:'みる',r:'miru',e:'To see / watch',c:'verb',x:'映画を見ます。'},
+  {j:'よむ',r:'yomu',e:'To read',c:'verb',x:'本を読みます。'},
+  {j:'はなす',r:'hanasu',e:'To speak',c:'verb',x:'日本語を話します。'},
+  {j:'いく',r:'iku',e:'To go',c:'verb',x:'学校へ行きます。'},
+  {j:'くる',r:'kuru',e:'To come',c:'verb',x:'家に来ます。'},
+  {j:'かえる',r:'kaeru',e:'To return home',c:'verb',x:'家に帰ります。'},
+  {j:'わかる',r:'wakaru',e:'To understand',c:'verb',x:'日本語がわかります。'},
+  {j:'かく',r:'kaku',e:'To write',c:'verb',x:'手紙を書きます。'},
+  {j:'きく',r:'kiku',e:'To listen / ask',c:'verb',x:'音楽を聞きます。'},
+  {j:'おおきい',r:'ookii',e:'Big / Large',c:'adj',x:'大きい家。'},
+  {j:'ちいさい',r:'chiisai',e:'Small',c:'adj',x:'小さい猫。'},
+  {j:'あたらしい',r:'atarashii',e:'New',c:'adj',x:'新しい本。'},
+  {j:'ふるい',r:'furui',e:'Old',c:'adj',x:'古い車。'},
+  {j:'いい',r:'ii',e:'Good',c:'adj',x:'いい天気。'},
+  {j:'おいしい',r:'oishii',e:'Delicious',c:'adj',x:'おいしいです！'},
+  {j:'かわいい',r:'kawaii',e:'Cute',c:'adj',x:'かわいい猫。'},
+  {j:'きれいな',r:'kirei na',e:'Beautiful / Clean',c:'adj',x:'きれいな花。'},
+  {j:'たのしい',r:'tanoshii',e:'Fun / Enjoyable',c:'adj',x:'日本語は楽しい！'},
+  {j:'むずかしい',r:'muzukashii',e:'Difficult',c:'adj',x:'日本語は難しいです。'},
+];
 
-/* ── TOPBAR ── */
-.topbar-left{display:flex;align-items:center;gap:14px}
-.page-title{font-size:18px;font-weight:600;color:var(--ink)}
-.page-sub{font-size:13px;color:var(--ink3)}
-.streak-pill{display:flex;align-items:center;gap:5px;background:var(--gold3);border:1px solid var(--gold2);border-radius:20px;padding:4px 10px;font-size:13px;font-weight:500;color:var(--gold)}
-.xp-pill{display:flex;align-items:center;gap:5px;background:var(--plum3);border:1px solid var(--plum2);border-radius:20px;padding:4px 10px;font-size:13px;font-weight:500;color:var(--plum)}
+// ═══════════════════════════════════════════
+//  GRAMMAR DATA
+// ═══════════════════════════════════════════
+const GRAMMAR = [
+  {p:'〜は〜です',e:'[Topic] is [noun]',l:'N5',rule:'は (wa) marks the topic. です (desu) is "is/am/are". This is the most fundamental sentence pattern.',ex:[{j:'わたしはがくせいです。',r:'Watashi wa gakusei desu.',e:'I am a student.'},{j:'これはほんです。',r:'Kore wa hon desu.',e:'This is a book.'}]},
+  {p:'〜が好きです',e:'I like [noun]',l:'N5',rule:'が marks the object of 好き (suki = like) or 嫌い (kirai = dislike). Don\'t use を here.',ex:[{j:'すしがすきです。',r:'Sushi ga suki desu.',e:'I like sushi.'},{j:'にほんごがすきです。',r:'Nihongo ga suki desu.',e:'I like Japanese.'}]},
+  {p:'〜を〜ます',e:'Do [verb] to [object]',l:'N5',rule:'を (wo) marks the direct object of an action. Verb + ます is the polite present/future form.',ex:[{j:'ほんをよみます。',r:'Hon wo yomimasu.',e:'I read a book.'},{j:'みずをのみます。',r:'Mizu wo nomimasu.',e:'I drink water.'}]},
+  {p:'〜に行きます',e:'Go to [place]',l:'N5',rule:'に marks the destination with movement verbs like 行く (go), 来る (come), 帰る (return).',ex:[{j:'がっこうにいきます。',r:'Gakkou ni ikimasu.',e:'I go to school.'},{j:'うちにかえります。',r:'Uchi ni kaerimasu.',e:'I return home.'}]},
+  {p:'〜で〜ます',e:'Do [verb] at/by [place/means]',l:'N5',rule:'で marks where an action happens, or the means/tool used to perform it.',ex:[{j:'としょかんでよみます。',r:'Toshokan de yomimasu.',e:'I read at the library.'},{j:'バスでいきます。',r:'Basu de ikimasu.',e:'I go by bus.'}]},
+  {p:'〜も',e:'Also / too',l:'N5',rule:'も replaces は or が to mean "also" or "too". It adds the subject to a statement already made.',ex:[{j:'わたしもがくせいです。',r:'Watashi mo gakusei desu.',e:'I am also a student.'},{j:'これもいいです。',r:'Kore mo ii desu.',e:'This is also good.'}]},
+  {p:'〜ません',e:'Do not [verb]',l:'N5',rule:'Replace ます with ません to make a polite negative sentence.',ex:[{j:'わかりません。',r:'Wakarimasen.',e:'I don\'t understand.'},{j:'たべません。',r:'Tabemasen.',e:'I don\'t eat.'}]},
+  {p:'〜たい',e:'Want to [verb]',l:'N5',rule:'Attach たい to the verb stem (drop ます) to express desire. Conjugates like an い-adjective.',ex:[{j:'にほんごをはなしたいです。',r:'Nihongo wo hanashitai desu.',e:'I want to speak Japanese.'},{j:'すしをたべたい。',r:'Sushi wo tabetai.',e:'I want to eat sushi.'}]},
+  {p:'〜てください',e:'Please do [verb]',l:'N5',rule:'て-form of the verb + ください is a polite request. The て-form changes by verb type.',ex:[{j:'みてください。',r:'Mite kudasai.',e:'Please look.'},{j:'まってください。',r:'Matte kudasai.',e:'Please wait.'}]},
+  {p:'〜ています',e:'Is doing / in a state of',l:'N5',rule:'て-form + います describes an ongoing action or a resulting state still in effect.',ex:[{j:'いまたべています。',r:'Ima tabete imasu.',e:'I am eating now.'},{j:'にほんごをべんきょうしています。',r:'Nihongo wo benkyou shite imasu.',e:'I am studying Japanese.'}]},
+  {p:'〜から〜まで',e:'From [X] to [Y]',l:'N5',rule:'から = from, まで = until/to. Used for time ranges and distances.',ex:[{j:'くじからごじまではたらきます。',r:'Ku-ji kara go-ji made hatarakimasu.',e:'I work from 9 to 5.'},{j:'えきからがっこうまであるきます。',r:'Eki kara gakkou made arukimasu.',e:'I walk from the station to school.'}]},
+  {p:'〜ましょう',e:"Let's [verb]",l:'N5',rule:'Replace ます with ましょう to suggest doing something together with the listener.',ex:[{j:'たべましょう！',r:'Tabemashou!',e:"Let's eat!"},{j:'いっしょにいきましょう。',r:'Issho ni ikimashou.',e:"Let's go together."}]},
+];
 
-/* ── CYRENE COMPANION ── */
-.cyrene-bar{display:flex;align-items:center;gap:14px;background:var(--card);border:1px solid var(--border);border-radius:var(--r2);padding:14px 18px;margin-bottom:24px;box-shadow:var(--shadow)}
-.cyrene-avatar{width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,#7c3aed,#e11d74);display:flex;align-items:center;justify-content:center;font-family:var(--ffj);font-size:22px;flex-shrink:0;position:relative}
-.cyrene-avatar::after{content:'';position:absolute;inset:-2px;border-radius:50%;border:2px solid transparent;background:linear-gradient(135deg,#7c3aed,#e11d74) border-box;-webkit-mask:linear-gradient(#fff 0 0) padding-box,linear-gradient(#fff 0 0);-webkit-mask-composite:destination-out;mask-composite:exclude}
-.cyrene-speech{flex:1}
-.cyrene-name{font-size:11px;font-weight:600;color:var(--plum);text-transform:uppercase;letter-spacing:.8px;margin-bottom:3px}
-.cyrene-msg{font-size:14px;color:var(--ink2);line-height:1.5}
-.cyrene-msg b{color:var(--ink);font-weight:500}
+// ═══════════════════════════════════════════
+//  READING PASSAGES
+// ═══════════════════════════════════════════
+const PASSAGES = [
+  {id:'intro',title:'はじめまして — Nice to Meet You',
+   text:[
+     {j:'わたし',r:'watashi',e:'I'},' ',{j:'は',r:'wa',e:'(topic)'},' ',{j:'たなか',r:'Tanaka',e:'Tanaka'},' ',{j:'です',r:'desu',e:'am'},'. ',
+     {j:'にほんじん',r:'Nihonjin',e:'Japanese person'},' ',{j:'です',r:'desu',e:'I am'},'. ','\n',
+     {j:'まいにち',r:'mainichi',e:'every day'},' ',{j:'がっこう',r:'gakkou',e:'school'},' ',{j:'で',r:'de',e:'at'},' ',
+     {j:'にほんご',r:'nihongo',e:'Japanese'},' ',{j:'を',r:'wo',e:'(object)'},' ',{j:'べんきょうします',r:'benkyou shimasu',e:'I study'},'. ',
+     {j:'むずかしい',r:'muzukashii',e:'difficult'},' ',{j:'ですが',r:'desu ga',e:'but'},', ',
+     {j:'たのしい',r:'tanoshii',e:'fun'},' ',{j:'です',r:'desu',e:'it is'},'.',
+   ],
+   qs:[
+     {q:'Where does Tanaka study?',opts:['At home','At school','At the library','At a café'],ans:1,explain:'がっこうで = "at school"'},
+     {q:'How does Tanaka feel about Japanese?',opts:['Easy and boring','Difficult but fun','Easy and fun','Too difficult'],ans:1,explain:'むずかしいですが、たのしいです = "Difficult but fun"'},
+   ]},
+  {id:'weather',title:'てんき — The Weather',
+   text:[
+     {j:'きょう',r:'kyou',e:'today'},' ',{j:'は',r:'wa',e:'(topic)'},' ',{j:'いい',r:'ii',e:'good'},' ',{j:'てんき',r:'tenki',e:'weather'},' ',{j:'です',r:'desu',e:'it is'},'. ',
+     {j:'そと',r:'soto',e:'outside'},' ',{j:'は',r:'wa',e:'(topic)'},' ',{j:'あたたかい',r:'atatakai',e:'warm'},' ',{j:'です',r:'desu',e:'it is'},'.','\n',
+     {j:'こうえん',r:'kouen',e:'park'},' ',{j:'で',r:'de',e:'at'},' ',{j:'さんぽ',r:'sanpo',e:'a walk'},' ',{j:'を',r:'wo',e:'(object)'},' ',{j:'します',r:'shimasu',e:'I take'},'.',
+   ],
+   qs:[
+     {q:'What is the weather like?',opts:['Rainy','Cold','Good / Fine','Cloudy'],ans:2,explain:'いいてんきです = "good weather"'},
+     {q:'What activity will the narrator do?',opts:['Shopping','Go to school','Take a walk in the park','Cook dinner'],ans:2,explain:'こうえんでさんぽをします = "take a walk in the park"'},
+   ]},
+  {id:'food',title:'レストランで — At the Restaurant',
+   text:[
+     {j:'レストラン',r:'resutoran',e:'restaurant'},' ',{j:'で',r:'de',e:'at'},' ',{j:'ひるごはん',r:'hirugohan',e:'lunch'},' ',{j:'を',r:'wo',e:'(object)'},' ',{j:'たべます',r:'tabemasu',e:'I eat'},'.','\n',
+     {j:'すし',r:'sushi',e:'sushi'},' ',{j:'が',r:'ga',e:'(subject)'},' ',{j:'おいしそう',r:'oishisou',e:'looks delicious'},' ',{j:'です',r:'desu',e:'it does'},'.','\n',
+     {j:'すみません',r:'Sumimasen',e:'Excuse me'},', ',{j:'すし',r:'sushi',e:'sushi'},' ',{j:'を',r:'wo',e:'(object)'},' ',{j:'ひとつ',r:'hitotsu',e:'one'},' ',{j:'ください',r:'kudasai',e:'please'},'.',
+   ],
+   qs:[
+     {q:'What meal is being eaten?',opts:['Breakfast','Lunch','Dinner','A snack'],ans:1,explain:'ひるごはん = "lunch"'},
+     {q:'What is ordered?',opts:['Ramen','Tempura','Sushi','Bread'],ans:2,explain:'すしをひとつください = "one sushi please"'},
+   ]},
+];
 
+// ═══════════════════════════════════════════
+//  AUTH — THE ONLY auth entry point
+// ═══════════════════════════════════════════
+function switchAuthTab(tab) {
+  document.getElementById('tab-login').classList.toggle('active', tab === 'login');
+  document.getElementById('tab-signup').classList.toggle('active', tab === 'signup');
+  document.getElementById('panel-login').classList.toggle('hidden', tab !== 'login');
+  document.getElementById('panel-signup').classList.toggle('hidden', tab !== 'signup');
+}
 
-/* ── AUTH SCREEN ── */
-#auth-screen{position:fixed;inset:0;background:var(--bg);z-index:500;display:flex;align-items:center;justify-content:center}
-#auth-screen.hidden{display:none}
-.auth-card{background:var(--card);border:1px solid var(--border2);border-radius:24px;padding:44px 40px;width:400px;box-shadow:0 8px 40px rgba(100,80,140,0.14)}
-.auth-logo{font-family:var(--ffj);font-size:48px;text-align:center;margin-bottom:8px}
+async function doLogin() {
+  const email    = document.getElementById('login-email').value.trim();
+  const password = document.getElementById('login-password').value;
+  const btn = document.getElementById('login-btn');
+  const err = document.getElementById('login-err');
+  if (!email || !password) { err.textContent = 'Please fill in all fields.'; return; }
+  err.textContent = '';
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> Signing in…';
+  const { error } = await SB.auth.signInWithPassword({ email, password });
+  if (error) {
+    err.textContent = error.message;
+    btn.disabled = false;
+    btn.textContent = 'Sign in';
+  }
+  // ✅ On success: onAuthStateChange fires and takes over
+}
+
+async function doSignup() {
+  const username = document.getElementById('su-username').value.trim();
+  const email    = document.getElementById('su-email').value.trim();
+  const password = document.getElementById('su-password').value;
+  const btn = document.getElementById('su-btn');
+  const msg = document.getElementById('su-msg');
+  if (!username || !email || !password) { msg.textContent = 'Please fill in all fields.'; msg.className = 'auth-err'; return; }
+  if (password.length < 6) { msg.textContent = 'Password must be at least 6 characters.'; msg.className = 'auth-err'; return; }
+  msg.textContent = ''; msg.className = 'auth-err';
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> Creating account…';
+  const { error } = await SB.auth.signUp({
+    email, password,
+    options: { data: { username, display_name: username } }
+  });
+  if (error) {
+    msg.textContent = error.message;
+    btn.disabled = false;
+    btn.textContent = 'Create account';
+  } else {
+    msg.className = 'auth-ok';
+    msg.textContent = '✓ Check your email to confirm, then sign in!';
+    btn.textContent = 'Check your email ✓';
+  }
+}
+
+async function doLogout() {
+  if (RT_CHANNEL) { SB.removeChannel(RT_CHANNEL); RT_CHANNEL = null; }
+  await SB.auth.signOut();
+  // onAuthStateChange handles the rest
+}
+
+// ── THE SINGLE AUTH LISTENER ───────────────
+SB.auth.onAuthStateChange(async (event, session) => {
+  if (session && session.user) {
+    USER = session.user;
+    // Show app, hide auth
+    document.getElementById('auth-screen').classList.add('hidden');
+    document.getElementById('main-app').classList.remove('hidden');
+    // Load data then render
+    await loadUserData();
+    setupRealtime();
+    setPage('home');
+  } else {
+    USER    = null;
+    PROFILE = null;
+    // Hide app, show auth, reset form
+    document.getElementById('main-app').classList.add('hidden');
+    document.getElementById('auth-screen').classList.remove('hidden');
+    const btn = document.getElementById('login-btn');
+    if (btn) { btn.disabled = false; btn.textContent = 'Sign in'; }
+  }
+});
+
+// ═══════════════════════════════════════════
+//  DATA LOADING
+// ═══════════════════════════════════════════
+async function loadUserData() {
+  setSyncStatus('⟳', false);
+  // Load profile
+  const { data: prof } = await SB.from('profiles').select('*').eq('id', USER.id).single();
+  if (prof) {
+    PROFILE = prof;
+    ACTIVE_CHAR = prof.active_character || 'cyrene';
+  }
+  // Load kana progress
+  const { data: kp } = await SB.from('progress_kana').select('*').eq('user_id', USER.id);
+  KANA_P = {};
+  (kp || []).forEach(r => { KANA_P[r.kana_key] = { correct: r.correct || 0, wrong: r.wrong || 0 }; });
+  // Load vocab progress
+  const { data: vp } = await SB.from('progress_vocab').select('*').eq('user_id', USER.id);
+  VOCAB_P = {};
+  (vp || []).forEach(r => {
+    VOCAB_P[r.vocab_index] = {
+      correct: r.correct || 0, wrong: r.wrong || 0,
+      ease: parseFloat(r.ease) || 2.5,
+      interval_ms: r.interval_ms || 0,
+      next_review: r.next_review ? new Date(r.next_review).getTime() : 0,
+    };
+  });
+  setSyncStatus('', false);
+  updateHUD();
+}
+
+function setSyncStatus(msg) {
+  const el = document.getElementById('sync-dot');
+  if (el) el.textContent = msg;
+}
+
+// ═══════════════════════════════════════════
+//  XP / STREAK / HUD
+// ═══════════════════════════════════════════
+function updateHUD() {
+  if (!PROFILE) return;
+  const xp     = PROFILE.xp || 0;
+  const lvl    = PROFILE.level || 1;
+  const streak = PROFILE.streak || 0;
+  document.getElementById('xp-disp').textContent     = xp;
+  document.getElementById('streak-disp').textContent = streak;
+  document.getElementById('level-disp').textContent  = lvl;
+  const pct = (xp % 200) / 200;
+  document.getElementById('xp-arc').style.strokeDashoffset = 87.96 * (1 - pct);
+}
+
+async function addXP(amount) {
+  if (!PROFILE) return;
+  const newXp  = (PROFILE.xp || 0) + amount;
+  const newLvl = Math.floor(newXp / 200) + 1;
+  if (newLvl > (PROFILE.level || 1)) logActivity('level_up', { level: newLvl });
+  await SB.from('profiles').update({ xp: newXp, level: newLvl }).eq('id', USER.id);
+  PROFILE.xp = newXp; PROFILE.level = newLvl;
+  updateHUD();
+}
+
+async function checkStreak() {
+  if (!PROFILE) return;
+  const today = new Date().toDateString();
+  const last  = PROFILE.last_study_date ? new Date(PROFILE.last_study_date).toDateString() : null;
+  if (last === today) return;
+  const yest      = new Date(Date.now() - 86400000).toDateString();
+  const newStreak = last === yest ? (PROFILE.streak || 0) + 1 : 1;
+  await SB.from('profiles').update({ streak: newStreak, last_study_date: new Date().toISOString().split('T')[0] }).eq('id', USER.id);
+  PROFILE.streak = newStreak;
+  if (newStreak > 1 && newStreak % 7 === 0) logActivity('streak', { days: newStreak });
+  updateHUD();
+}
+
+async function logActivity(type, payload = {}) {
+  if (!USER) return;
+  await SB.from('activity').insert({ user_id: USER.id, type, payload });
+}
+
+// ═══════════════════════════════════════════
+//  NAVIGATION
+// ═══════════════════════════════════════════
+const PAGE_META = {
+  home:     { title: 'おはよう！',       sub: 'N5 · Beginner' },
+  kana:     { title: 'Kana Mastery',    sub: 'Hiragana & Katakana' },
+  vocab:    { title: 'Vocabulary',      sub: 'N5 Core Vocab' },
+  grammar:  { title: 'Grammar',         sub: 'N5 Patterns' },
+  reading:  { title: 'Reading',         sub: 'N5 Passages' },
+  quiz:     { title: 'JLPT Quiz',       sub: 'Practice Tests' },
+  friends:  { title: 'Friends',         sub: 'Study Together' },
+  settings: { title: 'Settings',        sub: 'Preferences' },
+};
+
+function setPage(page) {
+  Object.keys(PAGE_META).forEach(p => {
+    document.getElementById('page-'  + p)?.classList.toggle('active', p === page);
+    document.getElementById('nb-'    + p)?.classList.toggle('active', p === page);
+  });
+  const m = PAGE_META[page] || {};
+  document.getElementById('topbar-title').textContent = m.title || page;
+  document.getElementById('topbar-sub').textContent   = m.sub   || '';
+  if (page === 'home')     renderHome();
+  if (page === 'kana')     renderKanaGrids();
+  if (page === 'vocab')    initVocabFC();
+  if (page === 'grammar')  renderGrammar();
+  if (page === 'reading')  renderPassageList();
+  if (page === 'quiz')     renderQuizMenu();
+  if (page === 'settings') renderSettings();
+  if (page === 'friends')  loadFriendsActivity(false);
+}
+
+// ═══════════════════════════════════════════
+//  HOME
+// ═══════════════════════════════════════════
+function renderHome() {
+  if (!PROFILE) return;
+  const c = getChar();
+  renderPortrait(document.getElementById('home-portrait'), ACTIVE_CHAR);
+  const nameEl = document.getElementById('home-char-name');
+  nameEl.textContent  = c.name;
+  nameEl.style.color  = c.nameColor;
+  document.getElementById('companion-msg').textContent = charSay('greetings');
+
+  const now      = Date.now();
+  const due      = VOCAB.filter((_, i) => { const p = VOCAB_P[i]; return !p || p.next_review <= now; }).length;
+  const mastered = Object.values(VOCAB_P).filter(p => p.interval_ms > 3000000).length;
+
+  document.getElementById('s-reviewed').textContent = PROFILE.reviewed_today || 0;
+  document.getElementById('s-accuracy').textContent = (PROFILE.total_today || 0) > 0
+    ? Math.round((PROFILE.correct_today || 0) / PROFILE.total_today * 100) + '%' : '0%';
+  document.getElementById('s-due').textContent      = due;
+  document.getElementById('s-mastered').textContent = mastered;
+
+  const hM = HG.filter(k => (KANA_P[k.r] || {}).correct >= 3).length;
+  const kM = KT.filter(k => (KANA_P[k.r] || {}).correct >= 3).length;
+  document.getElementById('hp-lbl').textContent       = hM + '/46';
+  document.getElementById('kp-lbl').textContent       = kM + '/46';
+  document.getElementById('hp-bar').style.width       = Math.round(hM / 46 * 100) + '%';
+  document.getElementById('kp-bar').style.width       = Math.round(kM / 46 * 100) + '%';
+
+  const kanaDue = [...HG,...KT].filter(k => { const p = KANA_P[k.r]; return !p || p.correct < 3; }).length;
+  document.getElementById('mc-kana').textContent = kanaDue > 0 ? kanaDue + ' to review' : 'All mastered! 🎉';
+
+  checkStreak();
+  loadFriendsActivity(true);
+}
+
+// ═══════════════════════════════════════════
+//  SRS ENGINE
+// ═══════════════════════════════════════════
+function srsNext(prog, rating) {
+  const ease = prog.ease || 2.5;
+  if (rating === 0) return { interval_ms: 60000,   ease: Math.max(1.3, ease - 0.20), next_review: Date.now() + 60000 };
+  if (rating === 1) return { interval_ms: 600000,  ease: Math.max(1.3, ease - 0.15), next_review: Date.now() + 600000 };
+  const iv = rating === 3
+    ? (prog.interval_ms || 86400000) * ease * 1.3
+    : (prog.interval_ms || 86400000) * ease;
+  return { interval_ms: iv, ease: Math.min(3.0, ease + (rating === 3 ? 0.15 : 0)), next_review: Date.now() + iv };
+}
+
+// ═══════════════════════════════════════════
+//  KANA
+// ═══════════════════════════════════════════
+let kQSet = [], kQIdx = 0, kQScore = 0;
+
+function renderKanaGrids() {
+  renderKanaGrid(HG, document.getElementById('kt-h'));
+  renderKanaGrid(KT, document.getElementById('kt-k'));
+}
+
+function renderKanaGrid(set, el) {
+  if (!el) return;
+  let html = '<div style="font-size:11.5px;color:var(--ink3);margin-bottom:10px">'
+    + '<span style="color:var(--green);font-weight:600">■</span> Mastered &nbsp;'
+    + '<span style="color:var(--gold);font-weight:600">■</span> Learning &nbsp;'
+    + '<span style="color:var(--ink3)">■</span> New</div><div class="kana-grid">';
+  set.forEach(k => {
+    const p   = KANA_P[k.r] || {};
+    const cls = p.correct >= 3 ? 'mastered' : p.correct >= 1 ? 'learning' : '';
+    html += `<div class="kana-cell ${cls}"><div class="kana-char">${k.k}</div><div class="kana-rom">${k.r}</div></div>`;
+  });
+  html += '</div><button class="btn btn-primary btn-sm" style="margin-top:8px" onclick="kanaTab(\'q\',document.querySelectorAll(\'#page-kana .tab\')[2])">Quiz this set →</button>';
+  el.innerHTML = html;
+}
+
+function kanaTab(t, btn) {
+  document.querySelectorAll('#page-kana .tab').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('kt-h').classList.toggle('hidden', t !== 'h');
+  document.getElementById('kt-k').classList.toggle('hidden', t !== 'k');
+  document.getElementById('kt-q').classList.toggle('hidden', t !== 'q');
+  if (t === 'q') startKanaQuiz();
+}
+
+function startKanaQuiz() {
+  kQSet = shuffle([...HG,...KT]); kQIdx = 0; kQScore = 0;
+  renderKQ();
+}
+
+function renderKQ() {
+  if (kQIdx >= kQSet.length) {
+    document.getElementById('kq-char').textContent   = '🎉';
+    document.getElementById('kq-prompt').textContent = 'Done! Score: ' + kQScore + '/' + kQSet.length;
+    document.getElementById('kq-opts').innerHTML     = '<button class="btn btn-primary" style="grid-column:span 4" onclick="startKanaQuiz()">Play Again</button>';
+    document.getElementById('kq-score').textContent  = '';
+    return;
+  }
+  const q = kQSet[kQIdx];
+  document.getElementById('kq-char').textContent  = q.k;
+  document.getElementById('kq-score').textContent = kQScore + '/' + kQIdx;
+  document.getElementById('kq-fb').style.display  = 'none';
+  const opts = shuffle([q.r, ...shuffle(ALL_ROM.filter(r => r !== q.r)).slice(0, 3)]);
+  document.getElementById('kq-opts').innerHTML = opts.map(o =>
+    `<div class="kana-opt" onclick="checkKQ(this,'${o}','${q.r}','${q.k}')">${o}</div>`
+  ).join('');
+}
+
+async function checkKQ(el, chosen, correct, kana) {
+  document.querySelectorAll('.kana-opt').forEach(o => { o.classList.add('disabled'); o.style.pointerEvents = 'none'; });
+  const prog = KANA_P[correct] || { correct: 0, wrong: 0 };
+  const fb   = document.getElementById('kq-fb');
+  if (chosen === correct) {
+    el.classList.add('correct');
+    prog.correct = (prog.correct || 0) + 1;
+    kQScore++;
+    fb.style.cssText = 'display:block;background:var(--green3);color:var(--green);padding:9px 13px;border-radius:var(--r);font-size:12.5px';
+    fb.textContent   = charSay('correct') + '  ✓ ' + kana + ' = ' + correct;
+    await addXP(5);
+    if (prog.correct === 3) logActivity('kana_mastered', { kana, script: HG.some(h => h.r === correct) ? 'hiragana' : 'katakana' });
+  } else {
+    el.classList.add('wrong');
+    document.querySelectorAll('.kana-opt').forEach(o => { if (o.textContent.trim() === correct) o.classList.add('correct'); });
+    prog.wrong = (prog.wrong || 0) + 1;
+    fb.style.cssText = 'display:block;background:var(--red3);color:var(--red);padding:9px 13px;border-radius:var(--r);font-size:12.5px';
+    fb.textContent   = charSay('wrong') + ' — ' + kana + ' is "' + correct + '"';
+  }
+  KANA_P[correct] = prog;
+  if (USER) {
+    await SB.from('progress_kana').upsert(
+      { user_id: USER.id, kana_key: correct, correct: prog.correct, wrong: prog.wrong, next_review: new Date().toISOString(), updated_at: new Date().toISOString() },
+      { onConflict: 'user_id,kana_key' }
+    );
+  }
+  setTimeout(() => { kQIdx++; renderKQ(); }, 1400);
+}
+
+// ═══════════════════════════════════════════
+//  VOCAB SRS
+// ═══════════════════════════════════════════
+let fcQueue = [], fcIdx = 0, fcRevealed = false;
+
+function getDueVocab() {
+  const now = Date.now();
+  return VOCAB.map((v, i) => ({ v, i }))
+    .filter(({ i }) => { const p = VOCAB_P[i]; return !p || p.next_review <= now; })
+    .slice(0, 20);
+}
+
+function initVocabFC() {
+  const due = getDueVocab();
+  fcQueue   = due.map(({ v, i }) => ({ ...v, idx: i }));
+  fcIdx     = 0;
+  fcRevealed = false;
+  document.getElementById('fc-done').classList.add('hidden');
+  document.getElementById('fc-back').classList.add('hidden');
+  const fc = document.getElementById('flashcard');
+  if (!fcQueue.length) {
+    fc.style.display = 'none';
+    document.getElementById('fc-done').classList.remove('hidden');
+  } else {
+    fc.style.display = 'flex';
+    updateFC();
+  }
+}
+
+function updateFC() {
+  if (fcIdx >= fcQueue.length) {
+    document.getElementById('flashcard').style.display = 'none';
+    document.getElementById('fc-back').classList.add('hidden');
+    document.getElementById('fc-done').classList.remove('hidden');
+    return;
+  }
+  const card = fcQueue[fcIdx];
+  const fe   = document.getElementById('fc-front');
+  fe.textContent = card.j;
+  fe.className   = 'card-main' + (card.j.length > 4 ? ' sm' : '');
+  document.getElementById('fc-cat').textContent   = '[' + card.c + ']';
+  document.getElementById('fc-badge').textContent = card.c || 'vocab';
+  document.getElementById('flashcard').classList.remove('revealed');
+  document.getElementById('fc-back').classList.add('hidden');
+  document.getElementById('flashcard').style.display = 'flex';
+  document.getElementById('fc-cur').textContent  = fcIdx + 1;
+  document.getElementById('fc-tot').textContent  = fcQueue.length;
+  document.getElementById('fc-left').textContent = (fcQueue.length - fcIdx) + ' left';
+  document.getElementById('fc-bar').style.width  = Math.round(fcIdx / fcQueue.length * 100) + '%';
+  fcRevealed = false;
+}
+
+function revealCard() {
+  if (fcRevealed) return;
+  fcRevealed = true;
+  const card = fcQueue[fcIdx];
+  document.getElementById('flashcard').classList.add('revealed');
+  document.getElementById('fc-reading').textContent = card.r;
+  document.getElementById('fc-meaning').textContent = card.e;
+  document.getElementById('fc-ex').textContent      = card.x || '';
+  document.getElementById('fc-back').classList.remove('hidden');
+}
+
+async function rateCard(rating) {
+  if (!fcRevealed) return;
+  const card    = fcQueue[fcIdx];
+  const prog    = VOCAB_P[card.idx] || { correct: 0, wrong: 0, ease: 2.5, interval_ms: 0 };
+  const next    = srsNext(prog, rating);
+  const updated = { ...prog, ...next,
+    correct: prog.correct + (rating >= 2 ? 1 : 0),
+    wrong:   prog.wrong   + (rating  < 2 ? 1 : 0),
+  };
+  VOCAB_P[card.idx] = updated;
+  if (USER) {
+    await SB.from('progress_vocab').upsert(
+      { user_id: USER.id, vocab_index: card.idx, correct: updated.correct, wrong: updated.wrong,
+        ease: updated.ease, interval_ms: updated.interval_ms,
+        next_review: new Date(updated.next_review).toISOString(), updated_at: new Date().toISOString() },
+      { onConflict: 'user_id,vocab_index' }
+    );
+  }
+  if (rating >= 2) {
+    await addXP(10);
+    if (PROFILE) {
+      const rt = (PROFILE.reviewed_today || 0) + 1;
+      const ct = (PROFILE.correct_today  || 0) + 1;
+      const tt = (PROFILE.total_today    || 0) + 1;
+      await SB.from('profiles').update({ reviewed_today: rt, correct_today: ct, total_today: tt }).eq('id', USER.id);
+      PROFILE.reviewed_today = rt; PROFILE.correct_today = ct; PROFILE.total_today = tt;
+      if ([10, 50, 100].includes(rt)) logActivity('vocab_milestone', { count: rt });
+    }
+  } else if (PROFILE) {
+    const tt = (PROFILE.total_today || 0) + 1;
+    await SB.from('profiles').update({ total_today: tt }).eq('id', USER.id);
+    PROFILE.total_today = tt;
+  }
+  fcIdx++;
+  updateFC();
+}
+
+function vocabTab(t, btn) {
+  document.querySelectorAll('#page-vocab .tab').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('vt-fc').classList.toggle('hidden', t !== 'fc');
+  document.getElementById('vt-browse').classList.toggle('hidden', t !== 'browse');
+  if (t === 'browse') renderVocabBrowse();
+}
+
+function renderVocabBrowse() {
+  const search = document.getElementById('vs-search').value.toLowerCase();
+  const cat    = document.getElementById('vs-cat').value;
+  const items  = VOCAB.filter(v =>
+    (!cat || v.c === cat) &&
+    (!search || v.j.includes(search) || v.r.includes(search) || v.e.toLowerCase().includes(search))
+  );
+  document.getElementById('vocab-list').innerHTML = items.map(v =>
+    `<div style="background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:10px 13px;margin-bottom:6px;display:flex;justify-content:space-between;align-items:center">
+       <div><span style="font-family:var(--ffj);font-size:16px;margin-right:8px">${v.j}</span><span style="font-size:11.5px;color:var(--plum)">${v.r}</span>
+       <div style="font-size:11px;color:var(--ink3);margin-top:1px">${v.e}</div></div>
+       <span style="font-size:9.5px;font-weight:600;text-transform:uppercase;background:var(--plum3);color:var(--plum);padding:2px 6px;border-radius:20px">${v.c}</span>
+     </div>`
+  ).join('');
+}
+
+// ═══════════════════════════════════════════
+//  GRAMMAR
+// ═══════════════════════════════════════════
+function renderGrammar() {
+  document.getElementById('grammar-list').innerHTML = GRAMMAR.map((g, i) =>
+    `<div class="grammar-card">
+       <div class="gc-head" onclick="toggleG(${i})">
+         <div><div class="gc-pattern">${g.p}</div><div class="gc-eng">${g.e}</div></div>
+         <div style="display:flex;gap:6px;align-items:center">
+           <span class="gc-lvl">${g.l}</span>
+           <svg class="gc-chevron" id="gc-cv-${i}" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+         </div>
+       </div>
+       <div class="gc-body" id="gc-b-${i}">
+         <div class="gc-rule">${g.rule}</div>
+         ${g.ex.map(e =>
+           `<div class="gc-ex">
+              <div class="gc-ex-jp">${e.j}</div>
+              <div class="gc-ex-read">${e.r}</div>
+              <div class="gc-ex-en">${e.e}</div>
+            </div>`
+         ).join('')}
+       </div>
+     </div>`
+  ).join('');
+}
+function toggleG(i) {
+  document.getElementById('gc-b-'  + i).classList.toggle('open');
+  document.getElementById('gc-cv-' + i).classList.toggle('open');
+}
+
+// ═══════════════════════════════════════════
+//  READING
+// ═══════════════════════════════════════════
+function renderPassageList() {
+  document.getElementById('passage-cards').innerHTML = PASSAGES.map(p =>
+    `<div class="mode-card" onclick="openPassage('${p.id}')">
+       <div class="mode-icon" style="background:var(--gold3)">📖</div>
+       <div class="mode-title">${p.title}</div>
+       <div class="mode-desc">Click any word for instant translation.</div>
+       <div class="mode-badge">${p.qs.length} questions</div>
+     </div>`
+  ).join('');
+}
+
+function openPassage(id) {
+  const p = PASSAGES.find(x => x.id === id);
+  if (!p) return;
+  document.getElementById('reading-menu').classList.add('hidden');
+  document.getElementById('reading-active').classList.remove('hidden');
+  document.getElementById('ra-title').textContent = p.title;
+  let html = '';
+  p.text.forEach(part => {
+    if (typeof part === 'string') {
+      html += part === '\n' ? '<br>' : part;
+    } else {
+      html += `<span class="vocab-word" data-j="${part.j}" data-r="${part.r}" data-e="${part.e}"
+        onmouseenter="showTip(event,this)" onmouseleave="hideTip()">${part.j}</span>`;
+    }
+  });
+  document.getElementById('ra-text').innerHTML = html;
+  document.getElementById('ra-qs').innerHTML = p.qs.map((q, qi) =>
+    `<div style="background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:13px 15px;margin-bottom:9px">
+       <div style="font-size:13px;font-weight:500;margin-bottom:9px">${qi + 1}. ${q.q}</div>
+       <div style="display:flex;flex-direction:column;gap:5px">
+         ${q.opts.map((o, oi) =>
+           `<div class="rq-opt" style="padding:7px 11px;border:1.5px solid var(--border2);border-radius:8px;cursor:pointer;font-size:12.5px;transition:all .13s"
+             onclick="checkRQ(this,${oi},${q.ans},'${q.explain.replace(/'/g, "\\'")}')">
+             ${String.fromCharCode(65 + oi)}. ${o}
+           </div>`
+         ).join('')}
+       </div>
+     </div>`
+  ).join('');
+}
+
+function showTip(e, el) {
+  const t = document.getElementById('tooltip');
+  document.getElementById('tt-jp').textContent   = el.dataset.j;
+  document.getElementById('tt-read').textContent = el.dataset.r;
+  document.getElementById('tt-en').textContent   = el.dataset.e;
+  t.style.display = 'block';
+  t.style.left    = Math.min(e.clientX + 10, window.innerWidth - 190) + 'px';
+  t.style.top     = (e.clientY - 70) + 'px';
+}
+function hideTip() { document.getElementById('tooltip').style.display = 'none'; }
+
+async function checkRQ(el, chosen, correct, explain) {
+  el.parentElement.querySelectorAll('.rq-opt').forEach(o => o.style.pointerEvents = 'none');
+  if (chosen === correct) {
+    el.style.cssText += ';background:var(--green3);border-color:#86efac;color:var(--green)';
+    await addXP(15);
+  } else {
+    el.style.cssText += ';background:var(--red3);border-color:#fca5a5;color:var(--red)';
+    el.parentElement.querySelectorAll('.rq-opt')[correct].style.cssText += ';background:var(--green3);border-color:#86efac;color:var(--green)';
+  }
+  document.getElementById('companion-msg').textContent = explain;
+}
+
+function backToPassages() {
+  document.getElementById('reading-menu').classList.remove('hidden');
+  document.getElementById('reading-active').classList.add('hidden');
+}
+
+// ═══════════════════════════════════════════
+//  QUIZ
+// ═══════════════════════════════════════════
+let qzQs = [], qzIdx = 0, qzScore = 0;
+
+function renderQuizMenu() {
+  const c  = getChar();
+  renderPortrait(document.getElementById('quiz-portrait'), ACTIVE_CHAR);
+  const cn = document.getElementById('quiz-char-name');
+  if (cn) { cn.textContent = c.name; cn.style.color = c.nameColor; }
+  const cm = document.getElementById('quiz-char-msg');
+  if (cm) cm.textContent = charSay('greetings');
+}
+
+function startQuiz(type) {
+  document.getElementById('quiz-menu').classList.add('hidden');
+  document.getElementById('quiz-result').classList.add('hidden');
+  document.getElementById('quiz-active').classList.remove('hidden');
+  if (type === 'vocab')   qzQs = buildVocabQ(10);
+  else if (type === 'grammar') qzQs = buildGrammarQ(10);
+  else                    qzQs = buildKanaQ(20);
+  qzIdx = 0; qzScore = 0;
+  document.getElementById('qz-tot').textContent = qzQs.length;
+  renderQZ();
+}
+
+function buildVocabQ(n) {
+  return shuffle([...VOCAB]).slice(0, n).map(v => {
+    const wrongs = shuffle(VOCAB.filter(x => x.e !== v.e)).slice(0, 3).map(x => x.e);
+    return { instr: 'What does this word mean?', q: v.j, sub: v.r, ans: v.e, opts: shuffle([v.e, ...wrongs]), explain: v.j + ' = ' + v.e, ex: v.x || '' };
+  });
+}
+function buildGrammarQ(n) {
+  return shuffle([...GRAMMAR]).slice(0, n).map(g => {
+    const wrongs = shuffle(GRAMMAR.filter(x => x.p !== g.p)).slice(0, 3).map(x => x.e);
+    return { instr: 'What does this pattern mean?', q: g.p, sub: '', ans: g.e, opts: shuffle([g.e, ...wrongs]), explain: g.p + ' — ' + g.e, ex: g.ex[0].j + ' → ' + g.ex[0].e };
+  });
+}
+function buildKanaQ(n) {
+  return shuffle([...HG,...KT]).slice(0, n).map(k => {
+    const wrongs = shuffle(ALL_ROM.filter(r => r !== k.r)).slice(0, 3);
+    return { instr: 'Romaji reading?', q: k.k, sub: '', ans: k.r, opts: shuffle([k.r, ...wrongs]), explain: k.k + ' = "' + k.r + '"', ex: '' };
+  });
+}
+
+function renderQZ() {
+  if (qzIdx >= qzQs.length) { showQZResult(); return; }
+  const q = qzQs[qzIdx];
+  document.getElementById('qz-num').textContent      = qzIdx + 1;
+  document.getElementById('qz-progress').style.width = Math.round(qzIdx / qzQs.length * 100) + '%';
+  document.getElementById('qz-score').textContent    = qzScore;
+  document.getElementById('qz-instr').textContent    = q.instr;
+  document.getElementById('qz-q').textContent        = q.q;
+  document.getElementById('qz-sub').textContent      = q.sub;
+  document.getElementById('qz-fb').classList.remove('show', 'ok', 'bad');
+  document.getElementById('qz-opts').innerHTML = q.opts.map(o =>
+    `<button class="mcq-opt" onclick="checkQZ(this,${JSON.stringify(o)},${JSON.stringify(q.ans)},${qzIdx})">${o}</button>`
+  ).join('');
+}
+
+async function checkQZ(el, chosen, correct, qi) {
+  document.querySelectorAll('.mcq-opt').forEach(o => o.classList.add('disabled'));
+  const q  = qzQs[qi];
+  const fb = document.getElementById('qz-fb');
+  if (chosen === correct) {
+    el.classList.add('correct'); qzScore++;
+    document.getElementById('qz-score').textContent = qzScore;
+    fb.classList.add('show', 'ok');
+    document.getElementById('qz-fb-title').textContent = '✓ Correct!  ' + charSay('correct');
+    await addXP(10);
+  } else {
+    el.classList.add('wrong');
+    document.querySelectorAll('.mcq-opt').forEach(o => { if (o.textContent.trim() === correct) o.classList.add('correct'); });
+    fb.classList.add('show', 'bad');
+    document.getElementById('qz-fb-title').textContent = '✗ Not quite — ' + charSay('wrong');
+  }
+  document.getElementById('qz-fb-body').textContent = q.explain;
+  document.getElementById('qz-fb-ex').textContent   = q.ex;
+}
+
+function nextQz() { qzIdx++; renderQZ(); }
+
+function endQuiz() {
+  document.getElementById('quiz-active').classList.add('hidden');
+  document.getElementById('quiz-result').classList.add('hidden');
+  document.getElementById('quiz-menu').classList.remove('hidden');
+  renderQuizMenu();
+}
+
+async function showQZResult() {
+  document.getElementById('quiz-active').classList.add('hidden');
+  document.getElementById('quiz-result').classList.remove('hidden');
+  const pct = qzScore / qzQs.length;
+  document.getElementById('qr-emoji').textContent = pct >= 0.8 ? '🏆' : pct >= 0.6 ? '😊' : '💪';
+  document.getElementById('qr-score').textContent = qzScore;
+  document.getElementById('qr-tot').textContent   = qzQs.length;
+  document.getElementById('qr-msg').textContent   = pct >= 0.8 ? charSay('quizGood') : pct >= 0.5 ? charSay('quizOk') : charSay('quizPoor');
+  await addXP(qzScore * 15);
+  logActivity('quiz_complete', { score: qzScore, total: qzQs.length });
+}
+
+// ═══════════════════════════════════════════
+//  FRIENDS
+// ═══════════════════════════════════════════
+function friendsTab(t, btn) {
+  document.querySelectorAll('#page-friends .tab').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  ['activity','list','add'].forEach(id => document.getElementById('ft-' + id).classList.toggle('hidden', id !== t));
+  if (t === 'activity') loadFriendsActivity(false);
+  if (t === 'list')     loadFriendsList();
+  if (t === 'add')      loadFriendRequests();
+}
+
+function timeAgo(iso) {
+  const d = (Date.now() - new Date(iso).getTime()) / 1000;
+  if (d < 60)    return 'just now';
+  if (d < 3600)  return Math.floor(d / 60)    + 'm ago';
+  if (d < 86400) return Math.floor(d / 3600)  + 'h ago';
+  return Math.floor(d / 86400) + 'd ago';
+}
+
+function actLabel(a) {
+  const t = a.type, p = a.payload || {};
+  if (t === 'streak')          return `hit a <strong>${p.days}-day streak</strong> 🔥`;
+  if (t === 'level_up')        return `reached <strong>Level ${p.level}</strong> ⭐`;
+  if (t === 'kana_mastered')   return `mastered <strong>${p.kana}</strong> in ${p.script || 'kana'}!`;
+  if (t === 'quiz_complete')   return `scored <strong>${p.score}/${p.total}</strong> on a quiz 🎯`;
+  if (t === 'vocab_milestone') return `learned their <strong>${p.count}th word</strong> 📖`;
+  return 'studied Japanese';
+}
+
+async function loadFriendsActivity(homeOnly = false) {
+  if (!USER) return;
+  const { data: fRows } = await SB.from('friends')
+    .select('user_id,friend_id')
+    .or(`user_id.eq.${USER.id},friend_id.eq.${USER.id}`)
+    .eq('status', 'accepted');
+  const fIds = (fRows || []).map(r => r.user_id === USER.id ? r.friend_id : r.user_id);
+
+  if (!fIds.length) {
+    if (!homeOnly) {
+      const el = document.getElementById('ft-activity');
+      if (el) el.innerHTML = '<div style="text-align:center;padding:40px;color:var(--ink3)"><div style="font-size:30px;margin-bottom:10px">👥</div>Add friends to see their activity here.</div>';
+    }
+    document.getElementById('home-feed-section')?.classList.add('hidden');
+    return;
+  }
+
+  const { data: acts } = await SB.from('activity')
+    .select('*,profiles(username,avatar_emoji)')
+    .in('user_id', fIds)
+    .order('created_at', { ascending: false })
+    .limit(20);
+  const items = acts || [];
+
+  if (!homeOnly) {
+    const el = document.getElementById('ft-activity');
+    if (el) el.innerHTML = items.length
+      ? items.map(a => feedItem(a)).join('')
+      : '<div style="padding:22px;color:var(--ink3)">No activity yet.</div>';
+  }
+  const homeEl = document.getElementById('home-feed');
+  if (homeEl && items.length) {
+    document.getElementById('home-feed-section')?.classList.remove('hidden');
+    homeEl.innerHTML = items.slice(0, 3).map(a => feedItem(a)).join('');
+  }
+}
+
+function feedItem(a) {
+  const prof = a.profiles || {};
+  return `<div class="feed-item">
+    <div class="feed-avatar">${prof.avatar_emoji || '🌸'}</div>
+    <div class="feed-text"><strong>${prof.username || 'Friend'}</strong> ${actLabel(a)}<div class="feed-time">${timeAgo(a.created_at)}</div></div>
+    <button class="enc-btn" id="enc-${a.id}" onclick="sendEnc('${a.id}',this)">🌸 Cheer</button>
+  </div>`;
+}
+
+async function sendEnc(id, btn) {
+  if (btn.classList.contains('sent')) return;
+  btn.classList.add('sent'); btn.textContent = '🌸 Sent!';
+  const { data: act } = await SB.from('activity').select('encouragements').eq('id', id).single();
+  const encs = [...(act?.encouragements || []), { from_id: USER.id, emoji: '🌸', at: new Date().toISOString() }];
+  await SB.from('activity').update({ encouragements: encs }).eq('id', id);
+}
+
+async function loadFriendsList() {
+  const el = document.getElementById('friends-list');
+  if (!el || !USER) return;
+  const { data: r1 } = await SB.from('friends').select('friend_id,profiles!friends_friend_id_fkey(username,avatar_emoji,xp,streak)').eq('user_id', USER.id).eq('status','accepted');
+  const { data: r2 } = await SB.from('friends').select('user_id,profiles!friends_user_id_fkey(username,avatar_emoji,xp,streak)').eq('friend_id', USER.id).eq('status','accepted');
+  const all = [...(r1||[]).map(r => r.profiles), ...(r2||[]).map(r => r.profiles)].filter(Boolean);
+  el.innerHTML = all.length
+    ? all.map(f =>
+        `<div class="friend-card"><div class="friend-av">${f.avatar_emoji || '🌸'}</div>
+         <div><div style="font-size:13.5px;font-weight:600">${f.username}</div>
+         <div style="font-size:11px;color:var(--ink3)">⚡ ${f.xp||0} XP &nbsp;🔥 ${f.streak||0}d streak</div></div></div>`
+      ).join('')
+    : '<div style="padding:22px;color:var(--ink3)">No friends yet — use the Add Friend tab!</div>';
+}
+
+async function loadFriendRequests() {
+  const el = document.getElementById('fr-requests');
+  if (!el || !USER) return;
+  const { data: reqs } = await SB.from('friends')
+    .select('id,profiles!friends_user_id_fkey(username,avatar_emoji)')
+    .eq('friend_id', USER.id).eq('status','pending');
+  el.innerHTML = (reqs||[]).length
+    ? reqs.map(r =>
+        `<div class="friend-card"><div class="friend-av">${r.profiles?.avatar_emoji||'🌸'}</div>
+         <div style="flex:1"><div style="font-size:13.5px;font-weight:600">${r.profiles?.username}</div>
+         <div style="font-size:11px;color:var(--ink3)">Wants to study with you!</div></div>
+         <button class="btn btn-primary btn-sm" onclick="acceptFriend('${r.id}')">Accept</button></div>`
+      ).join('')
+    : '<div style="font-size:12.5px;color:var(--ink3)">No pending requests.</div>';
+}
+
+async function acceptFriend(id) {
+  await SB.from('friends').update({ status: 'accepted' }).eq('id', id);
+  loadFriendRequests(); loadFriendsList();
+}
+
+async function searchFriend() {
+  const un  = document.getElementById('fr-search-in').value.trim();
+  const res = document.getElementById('fr-result');
+  if (!un) return;
+  const { data } = await SB.from('profiles').select('id,username,avatar_emoji,xp,streak').eq('username', un).neq('id', USER.id).single();
+  if (!data) { res.innerHTML = '<div style="font-size:12.5px;color:var(--ink3)">No user found with that username.</div>'; return; }
+  res.innerHTML = `<div class="friend-card"><div class="friend-av">${data.avatar_emoji||'🌸'}</div>
+    <div style="flex:1"><div style="font-size:13.5px;font-weight:600">${data.username}</div>
+    <div style="font-size:11px;color:var(--ink3)">⚡ ${data.xp||0} XP</div></div>
+    <button class="btn btn-primary btn-sm" onclick="sendFriendReq('${data.id}',this)">+ Add</button></div>`;
+}
+
+async function sendFriendReq(fId, btn) {
+  btn.disabled = true; btn.textContent = 'Sent ✓';
+  await SB.from('friends').insert({ user_id: USER.id, friend_id: fId, status: 'pending' });
+}
+
+// ═══════════════════════════════════════════
+//  SETTINGS
+// ═══════════════════════════════════════════
+function renderSettings() {
+  const el = document.getElementById('char-grid');
+  if (el) {
+    el.innerHTML = Object.values(CHARS).map(c => {
+      const active = c.id === ACTIVE_CHAR;
+      return `<div class="char-select-card ${active ? 'active' : ''}" onclick="selectChar('${c.id}')">
+        <div class="char-portrait" id="sp-${c.id}"></div>
+        <div class="char-name-label">${c.name}</div>
+        <div class="char-style-label">${active ? '✓ Active' : c.emoji}</div>
+      </div>`;
+    }).join('');
+    Object.values(CHARS).forEach(c => renderPortrait(document.getElementById('sp-' + c.id), c.id));
+  }
+  const acct = document.getElementById('acct-info');
+  if (acct && PROFILE) {
+    acct.textContent = 'Signed in as ' + (PROFILE.username || USER?.email || '…') + ' · ' + (USER?.email || '');
+  }
+}
+
+async function selectChar(id) {
+  ACTIVE_CHAR = id;
+  if (USER) await SB.from('profiles').update({ active_character: id }).eq('id', USER.id);
+  if (PROFILE) PROFILE.active_character = id;
+  renderSettings();
+}
+
+// ═══════════════════════════════════════════
+//  REALTIME
+// ═══════════════════════════════════════════
+function setupRealtime() {
+  if (RT_CHANNEL) { SB.removeChannel(RT_CHANNEL); RT_CHANNEL = null; }
+  RT_CHANNEL = SB.channel('lwm-activity')
+    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'activity' }, () => {
+      const onHome    = document.getElementById('page-home')?.classList.contains('active');
+      const onFriends = document.getElementById('page-friends')?.classList.contains('active');
+      if (onHome || onFriends) loadFriendsActivity(onHome && !onFriends);
+    })
+    .subscribe();
+}
+
+// ═══════════════════════════════════════════
+//  UTILS
+// ═══════════════════════════════════════════
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}.auth-logo{font-family:var(--ffj);font-size:48px;text-align:center;margin-bottom:8px}
 .auth-title{font-size:22px;font-weight:600;text-align:center;margin-bottom:4px}
 .auth-sub{font-size:13px;color:var(--ink3);text-align:center;margin-bottom:28px}
 .auth-tabs{display:flex;gap:4px;background:var(--surface);padding:4px;border-radius:10px;margin-bottom:24px;border:1px solid var(--border)}
