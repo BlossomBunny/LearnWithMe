@@ -1775,11 +1775,14 @@ function renderSettings() {
 }
 
 async function selectChar(id) {
+  // Update UI instantly — no waiting for network
   ACTIVE_CHAR = id;
-  if (USER) await SB.from('profiles').update({ active_character: id }).eq('id', USER.id);
   if (PROFILE) PROFILE.active_character = id;
+
+  // Re-render settings grid immediately so highlight moves right away
   renderSettings();
-  // Update companion bar on home page immediately
+
+  // Update companion bar on home
   const c = getChar();
   const nameEl = document.getElementById('home-char-name');
   if (nameEl) { nameEl.textContent = c.name; nameEl.style.color = c.nameColor; }
@@ -1787,8 +1790,12 @@ async function selectChar(id) {
   if (msgEl) msgEl.textContent = charSay('greetings');
   renderPortrait(document.getElementById('home-portrait'), id);
   renderPortrait(document.getElementById('quiz-portrait'), id);
-  // Flash the companion modal so user sees the new character
+
+  // Show new companion immediately
   openCompanionModal(charSay('greetings'));
+
+  // Save to Supabase in background — don't block UI
+  if (USER) SB.from('profiles').update({ active_character: id }).eq('id', USER.id).then(() => {});
 }
 
 // ═══════════════════════════════════════════
