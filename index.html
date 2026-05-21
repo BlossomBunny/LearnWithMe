@@ -956,6 +956,8 @@ async function doSignup() {
 }
 
 async function doLogout() {
+  // Close modal and reset body scroll in case companion modal was open
+  closeCompanionModal();
   if (RT_CHANNEL) { SB.removeChannel(RT_CHANNEL); RT_CHANNEL = null; }
   await SB.auth.signOut();
   // onAuthStateChange handles the rest
