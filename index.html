@@ -778,27 +778,35 @@ function renderHome() {
   document.getElementById('hp-bar').style.width = Math.round((hM/46)*100) + '%';
 }
 
-// ═══════════════════════════════════════════
-//  KANA MODULE (Fixed Index Reference)
-// ═══════════════════════════════════════════
+// 1. Updated renderKanaGrids
 function renderKanaGrids() {
-  html += `<button class="btn btn-primary btn-sm" onclick="startKanaQuiz('hiragana')">Quiz Hiragana →</button>`;
-  html += `<button class="btn btn-primary btn-sm" onclick="startKanaQuiz('katakana')">Quiz Katakana →</button>`;
-  <button class="btn btn-secondary" onclick="startKanaQuiz('all')">Full Kana Review (All)</button>
+  const container = document.getElementById('kana-nav'); // Ensure this element exists in your HTML
+  if (!container) return;
+
+  container.innerHTML = `
+    <button class="btn btn-primary btn-sm" onclick="startKanaQuiz('hiragana')">Quiz Hiragana →</button>
+    <button class="btn btn-primary btn-sm" onclick="startKanaQuiz('katakana')">Quiz Katakana →</button>
+    <button class="btn btn-secondary" onclick="startKanaQuiz('all')">Full Kana Review (All)</button>
+  `;
   
+  // Now render the grids themselves
+  renderKanaGrid(HG, document.getElementById('kt-h'));
+  renderKanaGrid(KT, document.getElementById('kt-k'));
 }
-function renderGrid(set, el) {
+
+// 2. Updated renderKanaGrid (Ensure this matches your existing function)
+function renderKanaGrid(set, el) {
+  if (!el) return;
   let html = '<div class="kana-grid">';
   set.forEach(k => {
     const p = KANA_P[k.r] || {};
     const cls = p.correct >= 3 ? 'mastered' : (p.correct >= 1 ? 'learning' : '');
     html += `<div class="kana-cell ${cls}"><div class="kana-char">${k.k}</div><div class="kana-rom">${k.r}</div></div>`;
   });
-  // Safe identifier reference here:
-  html += `</div><button class="btn btn-primary" style="margin-top:16px" onclick="document.getElementById('tab-kana-quiz').click()">Quiz this set →</button>`;
+  html += '</div>';
   el.innerHTML = html;
 }
-
+    
 function kanaTab(t, btn) {
   document.querySelectorAll('#page-kana .tab').forEach(b => b.classList.remove('active'));
   if(btn) btn.classList.add('active');
