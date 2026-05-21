@@ -29,7 +29,7 @@
     .hidden { display: none !important; }
     
     /* ── AUTH SCREEN ── */
-    #auth-screen { position: fixed; inset: 0; background: var(--bg); z-index: 1000; align-items: center; justify-content: center; }
+   #auth-screen { display: flex; position: fixed; inset: 0; background: var(--bg); z-index: 1000; align-items: center; justify-content: center; }
     .auth-card { background: var(--card); border: 1px solid var(--border); border-radius: 24px; padding: 40px; width: 100%; max-width: 400px; box-shadow: var(--shadow); }
     .auth-logo { font-family: var(--ffj); font-size: 48px; text-align: center; margin-bottom: 8px; }
     .auth-title { font-size: 22px; font-weight: 600; text-align: center; margin-bottom: 4px; }
@@ -605,6 +605,45 @@ async function doLogin() {
   if (error) { err.textContent = error.message; btn.disabled = false; btn.textContent = 'Sign in'; }
 }
 
+async function doSignup() {
+  const username = document.getElementById('su-username').value.trim();
+  const email    = document.getElementById('su-email').value.trim();
+  const password = document.getElementById('su-password').value;
+  const btn = document.getElementById('su-btn');
+  const msg = document.getElementById('su-msg');
+  
+  if (!username || !email || !password) { 
+    msg.textContent = 'Please fill in all fields.'; 
+    msg.style.color = 'var(--red)'; 
+    return; 
+  }
+  if (password.length < 6) { 
+    msg.textContent = 'Password must be at least 6 characters.'; 
+    msg.style.color = 'var(--red)'; 
+    return; 
+  }
+  
+  msg.textContent = ''; 
+  btn.disabled = true;
+  btn.textContent = 'Creating account...';
+  
+  const { error } = await SB.auth.signUp({
+    email, password,
+    options: { data: { username, display_name: username } }
+  });
+  
+  if (error) {
+    msg.textContent = error.message;
+    msg.style.color = 'var(--red)';
+    btn.disabled = false;
+    btn.textContent = 'Create account';
+  } else {
+    msg.style.color = 'var(--green)';
+    msg.textContent = '✓ Check your email to confirm, then sign in!';
+    btn.textContent = 'Check your email ✓';
+  }
+}
+    
 async function doLogout() {
   if (RT_CHANNEL) { SB.removeChannel(RT_CHANNEL); RT_CHANNEL = null; }
   await SB.auth.signOut();
