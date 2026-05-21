@@ -967,11 +967,15 @@ SB.auth.onAuthStateChange(async (event, session) => {
     document.getElementById('auth-screen').classList.add('hidden');
     document.getElementById('main-app').classList.remove('hidden');
     // Load data then render
-    await loadUserData();
+    // Show app structure immediately, data loads async
+    document.getElementById('main-app').classList.remove('hidden');
     setupRealtime();
+    // Show home skeleton first
     setPage('home');
-    // Show companion welcome on login
-    setTimeout(() => openCompanionModal(), 600);
+    // Load data — loadUserData will re-render home when done
+    await loadUserData();
+    // Show welcome modal after everything is ready
+    setTimeout(() => openCompanionModal(), 400);
   } else {
     USER    = null;
     PROFILE = null;
@@ -1011,6 +1015,10 @@ async function loadUserData() {
   });
   setSyncStatus('', false);
   updateHUD();
+  // Re-render home now that data is loaded
+  if (document.getElementById('page-home')?.classList.contains('active')) {
+    renderHome();
+  }
 }
 
 function setSyncStatus(msg) {
@@ -1105,7 +1113,16 @@ function setPage(page) {
 //  HOME
 // ═══════════════════════════════════════════
 function renderHome() {
-  if (!PROFILE) return;
+  if (!PROFILE) {
+    // Show skeleton state — character known from CHARS default, data still loading
+    const c = getChar();
+    renderPortrait(document.getElementById('home-portrait'), ACTIVE_CHAR);
+    const nameEl = document.getElementById('home-char-name');
+    if (nameEl) { nameEl.textContent = c.name; nameEl.style.color = c.nameColor; }
+    const msgEl = document.getElementById('companion-msg');
+    if (msgEl) msgEl.textContent = charSay('greetings');
+    return;
+  }
   const c = getChar();
   renderPortrait(document.getElementById('home-portrait'), ACTIVE_CHAR);
   const nameEl = document.getElementById('home-char-name');
@@ -1735,10 +1752,12 @@ function renderSettings() {
   if (el) {
     el.innerHTML = Object.values(CHARS).map(c => {
       const active = c.id === ACTIVE_CHAR;
-      return `<div class="char-select-card ${active ? 'active' : ''}" onclick="selectChar('${c.id}')">
+      return `<div class="char-select-card ${active ? 'active' : ''}" onclick="selectChar('${c.id}')" style="${active ? `border-color:${c.nameColor};background:${c.nameColor}18` : ''}">
         <div class="char-portrait" id="sp-${c.id}"></div>
-        <div class="char-name-label">${c.name}</div>
-        <div class="char-style-label">${active ? '✓ Active' : c.emoji}</div>
+        <div class="char-name-label" style="${active ? `color:${c.nameColor};font-weight:700` : ''}">${c.name}</div>
+        <div class="char-style-label" style="${active ? `color:${c.nameColor};font-weight:600` : ''}">
+          ${active ? '✓ Your companion' : c.emoji}
+        </div>
       </div>`;
     }).join('');
     Object.values(CHARS).forEach(c => renderPortrait(document.getElementById('sp-' + c.id), c.id));
@@ -1747,6 +1766,12 @@ function renderSettings() {
   if (acct && PROFILE) {
     acct.textContent = 'Signed in as ' + (PROFILE.username || USER?.email || '…') + ' · ' + (USER?.email || '');
   }
+  // Update topbar to show current character name as sub-title
+  const settingsSub = document.getElementById('topbar-sub');
+  if (settingsSub) {
+    const c = getChar();
+    settingsSub.textContent = 'Companion: ' + c.name + ' ' + c.emoji;
+  }
 }
 
 async function selectChar(id) {
@@ -1754,6 +1779,16 @@ async function selectChar(id) {
   if (USER) await SB.from('profiles').update({ active_character: id }).eq('id', USER.id);
   if (PROFILE) PROFILE.active_character = id;
   renderSettings();
+  // Update companion bar on home page immediately
+  const c = getChar();
+  const nameEl = document.getElementById('home-char-name');
+  if (nameEl) { nameEl.textContent = c.name; nameEl.style.color = c.nameColor; }
+  const msgEl = document.getElementById('companion-msg');
+  if (msgEl) msgEl.textContent = charSay('greetings');
+  renderPortrait(document.getElementById('home-portrait'), id);
+  renderPortrait(document.getElementById('quiz-portrait'), id);
+  // Flash the companion modal so user sees the new character
+  openCompanionModal(charSay('greetings'));
 }
 
 // ═══════════════════════════════════════════
