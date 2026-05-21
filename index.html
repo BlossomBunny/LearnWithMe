@@ -591,14 +591,18 @@ function charSay(key) {
 function renderPortrait(el, charId) {
   if (!el) return;
   const c = CHARS[charId || ACTIVE_CHAR];
-
-  // If the character has an image defined, use it. Otherwise, use the emoji/color fallback.
-  if (c.img) {
-    el.style.background = 'transparent'; // Clear the background color for the image
-    el.innerHTML = `<img src="${c.img}" alt="${c.name}" style="width:100%; height:100%; object-fit:cover; border-radius: inherit;">`;
+  
+  // Debugging: This will tell us exactly why the image is failing
+  console.log("Rendering portrait for:", charId || ACTIVE_CHAR);
+  console.log("Character Object:", c);
+  
+  if (c && c.img) {
+    el.style.background = 'transparent';
+    el.innerHTML = `<img src="${c.img}" alt="${c.name}" style="width:100%; height:100%; object-fit:cover;">`;
   } else {
-    el.style.background = c.color;
-    el.innerHTML = `<span>${c.emoji}</span>`;
+    console.warn("No image found in object, falling back to emoji.");
+    el.style.background = c ? c.color : '#ccc';
+    el.innerHTML = `<span>${c ? c.emoji : '?'}</span>`;
   }
 }
     
