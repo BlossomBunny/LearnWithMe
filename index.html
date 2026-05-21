@@ -396,9 +396,11 @@ body{font-family:var(--ff);background:var(--bg);color:var(--ink);min-height:100v
     <!-- KANA -->
     <div class="page" id="page-kana">
       <div class="tabs">
-        <button class="tab active" onclick="kanaTab('h',this)">Hiragana</button>
-        <button class="tab" onclick="kanaTab('k',this)">Katakana</button>
-        <button class="tab" onclick="kanaTab('q',this)">Quiz</button>
+        <button class="tab active" onclick="kanaTab('h',this)" id="ktab-h">Hiragana</button>
+        <button class="tab" onclick="kanaTab('k',this)" id="ktab-k">Katakana</button>
+        <button class="tab" onclick="kanaTab('hq',this)" id="ktab-hq">Hiragana Quiz</button>
+        <button class="tab" onclick="kanaTab('kq',this)" id="ktab-kq">Katakana Quiz</button>
+        <button class="tab" onclick="kanaTab('q',this)" id="ktab-q">Mixed</button>
       </div>
       <div id="kt-h"></div>
       <div id="kt-k" class="hidden"></div>
@@ -1188,17 +1190,27 @@ function renderKanaGrid(set, el) {
     const cls = p.correct >= 3 ? 'mastered' : p.correct >= 1 ? 'learning' : '';
     html += `<div class="kana-cell ${cls}"><div class="kana-char">${k.k}</div><div class="kana-rom">${k.r}</div></div>`;
   });
-  html += '</div><button class="btn btn-primary btn-sm" style="margin-top:8px" onclick="kanaTab(\'q\',document.querySelectorAll(\'#page-kana .tab\')[2])">Quiz this set →</button>';
+  // Add quiz button that targets the right quiz tab for this set
+  const setId = (set === HG) ? 'hq' : 'kq';
+  html += '</div><button class="btn btn-primary btn-sm" style="margin-top:8px" onclick="kanaTab(\''+setId+'\',document.getElementById(\'ktab-'+setId+'\'))">Quiz this set →</button>';
   el.innerHTML = html;
 }
+
+// Track which kana set was last viewed before switching to quiz
+let _lastKanaSet = 'h';
 
 function kanaTab(t, btn) {
   document.querySelectorAll('#page-kana .tab').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
+  // hq = hiragana quiz, kq = katakana quiz, q = mixed quiz
+  // h/k = character grid views
+  const showQuiz = t === 'hq' || t === 'kq' || t === 'q';
   document.getElementById('kt-h').classList.toggle('hidden', t !== 'h');
   document.getElementById('kt-k').classList.toggle('hidden', t !== 'k');
-  document.getElementById('kt-q').classList.toggle('hidden', t !== 'q');
-  if (t === 'q') startKanaQuiz(t === 'q' ? (document.getElementById('kt-h').classList.contains('hidden') ? 'k' : 'h') : null);
+  document.getElementById('kt-q').classList.toggle('hidden', !showQuiz);
+  if (t === 'hq') startKanaQuiz('h');
+  else if (t === 'kq') startKanaQuiz('k');
+  else if (t === 'q') startKanaQuiz('both');
 }
 
 function startKanaQuiz(setOverride) {
@@ -1224,7 +1236,9 @@ function renderKQ() {
     const msg = pct >= 0.8 ? charSay('quizGood') : pct >= 0.5 ? charSay('quizOk') : charSay('quizPoor');
     document.getElementById('kq-char').textContent   = pct >= 0.8 ? '🏆' : pct >= 0.5 ? '😊' : '💪';
     document.getElementById('kq-prompt').textContent = 'Score: ' + kQScore + '/' + kQSet.length;
-    document.getElementById('kq-opts').innerHTML     = '<button class="btn btn-primary" style="grid-column:span 4" onclick="startKanaQuiz(kQCurrentSet)">Play Again</button>';
+    // Play Again button re-starts the same set
+    const againLabel = kQCurrentSet === 'h' ? 'Hiragana' : kQCurrentSet === 'k' ? 'Katakana' : 'Mixed';
+    document.getElementById('kq-opts').innerHTML = '<button class="btn btn-primary" style="grid-column:span 4" onclick="startKanaQuiz(kQCurrentSet)">Play Again (' + againLabel + ')</button>';
     document.getElementById('kq-score').textContent  = '';
     setTimeout(() => openCompanionModal(msg), 300);
     return;
@@ -1235,7 +1249,8 @@ function renderKQ() {
   window._kqShowCharMode = showCharMode;
   window._kqCorrect = showCharMode ? q.r : q.k;
   document.getElementById('kq-char').textContent  = showCharMode ? q.k : q.r;
-  document.getElementById('kq-prompt').textContent = showCharMode ? 'What is the romaji for this?' : 'Which character makes this sound?';
+  const setLabel = kQCurrentSet === 'h' ? 'Hiragana' : kQCurrentSet === 'k' ? 'Katakana' : 'Mixed';
+  document.getElementById('kq-prompt').textContent = (showCharMode ? 'What is the romaji for this?' : 'Which character makes this sound?') + '  •  ' + setLabel;
   document.getElementById('kq-score').textContent = kQScore + '/' + kQIdx;
   document.getElementById('kq-fb').style.display  = 'none';
   // Distractors from same script only
