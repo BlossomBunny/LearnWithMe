@@ -231,6 +231,20 @@ body{font-family:var(--ff);background:var(--bg);color:var(--ink);min-height:100v
 .cm-message{font-size:15px;line-height:1.65;color:var(--ink2);font-style:italic}
 .cm-close{width:100%;margin-top:18px;padding:11px;background:var(--plum);color:#fff;border:none;border-radius:var(--r);font-family:var(--ff);font-size:14px;font-weight:600;cursor:pointer;transition:background .15s}
 .cm-close:hover{background:#6d28d9}
+
+/* ── COMPANION FEEDBACK BUBBLE ── */
+.companion-bubble{display:none;align-items:flex-start;gap:12px;margin-top:14px;animation:bubbleIn .2s ease}
+.companion-bubble.show{display:flex}
+@keyframes bubbleIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.cb-portrait{width:52px;height:52px;border-radius:50%;flex-shrink:0;overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:24px;box-shadow:0 2px 8px rgba(0,0,0,0.15)}
+.cb-portrait img{width:100%;height:100%;object-fit:cover;object-position:top}
+.cb-speech{position:relative;background:var(--card);border:1.5px solid var(--border2);border-radius:16px;border-bottom-left-radius:4px;padding:11px 14px;flex:1;font-size:13px;line-height:1.55;color:var(--ink2);box-shadow:var(--shadow)}
+.cb-speech::before{content:'';position:absolute;left:-9px;bottom:14px;border:5px solid transparent;border-right-color:var(--border2)}
+.cb-speech::after{content:'';position:absolute;left:-7px;bottom:14px;border:5px solid transparent;border-right-color:var(--card)}
+.cb-speech.correct{border-color:#86efac;background:var(--green3)}
+.cb-speech.correct::after{border-right-color:var(--green3)}
+.cb-speech.wrong{border-color:#fca5a5;background:var(--red3)}
+.cb-speech.wrong::after{border-right-color:var(--red3)}
 /* ── SPINNER ── */
 .spinner{display:inline-block;width:13px;height:13px;border:2px solid var(--border2);border-top-color:var(--plum);border-radius:50%;animation:spin .7s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
@@ -411,7 +425,10 @@ body{font-family:var(--ff);background:var(--bg);color:var(--ink);min-height:100v
           <div style="font-size:11px;color:var(--ink3)" id="kq-score">0/0</div>
         </div>
         <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px" id="kq-opts"></div>
-        <div id="kq-fb" style="display:none;margin-top:11px;padding:9px 13px;border-radius:var(--r);font-size:12.5px"></div>
+        <div class="companion-bubble" id="kq-bubble">
+          <div class="cb-portrait" id="kq-bubble-portrait"></div>
+          <div class="cb-speech" id="kq-bubble-speech"></div>
+        </div>
       </div>
     </div>
 
@@ -446,6 +463,10 @@ body{font-family:var(--ff);background:var(--bg);color:var(--ink);min-height:100v
               <button class="srs-btn srs-good" onclick="rateCard(2)">Good<span class="srs-next">1d</span></button>
               <button class="srs-btn srs-easy" onclick="rateCard(3)">Easy<span class="srs-next">4d</span></button>
             </div>
+          </div>
+          <div class="companion-bubble" id="fc-bubble">
+            <div class="cb-portrait" id="fc-bubble-portrait"></div>
+            <div class="cb-speech" id="fc-bubble-speech"></div>
           </div>
           <div id="fc-done" class="hidden" style="text-align:center;padding:32px">
             <div style="font-size:42px;margin-bottom:9px">🎉</div>
@@ -1253,6 +1274,8 @@ function renderKQ() {
     return;
   }
   const q = kQSet[kQIdx];
+  // Hide previous bubble when new question loads
+  hideBubble('kq-bubble');
   // Alternate: even = show character, pick romaji | odd = show romaji, pick character  
   const showCharMode = (kQIdx % 2 === 0);
   window._kqShowCharMode = showCharMode;
@@ -1283,23 +1306,23 @@ async function checkKQ(el, chosen, correct, kana) {
   });
   
   const prog = KANA_P[correct] || { correct: 0, wrong: 0 };
-  const fb = document.getElementById('kq-fb');
   const isCorrect = chosen === correct;
+  const answerLabel = window._kqShowCharMode ? kana + ' = ' + correct : correct + ' = ' + kana;
   
   if (isCorrect) {
     el.classList.add('correct');
     prog.correct = (prog.correct || 0) + 1;
     kQScore++;
-    fb.style.cssText = 'display:block;background:var(--green3);color:var(--green);padding:9px 13px;border-radius:var(--r);font-size:12.5px;margin-top:8px';
-    fb.textContent = charSay('correct') + '  ✓ ' + (window._kqShowCharMode ? kana + ' = ' + correct : correct + ' = ' + kana);
+    showBubble('kq-bubble', 'kq-bubble-portrait', 'kq-bubble-speech',
+      charSay('correct') + ' (' + answerLabel + ')', 'correct');
   } else {
     el.classList.add('wrong');
     document.querySelectorAll('.kana-opt').forEach(o => {
       if (o.textContent.trim() === correct) o.classList.add('correct');
     });
     prog.wrong = (prog.wrong || 0) + 1;
-    fb.style.cssText = 'display:block;background:var(--red3);color:var(--red);padding:9px 13px;border-radius:var(--r);font-size:12.5px;margin-top:8px';
-    fb.textContent = charSay('wrong') + ' — ' + (window._kqShowCharMode ? kana + ' = ' + correct : correct + ' is ' + kana);
+    showBubble('kq-bubble', 'kq-bubble-portrait', 'kq-bubble-speech',
+      charSay('wrong') + ' (' + answerLabel + ')', 'wrong');
   }
   
   KANA_P[correct] = prog;
@@ -1308,7 +1331,7 @@ async function checkKQ(el, chosen, correct, kana) {
   setTimeout(() => {
     kQIdx++;
     renderKQ();
-  }, 1400);
+  }, 2200);
   
   // Save progress and XP in background — errors won't block the quiz
   if (USER) {
@@ -1358,6 +1381,11 @@ async function rateCard(rating) {
     await SB.from('profiles').update({ total_today: tt }).eq('id', USER.id);
     PROFILE.total_today = tt;
   }
+  // Show companion bubble reaction
+  const fcMsg = rating >= 2 ? charSay('correct') : charSay('wrong');
+  const fcType = rating >= 2 ? 'correct' : 'wrong';
+  showBubble('fc-bubble', 'fc-bubble-portrait', 'fc-bubble-speech', fcMsg, fcType);
+  
   fcIdx++;
   updateFC();
 }
@@ -1800,6 +1828,36 @@ function setupRealtime() {
 //  UTILS
 // ═══════════════════════════════════════════
 
+
+// ── COMPANION FEEDBACK BUBBLE ─────────────────────────────
+function showBubble(bubbleId, portraitId, speechId, msg, type) {
+  const bubble   = document.getElementById(bubbleId);
+  const portrait = document.getElementById(portraitId);
+  const speech   = document.getElementById(speechId);
+  if (!bubble) return;
+
+  // Render portrait
+  const c = getChar();
+  if (c.portrait) {
+    portrait.style.background = 'transparent';
+    portrait.innerHTML = `<img src="${c.portrait}" alt="${c.name}" onerror="this.parentElement.innerHTML='<span>${c.emoji}</span>'">`;
+  } else {
+    portrait.style.background = c.color;
+    portrait.innerHTML = `<span>${c.emoji}</span>`;
+  }
+
+  // Set message & colour
+  speech.textContent = msg;
+  speech.className = 'cb-speech ' + (type || '');
+
+  // Show
+  bubble.classList.add('show');
+}
+
+function hideBubble(bubbleId) {
+  const bubble = document.getElementById(bubbleId);
+  if (bubble) bubble.classList.remove('show');
+}
 // ── COMPANION MODAL ──────────────────────────────────────────
 function openCompanionModal(msgOverride) {
   const c = getChar();
