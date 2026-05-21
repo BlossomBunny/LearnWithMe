@@ -612,6 +612,41 @@ function renderPortrait(el, charId) {
     el.innerHTML = `<span>${c ? c.emoji : '?'}</span>`;
   }
 }
+
+    function renderSettings() {
+  const grid = document.getElementById('char-grid');
+  grid.style.display = 'grid';
+  grid.style.gridTemplateColumns = 'repeat(3, 1fr)';
+  grid.style.gap = '16px';
+  
+  grid.innerHTML = Object.keys(CHARS).map(id => {
+    const c = CHARS[id];
+    const isSelected = ACTIVE_CHAR === id;
+    return `
+      <button onclick="updateActiveChar('${id}')" 
+              class="btn" 
+              style="background:${c.color}; border:none; padding:20px; border-radius:12px; color:white; font-weight:bold; cursor:pointer; ${isSelected ? 'outline: 3px solid white; outline-offset: 2px;' : ''}">
+        <div style="font-size:32px;">${c.emoji}</div>
+        <div>${c.name}</div>
+      </button>
+    `;
+  }).join('');
+}
+
+    async function updateActiveChar(charId) {
+  ACTIVE_CHAR = charId;
+  
+  // Save to DB
+  await SB.from('profiles').update({ active_character: charId }).eq('id', USER.id);
+  
+  // Update UI components
+  updateHUD();
+  renderSettings(); // Re-render grid to show selection highlight
+  renderPortrait(document.getElementById('profile-portrait'), ACTIVE_CHAR);
+  
+  // Show a success message (optional)
+  console.log(`Switched to: ${CHARS[charId].name}`);
+}
     
 function shuffle(arr) {
   const a = [...arr];
