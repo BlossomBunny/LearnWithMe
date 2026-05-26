@@ -22,9 +22,6 @@
 }
 body{font-family:var(--ff);background:var(--bg);color:var(--ink);min-height:100vh;overflow-x:hidden}
 .hidden{display:none!important}
-ruby{display:inline-flex;flex-direction:column-reverse;align-items:center;line-height:1.1;margin:0 1px}
-rt{font-size:0.6em;color:var(--ink3);font-family:var(--ff);letter-spacing:0.02em;line-height:1.2;font-style:normal}
-
 
 /* ── AUTH ── */
 #auth-screen{position:fixed;inset:0;background:var(--bg);z-index:500;display:flex;align-items:center;justify-content:center}
@@ -413,21 +410,28 @@ rt{font-size:0.6em;color:var(--ink3);font-family:var(--ff);letter-spacing:0.02em
     <!-- KANA -->
     <div class="page" id="page-kana">
       <div class="tabs">
-        <button class="tab active" onclick="kanaTab('h',this)" id="ktab-h">Hiragana</button>
-        <button class="tab" onclick="kanaTab('k',this)" id="ktab-k">Katakana</button>
-        <button class="tab" onclick="kanaTab('hq',this)" id="ktab-hq">Hiragana Quiz</button>
-        <button class="tab" onclick="kanaTab('kq',this)" id="ktab-kq">Katakana Quiz</button>
-        <button class="tab" onclick="kanaTab('q',this)" id="ktab-q">Mixed</button>
+        <button class="tab active" id="ktab-h" onclick="kanaTab('h',this)">Hiragana</button>
+        <button class="tab" id="ktab-k" onclick="kanaTab('k',this)">Katakana</button>
+        <button class="tab" id="ktab-hq" onclick="kanaTab('hq',this)">Hiragana Quiz</button>
+        <button class="tab" id="ktab-kq" onclick="kanaTab('kq',this)">Katakana Quiz</button>
+        <button class="tab" id="ktab-mixed" onclick="kanaTab('mixed',this)">Mixed</button>
       </div>
+
+      <!-- Hiragana grid -->
       <div id="kt-h"></div>
+
+      <!-- Katakana grid -->
       <div id="kt-k" class="hidden"></div>
+
+      <!-- Quiz panel (shared by all 3 quiz tabs) -->
       <div id="kt-q" class="hidden">
-        <div style="background:var(--card);border:1.5px solid var(--border);border-radius:18px;padding:32px;text-align:center;margin-bottom:16px;box-shadow:var(--shadow)">
-          <div style="font-size:11.5px;color:var(--ink3);margin-bottom:5px" id="kq-prompt">Romaji for this character?</div>
-          <div style="font-family:var(--ffj);font-size:68px;line-height:1;margin-bottom:9px" id="kq-char">あ</div>
-          <div style="font-size:11px;color:var(--ink3)" id="kq-score">0/0</div>
+        <div style="background:var(--card);border:1.5px solid var(--border);border-radius:18px;padding:28px;text-align:center;margin-bottom:14px;box-shadow:var(--shadow)">
+          <div style="font-size:11px;color:var(--ink3);margin-bottom:6px;font-weight:500" id="kq-set-label">Hiragana</div>
+          <div style="font-size:13px;color:var(--ink3);margin-bottom:8px" id="kq-prompt">What is the romaji?</div>
+          <div style="font-family:var(--ffj);font-size:72px;line-height:1;margin-bottom:10px;color:var(--ink)" id="kq-char">あ</div>
+          <div style="font-size:12px;color:var(--ink3)" id="kq-score">0 / 0</div>
         </div>
-        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px" id="kq-opts"></div>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:14px" id="kq-opts"></div>
         <div class="companion-bubble" id="kq-bubble">
           <div class="cb-portrait" id="kq-bubble-portrait"></div>
           <div class="cb-speech" id="kq-bubble-speech"></div>
@@ -626,20 +630,20 @@ const CHARS = {
     nameColor: '#9333ea',
     greetings: {
       morning: [
-        "<ruby>おはよう<rt>ohayou</rt></ruby>！ Ready to study together? 🌸",
-        "<ruby>おはよう<rt>ohayou</rt></ruby>！ <ruby>べんきょう<rt>benkyou</rt></ruby> <ruby>よし<rt>yoshi</rt></ruby>？ Let's begin gently. ✨",
+        "おはよう (ohayou)！ Ready to study together? 🌸",
+        "おはよう (ohayou)！ べんきょう (benkyou) よし (yoshi)？ Let's begin gently. ✨",
       ],
       afternoon: [
-        "<ruby>こんにちは<rt>konnichiwa</rt></ruby> 🌸 <ruby>いっしょに<rt>issho ni</rt></ruby> <ruby>はじめましょう<rt>hajimemashou</rt></ruby>！",
-        "<ruby>こんにちは<rt>konnichiwa</rt></ruby>！ A quiet afternoon is perfect for learning. <ruby>がんばって<rt>ganbatte</rt></ruby>！",
+        "こんにちは (konnichiwa) 🌸 いっしょに (issho ni) はじめましょう (hajimemashou)！",
+        "こんにちは (konnichiwa)！ A quiet afternoon is perfect for learning. がんばって (ganbatte)！",
       ],
       evening: [
-        "<ruby>こんばんは<rt>konbanwa</rt></ruby> ✨ <ruby>さあ<rt>saa</rt></ruby>、<ruby>べんきょう<rt>benkyou</rt></ruby>しましょう。",
-        "<ruby>こんばんは<rt>konbanwa</rt></ruby>… even small steps carry you forward. <ruby>がんばって<rt>ganbatte</rt></ruby>！",
+        "こんばんは (konbanwa) ✨ さあ (saa)、べんきょう (benkyou)しましょう。",
+        "こんばんは (konbanwa)… even small steps carry you forward. がんばって (ganbatte)！",
       ],
       night: [
-        "Still here? I'm glad. <ruby>さあ<rt>saa</rt></ruby>、<ruby>はじめましょう<rt>hajimemashou</rt></ruby> 🌙",
-        "A night owl's session — my favourite. <ruby>がんばって<rt>ganbatte</rt></ruby>！ 🌸",
+        "Still here? I'm glad. さあ (saa)、はじめましょう (hajimemashou) 🌙",
+        "A night owl's session — my favourite. がんばって (ganbatte)！ 🌸",
       ],
     },
     correct: [
@@ -665,20 +669,20 @@ const CHARS = {
     nameColor: '#d97706',
     greetings: {
       morning: [
-        "<ruby>おはよう<rt>ohayou</rt></ruby>. Early start — I like it. <ruby>さあ<rt>saa</rt></ruby>、<ruby>はじめましょう<rt>hajimemashou</rt></ruby>？ 🎲",
-        "<ruby>おはよう<rt>ohayou</rt></ruby>. Most people don't show up this early. Interesting. <ruby>がんばって<rt>ganbatte</rt></ruby>！",
+        "おはよう (ohayou). Early start — I like it. さあ (saa)、はじめましょう (hajimemashou)？ 🎲",
+        "おはよう (ohayou). Most people don't show up this early. Interesting. がんばって (ganbatte)！",
       ],
       afternoon: [
-        "<ruby>こんにちは<rt>konnichiwa</rt></ruby>. <ruby>いっしょに<rt>issho ni</rt></ruby> <ruby>はじめましょう<rt>hajimemashou</rt></ruby>。 The odds are in your favour. 😏",
-        "<ruby>こんにちは<rt>konnichiwa</rt></ruby>. Afternoon session? I respect that. <ruby>がんばって<rt>ganbatte</rt></ruby>！ 🎲",
+        "こんにちは (konnichiwa). いっしょに (issho ni) はじめましょう (hajimemashou)。 The odds are in your favour. 😏",
+        "こんにちは (konnichiwa). Afternoon session? I respect that. がんばって (ganbatte)！ 🎲",
       ],
       evening: [
-        "<ruby>こんばんは<rt>konbanwa</rt></ruby>. Evening study — smart move. <ruby>さあ<rt>saa</rt></ruby>、<ruby>はじめましょう<rt>hajimemashou</rt></ruby>。",
-        "<ruby>こんばんは<rt>konbanwa</rt></ruby>. The real players sharpen up at night. <ruby>がんばって<rt>ganbatte</rt></ruby>！",
+        "こんばんは (konbanwa). Evening study — smart move. さあ (saa)、はじめましょう (hajimemashou)。",
+        "こんばんは (konbanwa). The real players sharpen up at night. がんばって (ganbatte)！",
       ],
       night: [
-        "Still grinding? <ruby>すごい<rt>sugoi</rt></ruby>ね。 Don't fold now. <ruby>がんばって<rt>ganbatte</rt></ruby>！ 😏",
-        "Late night, high stakes. <ruby>さあ<rt>saa</rt></ruby>、<ruby>はじめましょう<rt>hajimemashou</rt></ruby>。 🎲",
+        "Still grinding? すごい (sugoi)ね。 Don't fold now. がんばって (ganbatte)！ 😏",
+        "Late night, high stakes. さあ (saa)、はじめましょう (hajimemashou)。 🎲",
       ],
     },
     correct: [
@@ -704,20 +708,20 @@ const CHARS = {
     nameColor: '#dc2626',
     greetings: {
       morning: [
-        "<ruby>おはよう<rt>ohayou</rt></ruby>！！ ARATAKI GANG IS READY!! <ruby>いっしょに<rt>issho ni</rt></ruby> <ruby>はじめましょう<rt>hajimemashou</rt></ruby>！！ 🐉💪",
-        "<ruby>おはよう<rt>ohayou</rt></ruby>！！ EARLY WARRIOR ENERGY!! <ruby>がんばって<rt>ganbatte</rt></ruby>！！ 🔥",
+        "おはよう (ohayou)！！ ARATAKI GANG IS READY!! いっしょに (issho ni) はじめましょう (hajimemashou)！！ 🐉💪",
+        "おはよう (ohayou)！！ EARLY WARRIOR ENERGY!! がんばって (ganbatte)！！ 🔥",
       ],
       afternoon: [
-        "<ruby>こんにちは<rt>konnichiwa</rt></ruby>！！ <ruby>いっしょに<rt>issho ni</rt></ruby> <ruby>はじめましょう<rt>hajimemashou</rt></ruby>！！ LET'S GO!! 🐉",
-        "<ruby>こんにちは<rt>konnichiwa</rt></ruby>！！ AFTERNOON POWER!! <ruby>がんばって<rt>ganbatte</rt></ruby>！！ 💪",
+        "こんにちは (konnichiwa)！！ いっしょに (issho ni) はじめましょう (hajimemashou)！！ LET'S GO!! 🐉",
+        "こんにちは (konnichiwa)！！ AFTERNOON POWER!! がんばって (ganbatte)！！ 💪",
       ],
       evening: [
-        "<ruby>こんばんは<rt>konbanwa</rt></ruby>！！ EVENING GRIND!! <ruby>さあ<rt>saa</rt></ruby>、<ruby>はじめましょう<rt>hajimemashou</rt></ruby>！！ 🐉🔥",
-        "<ruby>こんばんは<rt>konbanwa</rt></ruby>！！ We don't stop!! <ruby>がんばって<rt>ganbatte</rt></ruby>！！",
+        "こんばんは (konbanwa)！！ EVENING GRIND!! さあ (saa)、はじめましょう (hajimemashou)！！ 🐉🔥",
+        "こんばんは (konbanwa)！！ We don't stop!! がんばって (ganbatte)！！",
       ],
       night: [
-        "LATE NIGHT WARRIOR!! <ruby>すごい<rt>sugoi</rt></ruby>ね！！ <ruby>がんばって<rt>ganbatte</rt></ruby>！！ 🌙🐉",
-        "Still going?! <ruby>すごい<rt>sugoi</rt></ruby>！！ <ruby>さあ<rt>saa</rt></ruby>、<ruby>はじめましょう<rt>hajimemashou</rt></ruby>！！ 🔥",
+        "LATE NIGHT WARRIOR!! すごい (sugoi)ね！！ がんばって (ganbatte)！！ 🌙🐉",
+        "Still going?! すごい (sugoi)！！ さあ (saa)、はじめましょう (hajimemashou)！！ 🔥",
       ],
     },
     correct: [
@@ -1154,7 +1158,7 @@ function renderHome() {
     const nameEl = document.getElementById('home-char-name');
     if (nameEl) { nameEl.textContent = c.name; nameEl.style.color = c.nameColor; }
     const msgEl = document.getElementById('companion-msg');
-    if (msgEl) msgEl.innerHTML = charSay('greetings');
+    if (msgEl) msgEl.textContent = charSay('greetings');
     return;
   }
   const c = getChar();
@@ -1204,7 +1208,6 @@ function srsNext(prog, rating) {
 // ═══════════════════════════════════════════
 //  KANA
 // ═══════════════════════════════════════════
-let kQSet = [], kQIdx = 0, kQScore = 0, kQCurrentSet = "both";
 
 function renderKanaGrids() {
   renderKanaGrid(HG, document.getElementById('kt-h'));
@@ -1228,194 +1231,165 @@ function renderKanaGrid(set, el) {
   el.innerHTML = html;
 }
 
-// Track which kana set was last viewed before switching to quiz
-let _lastKanaSet = 'h';
+// ── KANA ──────────────────────────────────────────────────────────────
+
+let kQSet = [], kQIdx = 0, kQScore = 0, kQCurrentSet = 'h';
 
 function kanaTab(t, btn) {
   document.querySelectorAll('#page-kana .tab').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
-  // hq = hiragana quiz, kq = katakana quiz, q = mixed quiz
-  // h/k = character grid views
-  const showQuiz = t === 'hq' || t === 'kq' || t === 'q';
+  const isQuiz = t === 'hq' || t === 'kq' || t === 'mixed';
   document.getElementById('kt-h').classList.toggle('hidden', t !== 'h');
   document.getElementById('kt-k').classList.toggle('hidden', t !== 'k');
-  document.getElementById('kt-q').classList.toggle('hidden', !showQuiz);
-  if (t === 'hq') startKanaQuiz('h');
-  else if (t === 'kq') startKanaQuiz('k');
-  else if (t === 'q') startKanaQuiz('both');
+  document.getElementById('kt-q').classList.toggle('hidden', !isQuiz);
+  if (isQuiz) {
+    const set = t === 'hq' ? 'h' : t === 'kq' ? 'k' : 'mixed';
+    startKanaQuiz(set);
+  }
 }
 
-function startKanaQuiz(setOverride) {
-  // Determine which set based on active tab unless overridden
-  if (!setOverride) {
-    const tabs = document.querySelectorAll('#page-kana .tab');
-    const activeTab = Array.from(tabs).find(t => t.classList.contains('active'));
-    const label = activeTab?.textContent?.trim();
-    if (label === 'Hiragana') setOverride = 'h';
-    else if (label === 'Katakana') setOverride = 'k';
-    else setOverride = 'both';
-  }
-  kQCurrentSet = setOverride;
-  const pool = setOverride === 'h' ? [...HG] : setOverride === 'k' ? [...KT] : [...HG,...KT];
-  kQSet = shuffle(pool);
-  kQIdx = 0; kQScore = 0;
+function renderKanaGrids() {
+  renderKanaGrid(HG, 'kt-h');
+  renderKanaGrid(KT, 'kt-k');
+}
+
+function renderKanaGrid(set, elId) {
+  const el = document.getElementById(elId);
+  if (!el) return;
+  const isH = set === HG;
+  const quizTab = isH ? 'hq' : 'kq';
+  const quizTabEl = isH ? 'ktab-hq' : 'ktab-kq';
+
+  let html = '<div style="font-size:11px;color:var(--ink3);margin-bottom:10px;display:flex;gap:14px">'
+    + '<span>🟩 Mastered (3+ correct)</span>'
+    + '<span>🟨 Learning</span>'
+    + '<span>⬜ New</span>'
+    + '</div><div class="kana-grid">';
+
+  set.forEach(k => {
+    const p   = KANA_P[k.r] || {};
+    const cls = p.correct >= 3 ? 'mastered' : p.correct >= 1 ? 'learning' : '';
+    html += `<div class="kana-cell ${cls}"><div class="kana-char">${k.k}</div><div class="kana-rom">${k.r}</div></div>`;
+  });
+
+  const mastered = set.filter(k => (KANA_P[k.r] || {}).correct >= 3).length;
+  html += `</div>
+  <div style="margin-top:14px;display:flex;align-items:center;justify-content:space-between">
+    <span style="font-size:12px;color:var(--ink3)">${mastered} / ${set.length} mastered</span>
+    <button class="btn btn-primary btn-sm" onclick="kanaTab('${quizTab}', document.getElementById('${quizTabEl}'))">
+      Start ${isH ? 'Hiragana' : 'Katakana'} Quiz →
+    </button>
+  </div>`;
+
+  el.innerHTML = html;
+}
+
+function startKanaQuiz(set) {
+  kQCurrentSet = set;
+  const pool = set === 'h' ? [...HG] : set === 'k' ? [...KT] : [...HG, ...KT];
+  kQSet   = shuffle(pool);
+  kQIdx   = 0;
+  kQScore = 0;
+  hideBubble('kq-bubble');
+  // Update set label
+  const labels = { h: 'Hiragana Quiz', k: 'Katakana Quiz', mixed: 'Mixed Quiz' };
+  document.getElementById('kq-set-label').textContent = labels[set] || 'Quiz';
   renderKQ();
 }
 
 function renderKQ() {
+  hideBubble('kq-bubble');
+
+  // Quiz complete
   if (kQIdx >= kQSet.length) {
-    const pct = kQScore / kQSet.length;
-    const msg = pct >= 0.8 ? charSay('quizGood') : pct >= 0.5 ? charSay('quizOk') : charSay('quizPoor');
+    const pct = kQSet.length > 0 ? kQScore / kQSet.length : 0;
     document.getElementById('kq-char').textContent   = pct >= 0.8 ? '🏆' : pct >= 0.5 ? '😊' : '💪';
-    document.getElementById('kq-prompt').textContent = 'Score: ' + kQScore + '/' + kQSet.length;
-    // Play Again button re-starts the same set
-    const againLabel = kQCurrentSet === 'h' ? 'Hiragana' : kQCurrentSet === 'k' ? 'Katakana' : 'Mixed';
-    document.getElementById('kq-opts').innerHTML = '<button class="btn btn-primary" style="grid-column:span 4" onclick="startKanaQuiz(kQCurrentSet)">Play Again (' + againLabel + ')</button>';
-    document.getElementById('kq-score').textContent  = '';
-    setTimeout(() => openCompanionModal(msg), 300);
-    setTimeout(() => openCompanionModal(msg), 300);
+    document.getElementById('kq-prompt').textContent = 'Complete!';
+    document.getElementById('kq-score').textContent  = kQScore + ' / ' + kQSet.length + ' correct';
+    const setLabel = kQCurrentSet === 'h' ? 'Hiragana' : kQCurrentSet === 'k' ? 'Katakana' : 'Mixed';
+    document.getElementById('kq-opts').innerHTML =
+      `<button class="btn btn-primary" style="grid-column:span 4" onclick="startKanaQuiz(kQCurrentSet)">Play Again (${setLabel})</button>`;
+    const msg = pct >= 0.8 ? charSay('quizGood') : pct >= 0.5 ? charSay('quizOk') : charSay('quizPoor');
+    setTimeout(() => openCompanionModal(msg), 400);
     return;
   }
+
   const q = kQSet[kQIdx];
-  // Hide previous bubble when new question loads
-  hideBubble('kq-bubble');
-  // Alternate: even = show character, pick romaji | odd = show romaji, pick character  
-  const showCharMode = (kQIdx % 2 === 0);
-  window._kqShowCharMode = showCharMode;
-  window._kqCorrect = showCharMode ? q.r : q.k;
-  document.getElementById('kq-char').textContent  = showCharMode ? q.k : q.r;
-  const setLabel = kQCurrentSet === 'h' ? 'Hiragana' : kQCurrentSet === 'k' ? 'Katakana' : 'Mixed';
-  document.getElementById('kq-prompt').textContent = (showCharMode ? 'What is the romaji for this?' : 'Which character makes this sound?') + '  •  ' + setLabel;
-  document.getElementById('kq-score').textContent = kQScore + '/' + kQIdx;
-  document.getElementById('kq-fb').style.display  = 'none';
-  // Distractors from same script only
-  const samePool = (kQCurrentSet === 'h' ? HG : kQCurrentSet === 'k' ? KT : kQSet);
-  const correctOpt = window._kqCorrect;
-  const distractors = shuffle(samePool.map(x => window._kqShowCharMode ? x.r : x.k).filter(v => v !== correctOpt));
-  const opts = shuffle([correctOpt, ...distractors.slice(0, 3)]);
+  // Alternate direction: even = see char → pick romaji, odd = see romaji → pick char
+  const showChar = kQIdx % 2 === 0;
+  window._kqShowChar   = showChar;
+  window._kqRomaji     = q.r;
+  window._kqCharacter  = q.k;
+  window._kqCorrect    = showChar ? q.r : q.k;
+
+  document.getElementById('kq-char').textContent   = showChar ? q.k : q.r;
+  document.getElementById('kq-prompt').textContent = showChar ? 'What is the romaji reading?' : 'Which character matches this sound?';
+  document.getElementById('kq-score').textContent  = (kQIdx + 1) + ' / ' + kQSet.length;
+
+  // Build 4 options from same script only
+  const samePool = kQCurrentSet === 'h' ? HG : kQCurrentSet === 'k' ? KT : kQSet;
+  const wrongPool = shuffle(samePool.filter(x => (showChar ? x.r : x.k) !== window._kqCorrect));
+  const opts = shuffle([window._kqCorrect, ...wrongPool.slice(0, 3).map(x => showChar ? x.r : x.k)]);
+
   document.getElementById('kq-opts').innerHTML = opts.map(o =>
-    `<div class="kana-opt" onclick="checkKQ(this,'${o}','${q.r}','${q.k}')">${o}</div>`
+    `<div class="kana-opt" onclick="checkKQ(this, '${o}')">${o}</div>`
   ).join('');
 }
 
-async function checkKQ(el, chosen, correct, kana) {
-  correct = window._kqCorrect; // use current question correct answer
-  kana = document.getElementById('kq-char').textContent;
-  
-  // Disable all options immediately
+function checkKQ(el, chosen) {
+  // Lock options immediately
   document.querySelectorAll('.kana-opt').forEach(o => {
-    o.classList.add('disabled');
     o.style.pointerEvents = 'none';
+    o.classList.add('disabled');
   });
-  
-  const prog = KANA_P[correct] || { correct: 0, wrong: 0 };
-  const isCorrect = chosen === correct;
-  const answerLabel = window._kqShowCharMode ? kana + ' = ' + correct : correct + ' = ' + kana;
-  
+
+  const correct    = window._kqCorrect;
+  const isCorrect  = chosen === correct;
+  const showChar   = window._kqShowChar;
+  const answerNote = showChar
+    ? window._kqCharacter + ' = ' + window._kqRomaji
+    : window._kqRomaji + ' = ' + window._kqCharacter;
+
+  const prog = KANA_P[window._kqRomaji] || { correct: 0, wrong: 0 };
+
   if (isCorrect) {
     el.classList.add('correct');
     prog.correct = (prog.correct || 0) + 1;
     kQScore++;
     showBubble('kq-bubble', 'kq-bubble-portrait', 'kq-bubble-speech',
-      charSay('correct') + ' (' + answerLabel + ')', 'correct');
+      charSay('correct') + '  ✓ ' + answerNote, 'correct');
+    if (prog.correct === 3) logActivity('kana_mastered', {
+      kana: window._kqCharacter,
+      script: HG.some(h => h.r === window._kqRomaji) ? 'hiragana' : 'katakana'
+    }).catch(() => {});
   } else {
-    el.classList.add('wrong');
+    // Highlight the correct answer
     document.querySelectorAll('.kana-opt').forEach(o => {
       if (o.textContent.trim() === correct) o.classList.add('correct');
     });
+    el.classList.add('wrong');
     prog.wrong = (prog.wrong || 0) + 1;
     showBubble('kq-bubble', 'kq-bubble-portrait', 'kq-bubble-speech',
-      charSay('wrong') + ' (' + answerLabel + ')', 'wrong');
+      charSay('wrong') + '  ✗ ' + answerNote, 'wrong');
   }
-  
-  KANA_P[correct] = prog;
-  
-  // Advance to next question after delay — do this FIRST, save to DB after
-  setTimeout(() => {
-    kQIdx++;
-    renderKQ();
-  }, 2200);
-  
-  // Save progress and XP in background — errors won't block the quiz
+
+  KANA_P[window._kqRomaji] = prog;
+
+  // Advance after delay — completely fire-and-forget, nothing blocks it
+  setTimeout(() => { kQIdx++; renderKQ(); }, 2200);
+
+  // Save to DB in background
   if (USER) {
     SB.from('progress_kana').upsert(
-      { user_id: USER.id, kana_key: correct, correct: prog.correct, wrong: prog.wrong,
+      { user_id: USER.id, kana_key: window._kqRomaji,
+        correct: prog.correct, wrong: prog.wrong,
         next_review: new Date().toISOString(), updated_at: new Date().toISOString() },
       { onConflict: 'user_id,kana_key' }
     ).catch(() => {});
-    if (isCorrect) {
-      addXP(5).catch(() => {});
-      if (prog.correct === 3) logActivity('kana_mastered', { kana, script: HG.some(h => h.r === correct) ? 'hiragana' : 'katakana' }).catch(() => {});
-    }
+    if (isCorrect) addXP(5).catch(() => {});
   }
 }
 
-
-async function rateCard(rating) {
-  if (!fcRevealed) return;
-  const card    = fcQueue[fcIdx];
-  const prog    = VOCAB_P[card.idx] || { correct: 0, wrong: 0, ease: 2.5, interval_ms: 0 };
-  const next    = srsNext(prog, rating);
-  const updated = { ...prog, ...next,
-    correct: prog.correct + (rating >= 2 ? 1 : 0),
-    wrong:   prog.wrong   + (rating  < 2 ? 1 : 0),
-  };
-  VOCAB_P[card.idx] = updated;
-  if (USER) {
-    await SB.from('progress_vocab').upsert(
-      { user_id: USER.id, vocab_index: card.idx, correct: updated.correct, wrong: updated.wrong,
-        ease: updated.ease, interval_ms: updated.interval_ms,
-        next_review: new Date(updated.next_review).toISOString(), updated_at: new Date().toISOString() },
-      { onConflict: 'user_id,vocab_index' }
-    );
-  }
-  if (rating >= 2) {
-    await addXP(10);
-    if (PROFILE) {
-      const rt = (PROFILE.reviewed_today || 0) + 1;
-      const ct = (PROFILE.correct_today  || 0) + 1;
-      const tt = (PROFILE.total_today    || 0) + 1;
-      await SB.from('profiles').update({ reviewed_today: rt, correct_today: ct, total_today: tt }).eq('id', USER.id);
-      PROFILE.reviewed_today = rt; PROFILE.correct_today = ct; PROFILE.total_today = tt;
-      if ([10, 50, 100].includes(rt)) logActivity('vocab_milestone', { count: rt });
-    }
-  } else if (PROFILE) {
-    const tt = (PROFILE.total_today || 0) + 1;
-    await SB.from('profiles').update({ total_today: tt }).eq('id', USER.id);
-    PROFILE.total_today = tt;
-  }
-  // Show companion bubble reaction
-  const fcMsg = rating >= 2 ? charSay('correct') : charSay('wrong');
-  const fcType = rating >= 2 ? 'correct' : 'wrong';
-  showBubble('fc-bubble', 'fc-bubble-portrait', 'fc-bubble-speech', fcMsg, fcType);
-  
-  fcIdx++;
-  updateFC();
-}
-
-function vocabTab(t, btn) {
-  document.querySelectorAll('#page-vocab .tab').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  document.getElementById('vt-fc').classList.toggle('hidden', t !== 'fc');
-  document.getElementById('vt-browse').classList.toggle('hidden', t !== 'browse');
-  if (t === 'browse') renderVocabBrowse();
-}
-
-function renderVocabBrowse() {
-  const search = document.getElementById('vs-search').value.toLowerCase();
-  const cat    = document.getElementById('vs-cat').value;
-  const items  = VOCAB.filter(v =>
-    (!cat || v.c === cat) &&
-    (!search || v.j.includes(search) || v.r.includes(search) || v.e.toLowerCase().includes(search))
-  );
-  document.getElementById('vocab-list').innerHTML = items.map(v =>
-    `<div style="background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:10px 13px;margin-bottom:6px;display:flex;justify-content:space-between;align-items:center">
-       <div><span style="font-family:var(--ffj);font-size:16px;margin-right:8px">${v.j}</span><span style="font-size:11.5px;color:var(--plum)">${v.r}</span>
-       <div style="font-size:11px;color:var(--ink3);margin-top:1px">${v.e}</div></div>
-       <span style="font-size:9.5px;font-weight:600;text-transform:uppercase;background:var(--plum3);color:var(--plum);padding:2px 6px;border-radius:20px">${v.c}</span>
-     </div>`
-  ).join('');
-}
 
 // ═══════════════════════════════════════════
 //  GRAMMAR
@@ -1802,7 +1776,7 @@ async function selectChar(id) {
   const nameEl = document.getElementById('home-char-name');
   if (nameEl) { nameEl.textContent = c.name; nameEl.style.color = c.nameColor; }
   const msgEl = document.getElementById('companion-msg');
-  if (msgEl) msgEl.innerHTML = charSay('greetings');
+  if (msgEl) msgEl.textContent = charSay('greetings');
   renderPortrait(document.getElementById('home-portrait'), id);
   renderPortrait(document.getElementById('quiz-portrait'), id);
 
@@ -1882,7 +1856,7 @@ function openCompanionModal(msgOverride) {
   const nameEl = document.getElementById('cm-name');
   nameEl.textContent = c.name;
   nameEl.style.color = c.nameColor;
-  document.getElementById('cm-message').innerHTML = msg;
+  document.getElementById('cm-message').textContent = msg;
   
   document.getElementById('companion-modal').classList.remove('hidden');
   document.body.style.overflow = 'hidden';
