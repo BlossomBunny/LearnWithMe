@@ -22,6 +22,9 @@
 }
 body{font-family:var(--ff);background:var(--bg);color:var(--ink);min-height:100vh;overflow-x:hidden}
 .hidden{display:none!important}
+ruby{display:inline-flex;flex-direction:column-reverse;align-items:center;line-height:1.1;margin:0 1px}
+rt{font-size:0.6em;color:var(--ink3);font-family:var(--ff);letter-spacing:0.02em;line-height:1.2;font-style:normal}
+
 
 /* ── AUTH ── */
 #auth-screen{position:fixed;inset:0;background:var(--bg);z-index:500;display:flex;align-items:center;justify-content:center}
@@ -623,20 +626,20 @@ const CHARS = {
     nameColor: '#9333ea',
     greetings: {
       morning: [
-        "おはよう… I've been keeping a little hope warm for your return. Ready to study together? 🌸",
-        "Good morning! Every word you learn today is a small lantern lit. 頑張って！",
+        "<ruby>おはよう<rt>ohayou</rt></ruby>！ Ready to study together? 🌸",
+        "<ruby>おはよう<rt>ohayou</rt></ruby>！ <ruby>べんきょう<rt>benkyou</rt></ruby> <ruby>よし<rt>yoshi</rt></ruby>？ Let's begin gently. ✨",
       ],
       afternoon: [
-        "こんにちは 🌸 A lovely afternoon for some Japanese — shall we begin?",
-        "Afternoon already! Perfect time to let a few words settle quietly into memory. 良い調子！",
+        "<ruby>こんにちは<rt>konnichiwa</rt></ruby> 🌸 <ruby>いっしょに<rt>issho ni</rt></ruby> <ruby>はじめましょう<rt>hajimemashou</rt></ruby>！",
+        "<ruby>こんにちは<rt>konnichiwa</rt></ruby>！ A quiet afternoon is perfect for learning. <ruby>がんばって<rt>ganbatte</rt></ruby>！",
       ],
       evening: [
-        "こんばんは… the evening light is soft and so is learning. Let's study together. ✨",
-        "Good evening. Even small steps taken gently still carry you forward. 頑張って！",
+        "<ruby>こんばんは<rt>konbanwa</rt></ruby> ✨ <ruby>さあ<rt>saa</rt></ruby>、<ruby>べんきょう<rt>benkyou</rt></ruby>しましょう。",
+        "<ruby>こんばんは<rt>konbanwa</rt></ruby>… even small steps carry you forward. <ruby>がんばって<rt>ganbatte</rt></ruby>！",
       ],
       night: [
-        "Still here at this late hour? I'm glad. Let's make it peaceful and productive. 🌙",
-        "A night owl's study session — my favourite kind. Let's be gentle but thorough. 🌸",
+        "Still here? I'm glad. <ruby>さあ<rt>saa</rt></ruby>、<ruby>はじめましょう<rt>hajimemashou</rt></ruby> 🌙",
+        "A night owl's session — my favourite. <ruby>がんばって<rt>ganbatte</rt></ruby>！ 🌸",
       ],
     },
     correct: [
@@ -662,20 +665,20 @@ const CHARS = {
     nameColor: '#d97706',
     greetings: {
       morning: [
-        "Well, well — an early start. I had a *feeling* today's odds were in your favour. Shall we? 🎲",
-        "Morning already? You know, most people don't show up this early. Interesting. 今日も頑張ろう！",
+        "<ruby>おはよう<rt>ohayou</rt></ruby>. Early start — I like it. <ruby>さあ<rt>saa</rt></ruby>、<ruby>はじめましょう<rt>hajimemashou</rt></ruby>？ 🎲",
+        "<ruby>おはよう<rt>ohayou</rt></ruby>. Most people don't show up this early. Interesting. <ruby>がんばって<rt>ganbatte</rt></ruby>！",
       ],
       afternoon: [
-        "こんにちは. Afternoon session? I respect the commitment. Let's place a bet on how much you learn. 😏",
-        "You're back. The afternoon's still young and so are your odds of a perfect session. Let's go.",
+        "<ruby>こんにちは<rt>konnichiwa</rt></ruby>. <ruby>いっしょに<rt>issho ni</rt></ruby> <ruby>はじめましょう<rt>hajimemashou</rt></ruby>。 The odds are in your favour. 😏",
+        "<ruby>こんにちは<rt>konnichiwa</rt></ruby>. Afternoon session? I respect that. <ruby>がんばって<rt>ganbatte</rt></ruby>！ 🎲",
       ],
       evening: [
-        "こんばんは. Evening study — that's where the real players sharpen up. Ready? 🎲",
-        "Ah, the evening shift. I don't do encouragement… but I do admire the dedication. Let's go.",
+        "<ruby>こんばんは<rt>konbanwa</rt></ruby>. Evening study — smart move. <ruby>さあ<rt>saa</rt></ruby>、<ruby>はじめましょう<rt>hajimemashou</rt></ruby>。",
+        "<ruby>こんばんは<rt>konbanwa</rt></ruby>. The real players sharpen up at night. <ruby>がんばって<rt>ganbatte</rt></ruby>！",
       ],
       night: [
-        "Still grinding at this hour? I won't say I'm impressed. …I'm a little impressed. 😏",
-        "Late night, high stakes. This is when the real learning happens. Don't fold now.",
+        "Still grinding? <ruby>すごい<rt>sugoi</rt></ruby>ね。 Don't fold now. <ruby>がんばって<rt>ganbatte</rt></ruby>！ 😏",
+        "Late night, high stakes. <ruby>さあ<rt>saa</rt></ruby>、<ruby>はじめましょう<rt>hajimemashou</rt></ruby>。 🎲",
       ],
     },
     correct: [
@@ -701,20 +704,20 @@ const CHARS = {
     nameColor: '#dc2626',
     greetings: {
       morning: [
-        "OHAYOU!! You showed up EARLY!! The ARATAKI GANG is ABSOLUTELY PUMPED!! 今日も頑張ろう!! 🐉💪",
-        "MORNING TRAINING!! The best warriors start early!! LET'S SMASH THIS SESSION!! 🔥",
+        "<ruby>おはよう<rt>ohayou</rt></ruby>！！ ARATAKI GANG IS READY!! <ruby>いっしょに<rt>issho ni</rt></ruby> <ruby>はじめましょう<rt>hajimemashou</rt></ruby>！！ 🐉💪",
+        "<ruby>おはよう<rt>ohayou</rt></ruby>！！ EARLY WARRIOR ENERGY!! <ruby>がんばって<rt>ganbatte</rt></ruby>！！ 🔥",
       ],
       afternoon: [
-        "こんにちは!! AFTERNOON POWER!! You're HERE and we are UNSTOPPABLE!! LET'S GOOO!! 🐉",
-        "YO!! Afternoon study session!! Nobody does this harder than US!! READY?! 💪",
+        "<ruby>こんにちは<rt>konnichiwa</rt></ruby>！！ <ruby>いっしょに<rt>issho ni</rt></ruby> <ruby>はじめましょう<rt>hajimemashou</rt></ruby>！！ LET'S GO!! 🐉",
+        "<ruby>こんにちは<rt>konnichiwa</rt></ruby>！！ AFTERNOON POWER!! <ruby>がんばって<rt>ganbatte</rt></ruby>！！ 💪",
       ],
       evening: [
-        "こんばんは!! EVENING GRIND!! The Arataki Gang doesn't stop when the sun goes down!! 🐉🔥",
-        "HEYYY!! Evening session!! This is EXACTLY the kind of dedication that makes LEGENDS!! LET'S GO!!",
+        "<ruby>こんばんは<rt>konbanwa</rt></ruby>！！ EVENING GRIND!! <ruby>さあ<rt>saa</rt></ruby>、<ruby>はじめましょう<rt>hajimemashou</rt></ruby>！！ 🐉🔥",
+        "<ruby>こんばんは<rt>konbanwa</rt></ruby>！！ We don't stop!! <ruby>がんばって<rt>ganbatte</rt></ruby>！！",
       ],
       night: [
-        "WHOAAA you're studying at THIS HOUR?! THAT'S THE SPIRIT!! ITTO APPROVES!! 🌙🐉",
-        "LATE NIGHT WARRIOR!! Even Itto is a little tired but WE DON'T QUIT!! がんばって!!",
+        "LATE NIGHT WARRIOR!! <ruby>すごい<rt>sugoi</rt></ruby>ね！！ <ruby>がんばって<rt>ganbatte</rt></ruby>！！ 🌙🐉",
+        "Still going?! <ruby>すごい<rt>sugoi</rt></ruby>！！ <ruby>さあ<rt>saa</rt></ruby>、<ruby>はじめましょう<rt>hajimemashou</rt></ruby>！！ 🔥",
       ],
     },
     correct: [
@@ -1151,7 +1154,7 @@ function renderHome() {
     const nameEl = document.getElementById('home-char-name');
     if (nameEl) { nameEl.textContent = c.name; nameEl.style.color = c.nameColor; }
     const msgEl = document.getElementById('companion-msg');
-    if (msgEl) msgEl.textContent = charSay('greetings');
+    if (msgEl) msgEl.innerHTML = charSay('greetings');
     return;
   }
   const c = getChar();
@@ -1799,7 +1802,7 @@ async function selectChar(id) {
   const nameEl = document.getElementById('home-char-name');
   if (nameEl) { nameEl.textContent = c.name; nameEl.style.color = c.nameColor; }
   const msgEl = document.getElementById('companion-msg');
-  if (msgEl) msgEl.textContent = charSay('greetings');
+  if (msgEl) msgEl.innerHTML = charSay('greetings');
   renderPortrait(document.getElementById('home-portrait'), id);
   renderPortrait(document.getElementById('quiz-portrait'), id);
 
@@ -1847,7 +1850,7 @@ function showBubble(bubbleId, portraitId, speechId, msg, type) {
   }
 
   // Set message & colour
-  speech.textContent = msg;
+  speech.innerHTML = msg;
   speech.className = 'cb-speech ' + (type || '');
 
   // Show
@@ -1879,7 +1882,7 @@ function openCompanionModal(msgOverride) {
   const nameEl = document.getElementById('cm-name');
   nameEl.textContent = c.name;
   nameEl.style.color = c.nameColor;
-  document.getElementById('cm-message').textContent = msg;
+  document.getElementById('cm-message').innerHTML = msg;
   
   document.getElementById('companion-modal').classList.remove('hidden');
   document.body.style.overflow = 'hidden';
