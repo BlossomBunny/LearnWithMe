@@ -1,4 +1,7 @@
-<!DOCTYPE html>
+<!DOCTYPE ht
+let kQSet = [], kQIdx = 0, kQScore = 0, kQCurrentSet = 'h';
+
+ml>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -470,10 +473,6 @@ body{font-family:var(--ff);background:var(--bg);color:var(--ink);min-height:100v
               <button class="srs-btn srs-good" onclick="rateCard(2)">Good<span class="srs-next">1d</span></button>
               <button class="srs-btn srs-easy" onclick="rateCard(3)">Easy<span class="srs-next">4d</span></button>
             </div>
-          </div>
-          <div class="companion-bubble" id="fc-bubble">
-            <div class="cb-portrait" id="fc-bubble-portrait"></div>
-            <div class="cb-speech" id="fc-bubble-speech"></div>
           </div>
           <div class="companion-bubble" id="fc-bubble">
             <div class="cb-portrait" id="fc-bubble-portrait"></div>
@@ -1250,6 +1249,19 @@ function renderKanaGrid(set, elId) {
   el.innerHTML = html;
 }
 
+function kanaTab(t, btn) {
+  document.querySelectorAll('#page-kana .tab').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  const isQuiz = t === 'hq' || t === 'kq' || t === 'mixed';
+  document.getElementById('kt-h').classList.toggle('hidden', t !== 'h');
+  document.getElementById('kt-k').classList.toggle('hidden', t !== 'k');
+  document.getElementById('kt-q').classList.toggle('hidden', !isQuiz);
+  if (isQuiz) {
+    const set = t === 'hq' ? 'h' : t === 'kq' ? 'k' : 'mixed';
+    startKanaQuiz(set);
+  }
+}
+
 function startKanaQuiz(set) {
   kQCurrentSet = set;
   const QUIZ_SIZE = 15;
@@ -1843,9 +1855,8 @@ function shuffle(arr) {
   return a;
 }
 
-</script>
-</body>
-</html>// ── VOCAB SRS ─────────────────────────────────────────────────────────
+
+// ── VOCAB SRS ─────────────────────────────────────────────────────────
 
 const SESSION_SIZE = 10;
 let fcQueue = [], fcIdx = 0, fcRevealed = false, fcSessionCorrect = 0;
@@ -2027,3 +2038,13 @@ function renderVocabBrowse() {
     </div>`;
   }).join('');
 }
+
+
+// ── VOCAB SRS ─────────────────────────────────────────────────────────
+
+const SESSION_SIZE = 10;
+let fcQueue = [], fcIdx = 0, fcRevealed = f
+
+</script>
+</body>
+</html>
