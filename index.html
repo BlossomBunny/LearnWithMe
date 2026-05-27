@@ -1213,249 +1213,6 @@ function srsNext(prog, rating) {
 //  KANA
 // ═══════════════════════════════════════════
 
-function renderKanaGrids() {
-  renderKanaGrid(HG, document.getElementById('kt-h'));
-  renderKanaGrid(KT, document.getElementById('kt-k'));
-}
-
-function renderKanaGrid(set, el) {
-  if (!el) return;
-  let html = '<div style="font-size:11.5px;color:var(--ink3);margin-bottom:10px">'
-    + '<span style="color:var(--green);font-weight:600">■</span> Mastered &nbsp;'
-    + '<span style="color:var(--gold);font-weight:600">■</span> Learning &nbsp;'
-    + '<span style="color:var(--ink3)">■</span> New</div><div class="kana-grid">';
-  set.forEach(k => {
-    const p   = KANA_P[k.r] || {};
-    const cls = p.correct >= 3 ? 'mastered' : p.correct >= 1 ? 'learning' : '';
-    html += `<div class="kana-cell ${cls}"><div class="kana-char">${k.k}</div><div class="kana-rom">${k.r}</div></div>`;
-  });
-  // Add quiz button that targets the right quiz tab for this set
-  const setId = (set === HG) ? 'hq' : 'kq';
-  html += '</div><button class="btn btn-primary btn-sm" style="margin-top:8px" onclick="kanaTab(\''+setId+'\',document.getElementById(\'ktab-'+setId+'\'))">Quiz this set →</button>';
-  el.innerHTML = html;
-}
-
-// ── VOCAB SRS ─────────────────────────────────────────────────────────
-
-const SESSION_SIZE = 10; // cards per session — manageable, not overwhelming
-
-let fcQueue = [], fcIdx = 0, fcRevealed = false, fcSessionCorrect = 0;
-
-function srsNext(prog, rating) {
-  const ease = prog.ease || 2.5;
-  if (rating === 0) return { interval_ms: 60000,  ease: Math.max(1.3, ease - 0.20), next_review: Date.now() + 60000 };
-  if (rating === 1) return { interval_ms: 600000, ease: Math.max(1.3, ease - 0.15), next_review: Date.now() + 600000 };
-  const iv = rating === 3
-    ? (prog.interval_ms || 86400000) * ease * 1.3
-    : (prog.interval_ms || 86400000) * ease;
-  return { interval_ms: iv, ease: Math.min(3.0, ease + (rating === 3 ? 0.15 : 0)), next_review: Date.now() + iv };
-}
-
-function getDueVocab() {
-  const now = Date.now();
-  // Due = never seen OR review time has passed
-  const due = VOCAB
-    .map((v, i) => ({ v, i }))
-    .filter(({ i }) => {
-      const p = VOCAB_P[i];
-      return !p || p.next_review <= now;
-    });
-  // New cards (never seen) shown before overdue cards
-  const newCards  = due.filter(({ i }) => !VOCAB_P[i]);
-  const overdue   = due.filter(({ i }) =>  VOCAB_P[i]);
-  return [...newCards, ...overdue].slice(0, SESSION_SIZE);
-}
-
-function vocabTab(t, btn) {
-  document.querySelectorAll('#page-vocab .tab').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  document.getElementById('vt-fc').classList.toggle('hidden', t !== 'fc');
-  document.getElementById('vt-browse').classList.toggle('hidden', t !== 'browse');
-  if (t === 'browse') renderVocabBrowse();
-}
-
-function initVocabFC() {
-  hideBubble('fc-bubble');
-  const due = getDueVocab();
-  fcQueue = due.map(({ v, i }) => ({ ...v, idx: i }));
-  fcIdx = 0;
-  fcRevealed = false;
-  fcSessionCorrect = 0;
-
-  const doneEl = document.getElementById('fc-done');
-  const backEl  = document.getElementById('fc-back');
-  const cardEl  = document.getElementById('flashcard');
-
-  if (!fcQueue.length) {
-    // Nothing due — show a done state
-    if (cardEl)  cardEl.style.display = 'none';
-    if (backEl)  backEl.classList.add('hidden');
-    if (doneEl) {
-      doneEl.classList.remove('hidden');
-      doneEl.innerHTML = `
-        <div style="font-size:40px;margin-bottom:10px">✨</div>
-        <div style="font-size:17px;font-weight:600;margin-bottom:6px">All caught up!</div>
-        <div style="font-size:13px;color:var(--ink3);margin-bottom:18px">No cards due right now. Come back later or browse the full list.</div>
-        <button class="btn btn-secondary btn-sm" onclick="vocabTab('browse', document.querySelectorAll('#page-vocab .tab')[1])">Browse all vocab →</button>
-      `;
-    }
-  } else {
-    if (doneEl) doneEl.classList.add('hidden');
-    if (backEl) backEl.classList.add('hidden');
-    if (cardEl) cardEl.style.display = 'flex';
-    updateFC();
-  }
-}
-
-function updateFC() {
-  hideBubble('fc-bubble');
-
-  if (fcIdx >= fcQueue.length) {
-    // Session complete
-    document.getElementById('flashcard').style.display = 'none';
-    document.getElementById('fc-back').classList.add('hidden');
-    const doneEl = document.getElementById('fc-done');
-    doneEl.classList.remove('hidden');
-    const pct = fcQueue.length > 0 ? Math.round(fcSessionCorrect / fcQueue.length * 100) : 0;
-    const emoji = pct >= 80 ? '🏆' : pct >= 50 ? '😊' : '💪';
-    doneEl.innerHTML = `
-      <div style="font-size:40px;margin-bottom:10px">${emoji}</div>
-      <div style="font-size:17px;font-weight:600;margin-bottom:6px">Session complete!</div>
-      <div style="font-size:13px;color:var(--ink3);margin-bottom:18px">${fcSessionCorrect} / ${fcQueue.length} correct</div>
-      <button class="btn btn-primary" style="margin-bottom:10px" onclick="initVocabFC()">Next session →</button>
-      <button class="btn btn-ghost btn-sm" onclick="vocabTab('browse', document.querySelectorAll('#page-vocab .tab')[1])">Browse all vocab</button>
-    `;
-    const msg = pct >= 80 ? charSay('quizGood') : pct >= 50 ? charSay('quizOk') : charSay('quizPoor');
-    setTimeout(() => openCompanionModal(msg), 400);
-    return;
-  }
-
-  const card = fcQueue[fcIdx];
-  const fe = document.getElementById('fc-front');
-  fe.textContent = card.j;
-  fe.className = 'card-main' + (card.j.length > 5 ? ' sm' : '');
-  document.getElementById('fc-cat').textContent   = '[' + card.c + ']';
-  document.getElementById('fc-badge').textContent = card.c;
-
-  // Show if new or review
-  const p = VOCAB_P[card.idx];
-  const isNew = !p || p.correct === 0;
-  document.getElementById('fc-badge').textContent = isNew ? 'NEW' : 'REVIEW';
-  document.getElementById('fc-badge').style.background = isNew ? 'var(--teal3)' : 'var(--plum3)';
-  document.getElementById('fc-badge').style.color = isNew ? 'var(--teal2)' : 'var(--plum)';
-
-  document.getElementById('flashcard').classList.remove('revealed');
-  document.getElementById('fc-back').classList.add('hidden');
-  document.getElementById('flashcard').style.display = 'flex';
-
-  document.getElementById('fc-cur').textContent  = fcIdx + 1;
-  document.getElementById('fc-tot').textContent  = fcQueue.length;
-  document.getElementById('fc-left').textContent = (fcQueue.length - fcIdx) + ' left';
-  document.getElementById('fc-bar').style.width  = Math.round(fcIdx / fcQueue.length * 100) + '%';
-
-  fcRevealed = false;
-}
-
-function revealCard() {
-  if (fcRevealed) return;
-  fcRevealed = true;
-  const card = fcQueue[fcIdx];
-  document.getElementById('flashcard').classList.add('revealed');
-
-  // Show reading (romaji), meaning, example
-  document.getElementById('fc-reading').textContent = card.r;
-  document.getElementById('fc-meaning').textContent = card.e;
-  document.getElementById('fc-ex').textContent      = card.x || '';
-
-  document.getElementById('fc-back').classList.remove('hidden');
-}
-
-async function rateCard(rating) {
-  if (!fcRevealed) return;
-  const card    = fcQueue[fcIdx];
-  const prog    = VOCAB_P[card.idx] || { correct: 0, wrong: 0, ease: 2.5, interval_ms: 0 };
-  const next    = srsNext(prog, rating);
-  const wasRight = rating >= 2;
-
-  const updated = {
-    ...prog, ...next,
-    correct: prog.correct + (wasRight ? 1 : 0),
-    wrong:   prog.wrong   + (wasRight ? 0 : 1),
-  };
-  VOCAB_P[card.idx] = updated;
-  if (wasRight) fcSessionCorrect++;
-
-  // Companion bubble reaction
-  const bubbleMsg = wasRight ? charSay('correct') : charSay('wrong');
-  showBubble('fc-bubble', 'fc-bubble-portrait', 'fc-bubble-speech', bubbleMsg, wasRight ? 'correct' : 'wrong');
-
-  // Save to DB in background
-  if (USER) {
-    SB.from('progress_vocab').upsert(
-      { user_id: USER.id, vocab_index: card.idx,
-        correct: updated.correct, wrong: updated.wrong,
-        ease: updated.ease, interval_ms: updated.interval_ms,
-        next_review: new Date(updated.next_review).toISOString(),
-        updated_at: new Date().toISOString() },
-      { onConflict: 'user_id,vocab_index' }
-    ).catch(() => {});
-    if (wasRight) addXP(10).catch(() => {});
-    if (PROFILE) {
-      const rt = (PROFILE.reviewed_today || 0) + 1;
-      const ct = (PROFILE.correct_today  || 0) + (wasRight ? 1 : 0);
-      const tt = (PROFILE.total_today    || 0) + 1;
-      SB.from('profiles').update({ reviewed_today: rt, correct_today: ct, total_today: tt })
-        .eq('id', USER.id).catch(() => {});
-      PROFILE.reviewed_today = rt; PROFILE.correct_today = ct; PROFILE.total_today = tt;
-    }
-  }
-
-  fcIdx++;
-  // Short delay so bubble is visible before card flips
-  setTimeout(() => updateFC(), 1000);
-}
-
-function renderVocabBrowse() {
-  const search = (document.getElementById('vs-search')?.value || '').toLowerCase();
-  const cat    =  document.getElementById('vs-cat')?.value || '';
-  const items  = VOCAB.filter(v =>
-    (!cat || v.c === cat) &&
-    (!search || v.j.includes(search) || v.r.includes(search) || v.e.toLowerCase().includes(search))
-  );
-  const listEl = document.getElementById('vocab-list');
-  if (!listEl) return;
-  listEl.innerHTML = items.map((v, i) => {
-    const p = VOCAB_P[VOCAB.indexOf(v)];
-    const status = !p ? 'New' : p.correct >= 3 ? 'Mastered' : 'Learning';
-    const statusColor = !p ? 'var(--ink3)' : p.correct >= 3 ? 'var(--green)' : 'var(--gold)';
-    return `<div style="background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:10px 13px;margin-bottom:6px;display:flex;justify-content:space-between;align-items:center">
-      <div>
-        <span style="font-family:var(--ffj);font-size:17px;margin-right:8px">${v.j}</span>
-        <span style="font-size:11px;color:var(--plum)">${v.r}</span>
-        <div style="font-size:12px;color:var(--ink2);margin-top:2px">${v.e}</div>
-        <div style="font-size:11px;color:var(--ink3);font-family:var(--ffj);margin-top:2px">${v.x || ''}</div>
-      </div>
-      <span style="font-size:10px;font-weight:600;color:${statusColor};white-space:nowrap;margin-left:10px">${status}</span>
-    </div>`;
-  }).join('');
-}
-
-// ── KANA ──────────────────────────────────────────────────────────────
-
-let kQSet = [], kQIdx = 0, kQScore = 0, kQCurrentSet = 'h';
-
-function kanaTab(t, btn) {
-  document.querySelectorAll('#page-kana .tab').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  const isQuiz = t === 'hq' || t === 'kq' || t === 'mixed';
-  document.getElementById('kt-h').classList.toggle('hidden', t !== 'h');
-  document.getElementById('kt-k').classList.toggle('hidden', t !== 'k');
-  document.getElementById('kt-q').classList.toggle('hidden', !isQuiz);
-  if (isQuiz) {
-    const set = t === 'hq' ? 'h' : t === 'kq' ? 'k' : 'mixed';
-    startKanaQuiz(set);
-  }
-}
 
 function renderKanaGrids() {
   renderKanaGrid(HG, 'kt-h');
@@ -2088,4 +1845,185 @@ function shuffle(arr) {
 
 </script>
 </body>
-</html>
+</html>// ── VOCAB SRS ─────────────────────────────────────────────────────────
+
+const SESSION_SIZE = 10;
+let fcQueue = [], fcIdx = 0, fcRevealed = false, fcSessionCorrect = 0;
+
+function getDueVocab() {
+  const now = Date.now();
+  const due = VOCAB.map((v, i) => ({ v, i })).filter(({ i }) => {
+    const p = VOCAB_P[i];
+    return !p || p.next_review <= now;
+  });
+  const newCards = due.filter(({ i }) => !VOCAB_P[i]);
+  const overdue  = due.filter(({ i }) =>  VOCAB_P[i]);
+  return [...newCards, ...overdue].slice(0, SESSION_SIZE);
+}
+
+function vocabTab(t, btn) {
+  document.querySelectorAll('#page-vocab .tab').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('vt-fc').classList.toggle('hidden', t !== 'fc');
+  document.getElementById('vt-browse').classList.toggle('hidden', t !== 'browse');
+  if (t === 'browse') renderVocabBrowse();
+}
+
+function initVocabFC() {
+  hideBubble('fc-bubble');
+  const due = getDueVocab();
+  fcQueue = due.map(({ v, i }) => ({ ...v, idx: i }));
+  fcIdx = 0; fcRevealed = false; fcSessionCorrect = 0;
+  const doneEl = document.getElementById('fc-done');
+  const backEl = document.getElementById('fc-back');
+  const cardEl = document.getElementById('flashcard');
+  if (!fcQueue.length) {
+    if (cardEl) cardEl.style.display = 'none';
+    if (backEl) backEl.classList.add('hidden');
+    if (doneEl) {
+      doneEl.classList.remove('hidden');
+      doneEl.innerHTML = `<div style="font-size:38px;margin-bottom:9px">✨</div>
+        <div style="font-size:17px;font-weight:600;margin-bottom:5px">All caught up!</div>
+        <div style="font-size:13px;color:var(--ink3);margin-bottom:16px">No cards due. Come back later or browse all vocab.</div>
+        <button class="btn btn-secondary btn-sm" onclick="vocabTab('browse',document.querySelectorAll('#page-vocab .tab')[1])">Browse vocab →</button>`;
+    }
+  } else {
+    if (doneEl) doneEl.classList.add('hidden');
+    if (backEl) backEl.classList.add('hidden');
+    if (cardEl) cardEl.style.display = 'flex';
+    updateFC();
+  }
+}
+
+function updateFC() {
+  hideBubble('fc-bubble');
+  if (fcIdx >= fcQueue.length) {
+    document.getElementById('flashcard').style.display = 'none';
+    document.getElementById('fc-back').classList.add('hidden');
+    const doneEl = document.getElementById('fc-done');
+    doneEl.classList.remove('hidden');
+    const pct = fcQueue.length > 0 ? Math.round(fcSessionCorrect / fcQueue.length * 100) : 0;
+    const emoji = pct >= 80 ? '🏆' : pct >= 50 ? '😊' : '💪';
+    doneEl.innerHTML = `<div style="font-size:38px;margin-bottom:9px">${emoji}</div>
+      <div style="font-size:17px;font-weight:600;margin-bottom:5px">Session complete!</div>
+      <div style="font-size:13px;color:var(--ink3);margin-bottom:16px">${fcSessionCorrect} / ${fcQueue.length} correct</div>
+      <button class="btn btn-primary" style="margin-bottom:8px" onclick="initVocabFC()">Next session →</button><br>
+      <button class="btn btn-ghost btn-sm" onclick="vocabTab('browse',document.querySelectorAll('#page-vocab .tab')[1])">Browse all vocab</button>`;
+    const msg = pct >= 80 ? charSay('quizGood') : pct >= 50 ? charSay('quizOk') : charSay('quizPoor');
+    setTimeout(() => openCompanionModal(msg), 400);
+    return;
+  }
+  const card = fcQueue[fcIdx];
+  const fe = document.getElementById('fc-front');
+  fe.textContent = card.j;
+  fe.className = 'card-main' + (card.j.length > 5 ? ' sm' : '');
+  document.getElementById('fc-cat').textContent = '[' + card.c + ']';
+
+  // Colour-coded badge + card border based on SRS state
+  const p = VOCAB_P[card.idx];
+  let badgeLabel, badgeBg, badgeColor, cardBorder;
+  if (!p || p.correct === 0) {
+    badgeLabel = 'NEW';      badgeBg = 'var(--teal3)';  badgeColor = 'var(--teal2)'; cardBorder = 'var(--teal2)';
+  } else if (p.interval_ms > 3000000) {
+    badgeLabel = 'MASTERED'; badgeBg = 'var(--green3)'; badgeColor = 'var(--green)'; cardBorder = '#86efac';
+  } else if (p.correct >= 2) {
+    badgeLabel = 'LEARNING'; badgeBg = 'var(--gold3)';  badgeColor = 'var(--gold)';  cardBorder = 'var(--gold2)';
+  } else {
+    badgeLabel = 'SEEN';     badgeBg = 'var(--plum3)';  badgeColor = 'var(--plum)';  cardBorder = 'var(--plum2)';
+  }
+  const badge = document.getElementById('fc-badge');
+  badge.textContent = badgeLabel;
+  badge.style.background = badgeBg;
+  badge.style.color = badgeColor;
+  const cardEl = document.getElementById('flashcard');
+  cardEl.style.borderColor = cardBorder;
+
+  document.getElementById('flashcard').classList.remove('revealed');
+  document.getElementById('fc-back').classList.add('hidden');
+  document.getElementById('flashcard').style.display = 'flex';
+  document.getElementById('fc-cur').textContent  = fcIdx + 1;
+  document.getElementById('fc-tot').textContent  = fcQueue.length;
+  document.getElementById('fc-left').textContent = (fcQueue.length - fcIdx) + ' left';
+  document.getElementById('fc-bar').style.width  = Math.round(fcIdx / fcQueue.length * 100) + '%';
+  fcRevealed = false;
+}
+
+function revealCard() {
+  if (fcRevealed) return;
+  fcRevealed = true;
+  const card = fcQueue[fcIdx];
+  document.getElementById('flashcard').classList.add('revealed');
+  document.getElementById('fc-reading').textContent = card.r;
+  document.getElementById('fc-meaning').textContent = card.e;
+  document.getElementById('fc-ex').textContent      = card.x || '';
+  document.getElementById('fc-back').classList.remove('hidden');
+}
+
+function rateCard(rating) {
+  if (!fcRevealed) return;
+  const card    = fcQueue[fcIdx];
+  const prog    = VOCAB_P[card.idx] || { correct: 0, wrong: 0, ease: 2.5, interval_ms: 0 };
+  const next    = srsNext(prog, rating);
+  const wasRight = rating >= 2;
+  const updated = { ...prog, ...next,
+    correct: prog.correct + (wasRight ? 1 : 0),
+    wrong:   prog.wrong   + (wasRight ? 0 : 1),
+  };
+  VOCAB_P[card.idx] = updated;
+  if (wasRight) fcSessionCorrect++;
+
+  showBubble('fc-bubble','fc-bubble-portrait','fc-bubble-speech',
+    wasRight ? charSay('correct') : charSay('wrong'),
+    wasRight ? 'correct' : 'wrong');
+
+  if (USER) {
+    SB.from('progress_vocab').upsert(
+      { user_id: USER.id, vocab_index: card.idx, correct: updated.correct,
+        wrong: updated.wrong, ease: updated.ease, interval_ms: updated.interval_ms,
+        next_review: new Date(updated.next_review).toISOString(),
+        updated_at: new Date().toISOString() },
+      { onConflict: 'user_id,vocab_index' }
+    ).catch(() => {});
+    if (wasRight) addXP(10).catch(() => {});
+    if (PROFILE) {
+      PROFILE.reviewed_today = (PROFILE.reviewed_today||0)+1;
+      PROFILE.correct_today  = (PROFILE.correct_today ||0)+(wasRight?1:0);
+      PROFILE.total_today    = (PROFILE.total_today   ||0)+1;
+      SB.from('profiles').update({
+        reviewed_today: PROFILE.reviewed_today,
+        correct_today:  PROFILE.correct_today,
+        total_today:    PROFILE.total_today
+      }).eq('id', USER.id).catch(() => {});
+    }
+  }
+  fcIdx++;
+  setTimeout(() => updateFC(), 1000);
+}
+
+function renderVocabBrowse() {
+  const search = (document.getElementById('vs-search')?.value || '').toLowerCase();
+  const cat    =  document.getElementById('vs-cat')?.value || '';
+  const items  = VOCAB.filter(v =>
+    (!cat || v.c === cat) &&
+    (!search || v.j.includes(search) || v.r.includes(search) || v.e.toLowerCase().includes(search))
+  );
+  const listEl = document.getElementById('vocab-list');
+  if (!listEl) return;
+  listEl.innerHTML = items.map(v => {
+    const idx = VOCAB.indexOf(v);
+    const p = VOCAB_P[idx];
+    let status = 'New', statusColor = 'var(--ink3)';
+    if (p && p.interval_ms > 3000000) { status = 'Mastered'; statusColor = 'var(--green)'; }
+    else if (p && p.correct >= 2)      { status = 'Learning'; statusColor = 'var(--gold)'; }
+    else if (p)                         { status = 'Seen';     statusColor = 'var(--plum)'; }
+    return `<div style="background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:10px 13px;margin-bottom:6px;display:flex;justify-content:space-between;align-items:center">
+      <div>
+        <span style="font-family:var(--ffj);font-size:17px;margin-right:8px">${v.j}</span>
+        <span style="font-size:11px;color:var(--plum)">${v.r}</span>
+        <div style="font-size:12px;color:var(--ink2);margin-top:2px">${v.e}</div>
+        <div style="font-size:11px;color:var(--ink3);font-family:var(--ffj);margin-top:2px">${v.x||''}</div>
+      </div>
+      <span style="font-size:10px;font-weight:600;color:${statusColor};white-space:nowrap;margin-left:10px">${status}</span>
+    </div>`;
+  }).join('');
+}
