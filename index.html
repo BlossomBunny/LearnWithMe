@@ -1686,7 +1686,6 @@ async function sendFriendReq(fId, btn) {
     `;
   }
 }
-
 async function selectChar(id) {
   if (!CHARS[id]) return;
 
@@ -1710,27 +1709,29 @@ async function selectChar(id) {
   renderPortrait(document.getElementById('home-portrait'), id);
   renderPortrait(document.getElementById('quiz-portrait'), id);
 
-  // Save to Supabase with debugging
+  // === DEBUG SAVE ===
   if (USER) {
-    console.log(`💾 Saving character: ${id} for user ${USER.id}`);
-    
-    const { error } = await SB.from('profiles')
+    console.log(`💾 Attempting to save character: ${id} for user ${USER.id}`);
+
+    const { data, error } = await SB.from('profiles')
       .update({ active_character: id })
-      .eq('id', USER.id);
+      .eq('id', USER.id)
+      .select('active_character')   // Return the updated value for verification
+      .single();
 
     if (error) {
-      console.error("❌ Failed to save character:", error);
-      alert("Failed to save companion choice. Check console.");
+      console.error("❌ Supabase Update Failed:", error);
+      alert(`Failed to save companion.\n\nError: ${error.message}`);
     } else {
-      console.log(`✅ Successfully saved ${c.name} as active companion`);
+      console.log("✅ Save successful! New value in DB:", data?.active_character);
     }
   } else {
-    console.warn("⚠️ No user logged in - character change is local only");
+    console.warn("⚠️ No authenticated user");
   }
 
   openCompanionModal(`Nice to meet you again! I'm ${c.name} ${c.emoji}`);
 }
-  
+
 // ═══════════════════════════════════════════
 //  REALTIME
 // ═══════════════════════════════════════════
