@@ -1165,15 +1165,21 @@ function markKanaSeen() {
   if (!KANA_P[romaji]) KANA_P[romaji] = { correct: 0, wrong: 0, seen: true };
   else KANA_P[romaji].seen = true;
   // Save to DB
-  if (USER) {
-    // Store seen state — use correct:-1 as a sentinel for "seen but not yet quizzed"
-    // Regular upsert without a 'seen' column dependency
-    SB.from('progress_kana').upsert(
-      { user_id: USER.id, kana_key: romaji, correct: 0, wrong: 0,
-        next_review: new Date().toISOString(), updated_at: new Date().toISOString() },
-      { onConflict: 'user_id,kana_key' }
-    ).catch(() => {});
-  }
+ if (USER) {
+  SB.from('progress_kana')
+    .upsert({ 
+      user_id: USER.id, 
+      kana_key: romaji, 
+      correct: 0, 
+      wrong: 0,
+      next_review: new Date().toISOString(), 
+      updated_at: new Date().toISOString() 
+    }, { onConflict: 'user_id,kana_key' })
+    .then(({ error }) => {
+      if (error) console.error("Supabase Error:", error);
+    })
+    .catch((err) => console.error("Network/Unexpected Error:", err));
+}
   closeKanaStudy();
   // Re-render the active grid
   renderKanaGrids();
