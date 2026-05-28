@@ -1626,15 +1626,16 @@ async function sendFriendReq(fId, btn) {
   btn.disabled = true; btn.textContent = 'Sent ✓';
   await SB.from('friends').insert({ user_id: USER.id, friend_id: fId, status: 'pending' });
 }
-function renderSettings() {
-  const page = document.getElementById('page-settings');
-  
-  // Remove all previous dynamic sections (keep only the last static account section)
-  const dynamicSections = page.querySelectorAll('.settings-section');
-  dynamicSections.forEach((section, index) => {
-    if (index < dynamicSections.length - 1) section.remove();
-  });
 
+  function renderSettings() {
+  const page = document.getElementById('page-settings');
+  if (!page) return;
+
+  // Clear previous character grid content
+  const charGrid = document.getElementById('char-grid');
+  if (charGrid) charGrid.innerHTML = '';
+
+  // Populate Character Grid
   const charGridHTML = Object.values(CHARS).map(c => {
     const isActive = c.id === ACTIVE_CHAR;
     return `
@@ -1649,45 +1650,8 @@ function renderSettings() {
       </div>`;
   }).join('');
 
-  const settingsHTML = `
-    <div class="settings-section">
-      <div class="section-head"><div class="section-title">Your Profile</div></div>
-      <div style="display:flex;gap:16px;align-items:center;margin-bottom:16px">
-        <div style="width:72px;height:72px;border-radius:50%;background:var(--plum3);display:flex;align-items:center;justify-content:center;font-size:32px;flex-shrink:0">
-          ${PROFILE?.avatar_emoji || '🌸'}
-        </div>
-        <div style="flex:1">
-          <div style="font-size:17px;font-weight:600">${PROFILE?.username || 'Learner'}</div>
-          <div style="font-size:13px;color:var(--ink3)">${USER?.email || ''}</div>
-          <div style="margin-top:8px;display:flex;gap:16px;font-size:13px">
-            <div>⭐ <strong>${PROFILE?.level || 1}</strong></div>
-            <div>⚡ <strong>${PROFILE?.xp || 0}</strong> XP</div>
-            <div>🔥 <strong>${PROFILE?.streak || 0}</strong>d streak</div>
-          </div>
-        </div>
-      </div>
-      <div style="font-size:12.5px;color:var(--ink3);margin-bottom:8px">Change Display Name</div>
-      <div style="display:flex;gap:8px">
-        <input type="text" id="new-username" placeholder="New username" style="flex:1;padding:9px 12px;border:1.5px solid var(--border2);border-radius:var(--r);font-size:14px">
-        <button class="btn btn-primary btn-sm" onclick="updateUsername()">Save</button>
-      </div>
-    </div>
-
-    <div class="settings-section">
-      <div class="section-head"><div class="section-title">Companion</div></div>
-      <div style="margin-bottom:12px">
-        Your current companion is <strong id="current-companion-name" style="color:${getChar().nameColor}">${getChar().name}</strong>
-      </div>
-      <button class="btn btn-secondary" onclick="openCompanionModal()">Talk to ${getChar().name}</button>
-    </div>
-  `;
-
-  // Insert before the last (static) account section
-  const accountSection = page.querySelector('.settings-section:last-child');
-  if (accountSection) {
-    const wrapper = document.createElement('div');
-    wrapper.innerHTML = charGridHTML + settingsHTML;
-    accountSection.parentNode.insertBefore(wrapper, accountSection);
+  if (charGrid) {
+    charGrid.innerHTML = charGridHTML;
   }
 
   // Render portraits
@@ -1695,19 +1659,29 @@ function renderSettings() {
     const el = document.getElementById('sp-' + c.id);
     if (el) renderPortrait(el, c.id);
   });
+
+  // Update profile info if needed
+  const acct = document.getElementById('acct-info');
+  if (acct) {
+    acct.innerHTML = `
+      Signed in as <strong>${PROFILE?.username || USER?.email?.split('@')[0] || 'User'}</strong><br>
+      <span style="font-size:12px;color:var(--ink3)">${USER?.email || ''}</span>
+    `;
+  }
 }
-  
+
 async function selectChar(id) {
   if (!CHARS[id]) return;
 
   ACTIVE_CHAR = id;
   if (PROFILE) PROFILE.active_character = id;
 
+  // Re-render settings
   renderSettings();
 
   const c = getChar();
 
-  // Update home bar
+  // Update home companion bar
   const nameEl = document.getElementById('home-char-name');
   if (nameEl) {
     nameEl.textContent = c.name;
@@ -1719,7 +1693,7 @@ async function selectChar(id) {
   renderPortrait(document.getElementById('home-portrait'), id);
   renderPortrait(document.getElementById('quiz-portrait'), id);
 
-  // Save to DB
+  // Save to database
   if (USER) {
     await SB.from('profiles')
       .update({ active_character: id })
@@ -1728,7 +1702,6 @@ async function selectChar(id) {
 
   openCompanionModal(`Nice to meet you again! I'm ${c.name} ${c.emoji}`);
 }
-
   
 // ═══════════════════════════════════════════
 //  REALTIME
