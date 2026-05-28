@@ -1628,7 +1628,7 @@ async function sendFriendReq(fId, btn) {
 }
 
 // ═══════════════════════════════════════════
-//  SETTINGS
+//  SETTINGS (Improved)
 // ═══════════════════════════════════════════
 function renderSettings() {
   const el = document.getElementById('char-grid');
@@ -1639,46 +1639,109 @@ function renderSettings() {
         <div class="char-portrait" id="sp-${c.id}"></div>
         <div class="char-name-label" style="${active ? `color:${c.nameColor};font-weight:700` : ''}">${c.name}</div>
         <div class="char-style-label" style="${active ? `color:${c.nameColor};font-weight:600` : ''}">
-          ${active ? '✓ Your companion' : c.emoji}
+          ${active ? '✓ Current Companion' : c.emoji}
         </div>
       </div>`;
     }).join('');
-    Object.values(CHARS).forEach(c => renderPortrait(document.getElementById('sp-' + c.id), c.id));
+
+    // Render all portraits
+    Object.values(CHARS).forEach(c => {
+      const portraitEl = document.getElementById('sp-' + c.id);
+      if (portraitEl) renderPortrait(portraitEl, c.id);
+    });
   }
+
+  // ── Profile Section ─────────────────────
+  const profileHTML = `
+    <div class="settings-section">
+      <div class="section-head">
+        <div class="section-title">Your Profile</div>
+      </div>
+      <div style="display:flex;gap:16px;align-items:center;margin-bottom:16px">
+        <div style="width:72px;height:72px;border-radius:50%;background:var(--plum3);display:flex;align-items:center;justify-content:center;font-size:32px;flex-shrink:0" id="profile-avatar">
+          ${PROFILE?.avatar_emoji || '🌸'}
+        </div>
+        <div style="flex:1">
+          <div style="font-size:17px;font-weight:600" id="profile-username">${PROFILE?.username || USER?.email?.split('@')[0] || 'Learner'}</div>
+          <div style="font-size:13px;color:var(--ink3)" id="profile-email">${USER?.email || ''}</div>
+          <div style="margin-top:8px;display:flex;gap:16px;font-size:13px">
+            <div>⭐ <strong>${PROFILE?.level || 1}</strong> <span style="color:var(--ink3)">Level</span></div>
+            <div>⚡ <strong>${PROFILE?.xp || 0}</strong> <span style="color:var(--ink3)">XP</span></div>
+            <div>🔥 <strong>${PROFILE?.streak || 0}</strong> <span style="color:var(--ink3)">day streak</span></div>
+          </div>
+        </div>
+      </div>
+      
+      <div style="font-size:12.5px;color:var(--ink3);margin-bottom:8px">Change Display Name</div>
+      <div style="display:flex;gap:8px">
+        <input type="text" id="new-username" placeholder="New username" style="flex:1;padding:9px 12px;border:1.5px solid var(--border2);border-radius:var(--r);font-size:14px">
+        <button class="btn btn-primary btn-sm" onclick="updateUsername()">Save</button>
+      </div>
+    </div>
+
+    <div class="settings-section">
+      <div class="section-head">
+        <div class="section-title">Companion</div>
+      </div>
+      <div style="font-size:13px;color:var(--ink3);margin-bottom:12px">
+        Your current companion is <strong id="current-companion-name">${getChar().name}</strong>
+      </div>
+      <button class="btn btn-secondary" onclick="openCompanionModal()">Talk to ${getChar().name}</button>
+    </div>
+  `;
+
+  // Insert profile section before the account section
+  const accountSection = document.querySelector('#page-settings .settings-section:last-child');
+  if (accountSection) {
+    const profileDiv = document.createElement('div');
+    profileDiv.innerHTML = profileHTML;
+    accountSection.parentNode.insertBefore(profileDiv, accountSection);
+  }
+
+  // Account section (keep logout)
   const acct = document.getElementById('acct-info');
-  if (acct && PROFILE) {
-    acct.textContent = 'Signed in as ' + (PROFILE.username || USER?.email || '…') + ' · ' + (USER?.email || '');
-  }
-  // Update topbar to show current character name as sub-title
-  const settingsSub = document.getElementById('topbar-sub');
-  if (settingsSub) {
-    const c = getChar();
-    settingsSub.textContent = 'Companion: ' + c.name + ' ' + c.emoji;
+  if (acct) {
+    acct.innerHTML = `
+      Signed in as <strong>${PROFILE?.username || USER?.email || 'User'}</strong><br>
+      <span style="font-size:12px;color:var(--ink3)">${USER?.email}</span>
+    `;
   }
 }
-
+  
 async function selectChar(id) {
-  // Update UI instantly — no waiting for network
+  if (!CHARS[id]) return;
+
   ACTIVE_CHAR = id;
   if (PROFILE) PROFILE.active_character = id;
 
-  // Re-render settings grid immediately so highlight moves right away
+  // Immediate UI feedback
   renderSettings();
-
-  // Update companion bar on home
+  
   const c = getChar();
+  // Update home companion bar
   const nameEl = document.getElementById('home-char-name');
-  if (nameEl) { nameEl.textContent = c.name; nameEl.style.color = c.nameColor; }
+  if (nameEl) {
+    nameEl.textContent = c.name;
+    nameEl.style.color = c.nameColor;
+  }
   const msgEl = document.getElementById('companion-msg');
   if (msgEl) msgEl.textContent = charSay('greetings');
+
   renderPortrait(document.getElementById('home-portrait'), id);
   renderPortrait(document.getElementById('quiz-portrait'), id);
 
-  // Show new companion immediately
-  openCompanionModal(charSay('greetings'));
+  // Save to database
+  if (USER) {
+    const { error } = await SB.from('profiles')
+      .update({ active_character: id })
+      .eq('id', USER.id);
+    
+    if (error) console.error("Failed to save character:", error);
+    else console.log(`✅ Companion changed to ${c.name}`);
+  }
 
-  // Save to Supabase in background — don't block UI
-  if (USER) SB.from('profiles').update({ active_character: id }).eq('id', USER.id).then(() => {});
+  // Welcome message from new companion
+  openCompanionModal(`Nice to meet you again! I'm ${c.name} ${c.emoji}`);
 }
 
 // ═══════════════════════════════════════════
@@ -1699,6 +1762,23 @@ function setupRealtime() {
 //  UTILS
 // ═══════════════════════════════════════════
 
+  async function updateUsername() {
+  const newName = document.getElementById('new-username').value.trim();
+  if (!newName || !USER) return;
+
+  const { error } = await SB.from('profiles')
+    .update({ username: newName })
+    .eq('id', USER.id);
+
+  if (error) {
+    alert("Failed to update username: " + error.message);
+  } else {
+    if (PROFILE) PROFILE.username = newName;
+    renderSettings();
+    document.getElementById('new-username').value = '';
+    alert("✅ Username updated!");
+  }
+}
 
 // ── COMPANION FEEDBACK BUBBLE ─────────────────────────────
 function showBubble(bubbleId, portraitId, speechId, msg, type) {
