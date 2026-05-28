@@ -188,6 +188,9 @@ body{font-family:var(--ff);background:var(--bg);color:var(--ink);min-height:100v
 .kana-cell.learning{background:var(--gold3);border-color:var(--gold2)}
 .kana-char{font-family:var(--ffj);font-size:22px;color:var(--ink);line-height:1.2}
 .kana-rom{font-size:9.5px;color:var(--ink3);margin-top:2px;font-weight:500}
+.kana-cell.seen-kana{background:var(--plum3);border-color:var(--plum2)}
+.kana-cell.new-kana{background:var(--surface);border-color:var(--border);opacity:0.7}
+.kana-cell.new-kana:hover{opacity:1;border-color:var(--plum2);background:var(--plum3);cursor:pointer}
 .kana-opt{padding:9px;background:var(--surface);border:1.5px solid var(--border2);border-radius:var(--r);cursor:pointer;font-size:12.5px;font-weight:500;transition:all .13s;text-align:center}
 .kana-opt:hover:not(.disabled){border-color:var(--plum);background:var(--plum3);color:var(--plum)}
 .kana-opt.correct{background:var(--green3);border-color:#86efac;color:var(--green)}
@@ -206,7 +209,7 @@ body{font-family:var(--ff);background:var(--bg);color:var(--ink);min-height:100v
 .friend-av{width:40px;height:40px;border-radius:50%;background:var(--plum3);display:flex;align-items:center;justify-content:center;font-size:19px;flex-shrink:0}
 
 /* ── SETTINGS ── */
-.char-select-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:13px;margin-bottom:22px}
+.char-select-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:13px;margin-bottom:22px}
 .char-select-card{background:var(--card);border:2px solid var(--border);border-radius:var(--r2);padding:15px;text-align:center;cursor:pointer;transition:all .14s}
 .char-select-card:hover{border-color:var(--plum2)}
 .char-select-card.active{border-color:var(--plum);background:var(--plum3)}
@@ -411,6 +414,18 @@ body{font-family:var(--ff);background:var(--bg);color:var(--ink);min-height:100v
     </div>
 
     <!-- KANA -->
+
+      <!-- Kana Study Overlay -->
+      <div id="kana-study-overlay" class="hidden" style="position:fixed;inset:0;background:rgba(10,5,20,0.75);z-index:300;display:flex;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(4px)" onclick="if(event.target===this)closeKanaStudy()">
+        <div style="background:var(--card);border-radius:24px;width:320px;max-width:95vw;padding:36px 28px;text-align:center;box-shadow:0 24px 60px rgba(0,0,0,0.3)">
+          <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--ink3);margin-bottom:16px" id="ks-script">Hiragana</div>
+          <div style="font-family:var(--ffj);font-size:96px;line-height:1;color:var(--ink);margin-bottom:8px" id="ks-char">あ</div>
+          <div style="font-size:28px;font-weight:600;color:var(--plum);margin-bottom:12px" id="ks-romaji">a</div>
+          <div style="font-size:13px;color:var(--ink3);line-height:1.6;margin-bottom:24px;min-height:40px" id="ks-tip"></div>
+          <button class="btn btn-primary" style="width:100%;margin-bottom:10px" onclick="markKanaSeen()">Got it! 覚えた →</button>
+          <button class="btn btn-ghost btn-sm" style="width:100%" onclick="closeKanaStudy()">Skip for now</button>
+        </div>
+      </div>
     <div class="page" id="page-kana">
       <div class="tabs">
         <button class="tab active" id="ktab-h" onclick="kanaTab('h',this)">Hiragana</button>
@@ -743,6 +758,45 @@ const CHARS = {
     quizOk:   "HEY that's SOLID!! Not bad at ALL!! More practice and we'll be LEGENDARY!! 💪",
     quizPoor: "Okay LISTEN!! We just needed a WARM UP ROUND!! Now we're WARMED UP!! GO AGAIN!! 🔥",
   },
+  dottore: {
+    id: 'dottore', name: 'Il Dottore', emoji: '🧪',
+    portrait: './dottore.jpg',
+    color: 'linear-gradient(135deg,#334155,#1e293b)',
+    nameColor: '#94a3b8',
+    greetings: {
+      morning: [
+        "You've arrived. Punctual, at least — a variable I didn't expect to hold constant. Let us proceed. べんきょう (benkyou) awaits.",
+        "おはよう (ohayou). I was already three hypotheses deep when you appeared. Try not to fall behind.",
+      ],
+      afternoon: [
+        "こんにちは (konnichiwa). The afternoon cohort. Statistically the least focused — I trust you'll be an outlier. さあ (saa)、はじめましょう (hajimemashou)。",
+        "Ah. You've returned. I had begun to factor your absence into the model. Sit. We have ground to cover.",
+      ],
+      evening: [
+        "こんばんは (konbanwa). Evening sessions yield measurably higher retention rates. You've made an objectively correct decision. Proceed.",
+        "The day's variables are settling. An ideal time for controlled study. べんきょう (benkyou) します。 Don't waste it.",
+      ],
+      night: [
+        "Still awake. Interesting. The prefrontal cortex is compromised by fatigue — yet here you are. I'll... allow it. さあ (saa)。",
+        "A nocturnal specimen. べんきょう (benkyou) at this hour borders on self-experimentation. I approve. Begin.",
+      ],
+    },
+    correct: [
+      "Correct. As expected — I had already marked that answer in your favour before you responded.",
+      "正解。The neural pathway has been reinforced. Efficient. Move on.",
+      "Acceptable. Though I note you hesitated for approximately two seconds. We'll address that.",
+      "完璧。That is the correct answer. I would congratulate you, but you were merely performing as designed.",
+    ],
+    wrong: [
+      "Incorrect. I've logged it. The error pattern is... not unexpected, given your current stage. Adjust.",
+      "No. That is not the answer. Review the variable and rerun the process — this time without the cognitive shortcuts.",
+      "Wrong. Though failure does generate useful data. I'm noting which pathways require reinforcement.",
+      "An error. Not catastrophic. Recalibrate and proceed — I don't have patience for repeated mistakes.",
+    ],
+    quizGood: "Exceptional performance. Score logged. The data suggests you are progressing within the upper percentile. I expected nothing less. 正解続き。",
+    quizOk:   "Adequate. The results are within acceptable parameters, though 'acceptable' and 'sufficient' are not synonymous. Study the errors.",
+    quizPoor: "The results are... below optimal. I'm recalibrating the difficulty model. This is not failure — it's diagnostic data. Begin again.",
+  },
 };
 
 function getChar() { return CHARS[ACTIVE_CHAR] || CHARS.cyrene; }
@@ -1042,7 +1096,7 @@ async function loadUserData() {
   // Load kana progress
   const { data: kp } = await SB.from('progress_kana').select('*').eq('user_id', USER.id);
   KANA_P = {};
-  (kp || []).forEach(r => { KANA_P[r.kana_key] = { correct: r.correct || 0, wrong: r.wrong || 0 }; });
+  (kp || []).forEach(r => { KANA_P[r.kana_key] = { correct: r.correct || 0, wrong: r.wrong || 0, seen: true }; }); // any DB record = seen
   // Load vocab progress
   const { data: vp } = await SB.from('progress_vocab').select('*').eq('user_id', USER.id);
   VOCAB_P = {};
@@ -1225,16 +1279,25 @@ function renderKanaGrid(set, elId) {
   const quizTab = isH ? 'hq' : 'kq';
   const quizTabEl = isH ? 'ktab-hq' : 'ktab-kq';
 
-  let html = '<div style="font-size:11px;color:var(--ink3);margin-bottom:10px;display:flex;gap:14px">'
-    + '<span>🟩 Mastered (3+ correct)</span>'
+  let html = '<div style="font-size:11px;color:var(--ink3);margin-bottom:10px;display:flex;gap:14px;flex-wrap:wrap">'
+    + '<span>🟩 Mastered</span>'
     + '<span>🟨 Learning</span>'
-    + '<span>⬜ New</span>'
+    + '<span style="color:var(--plum)">🟪 Seen</span>'
+    + '<span>◻ New — click to study!</span>'
     + '</div><div class="kana-grid">';
 
   set.forEach(k => {
     const p   = KANA_P[k.r] || {};
-    const cls = p.correct >= 3 ? 'mastered' : p.correct >= 1 ? 'learning' : '';
-    html += `<div class="kana-cell ${cls}"><div class="kana-char">${k.k}</div><div class="kana-rom">${k.r}</div></div>`;
+    const mastered = p.correct >= 3;
+    const learning = p.correct >= 1;
+    const seen     = p.seen;
+    const isNew    = !seen && !learning && !mastered;
+    let cls = mastered ? 'mastered' : learning ? 'learning' : seen ? 'seen-kana' : 'new-kana';
+    // New chars are clickable to study; known chars just show status
+    const onclick = isNew ? `onclick="openKanaStudy('${k.k}','${k.r}','${isH ? 'Hiragana' : 'Katakana'}')"` : '';
+    const cursor  = isNew ? 'cursor:pointer' : '';
+    const title   = isNew ? `title="Click to study ${k.r}"` : '';
+    html += `<div class="kana-cell ${cls}" ${onclick} ${title} style="${cursor}"><div class="kana-char">${k.k}</div><div class="kana-rom">${p.seen || learning || mastered ? k.r : '?'}</div></div>`;
   });
 
   const mastered = set.filter(k => (KANA_P[k.r] || {}).correct >= 3).length;
@@ -1247,6 +1310,46 @@ function renderKanaGrid(set, elId) {
   </div>`;
 
   el.innerHTML = html;
+}
+
+
+function openKanaStudy(char, romaji, script) {
+  window._kanaStudyChar   = char;
+  window._kanaStudyRomaji = romaji;
+  document.getElementById('ks-char').textContent   = char;
+  document.getElementById('ks-romaji').textContent = romaji;
+  document.getElementById('ks-script').textContent = script;
+  document.getElementById('ks-tip').textContent    = KANA_TIPS[romaji] || 'Trace the shape — connect it to the sound.';
+  document.getElementById('kana-study-overlay').classList.remove('hidden');
+  document.getElementById('kana-study-overlay').style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+}
+
+function closeKanaStudy() {
+  document.getElementById('kana-study-overlay').classList.add('hidden');
+  document.getElementById('kana-study-overlay').style.display = '';
+  document.body.style.overflow = '';
+}
+
+function markKanaSeen() {
+  const romaji = window._kanaStudyRomaji;
+  if (!romaji) { closeKanaStudy(); return; }
+  // Mark as seen in local state
+  if (!KANA_P[romaji]) KANA_P[romaji] = { correct: 0, wrong: 0, seen: true };
+  else KANA_P[romaji].seen = true;
+  // Save to DB
+  if (USER) {
+    // Store seen state — use correct:-1 as a sentinel for "seen but not yet quizzed"
+    // Regular upsert without a 'seen' column dependency
+    SB.from('progress_kana').upsert(
+      { user_id: USER.id, kana_key: romaji, correct: 0, wrong: 0,
+        next_review: new Date().toISOString(), updated_at: new Date().toISOString() },
+      { onConflict: 'user_id,kana_key' }
+    ).catch(() => {});
+  }
+  closeKanaStudy();
+  // Re-render the active grid
+  renderKanaGrids();
 }
 
 function kanaTab(t, btn) {
@@ -1353,6 +1456,7 @@ function checkKQ(el, chosen) {
       charSay('wrong') + '  ✗ ' + answerNote, 'wrong');
   }
 
+  prog.seen = true;
   KANA_P[window._kqRomaji] = prog;
 
   // Advance after delay — completely fire-and-forget, nothing blocks it
