@@ -1692,12 +1692,11 @@ async function selectChar(id) {
   ACTIVE_CHAR = id;
   if (PROFILE) PROFILE.active_character = id;
 
-  // Immediate UI update
   renderSettings();
 
   const c = getChar();
 
-  // Update home companion bar
+  // Update UI immediately
   const nameEl = document.getElementById('home-char-name');
   if (nameEl) {
     nameEl.textContent = c.name;
@@ -1709,28 +1708,36 @@ async function selectChar(id) {
   renderPortrait(document.getElementById('home-portrait'), id);
   renderPortrait(document.getElementById('quiz-portrait'), id);
 
-  // === DEBUG SAVE ===
+  // === STRONG DEBUG SAVE ===
   if (USER) {
     console.log(`💾 Attempting to save character: ${id} for user ${USER.id}`);
 
-    const { data, error } = await SB.from('profiles')
-      .update({ active_character: id })
-      .eq('id', USER.id)
-      .select('active_character')   // Return the updated value for verification
-      .single();
+    try {
+      const { data, error } = await SB
+        .from('profiles')
+        .update({ active_character: id })
+        .eq('id', USER.id)
+        .select('active_character, username')
+        .single();
 
-    if (error) {
-      console.error("❌ Supabase Update Failed:", error);
-      alert(`Failed to save companion.\n\nError: ${error.message}`);
-    } else {
-      console.log("✅ Save successful! New value in DB:", data?.active_character);
+      if (error) {
+        console.error("❌ Supabase Update ERROR:", error);
+        alert(`Failed to save companion.\n\nError: ${error.message}\nCode: ${error.code}`);
+      } else {
+        console.log("✅ SUCCESS! Database now has:", data);
+        alert(`✅ Saved ${c.name} successfully!`);
+      }
+    } catch (err) {
+      console.error("💥 Exception during save:", err);
+      alert("Unexpected error while saving. Check console.");
     }
   } else {
-    console.warn("⚠️ No authenticated user");
+    console.warn("⚠️ No user logged in");
   }
 
   openCompanionModal(`Nice to meet you again! I'm ${c.name} ${c.emoji}`);
 }
+  
 
 // ═══════════════════════════════════════════
 //  REALTIME
