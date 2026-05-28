@@ -1626,48 +1626,38 @@ async function sendFriendReq(fId, btn) {
   btn.disabled = true; btn.textContent = 'Sent ✓';
   await SB.from('friends').insert({ user_id: USER.id, friend_id: fId, status: 'pending' });
 }
-
-// ═══════════════════════════════════════════
-//  SETTINGS (Improved)
-// ═══════════════════════════════════════════
 function renderSettings() {
-  const el = document.getElementById('char-grid');
-  if (el) {
-    el.innerHTML = Object.values(CHARS).map(c => {
-      const active = c.id === ACTIVE_CHAR;
-      return `<div class="char-select-card ${active ? 'active' : ''}" onclick="selectChar('${c.id}')" style="${active ? `border-color:${c.nameColor};background:${c.nameColor}18` : ''}">
-        <div class="char-portrait" id="sp-${c.id}"></div>
-        <div class="char-name-label" style="${active ? `color:${c.nameColor};font-weight:700` : ''}">${c.name}</div>
-        <div class="char-style-label" style="${active ? `color:${c.nameColor};font-weight:600` : ''}">
-          ${active ? '✓ Current Companion' : c.emoji}
-        </div>
-      </div>`;
-    }).join('');
+  const settingsPage = document.getElementById('page-settings');
+  
+  // Clear previous dynamic content (except the original account section)
+  const existingDynamic = settingsPage.querySelectorAll('.settings-section:not(:last-child)');
+  existingDynamic.forEach(el => el.remove());
 
-    // Render all portraits
-    Object.values(CHARS).forEach(c => {
-      const portraitEl = document.getElementById('sp-' + c.id);
-      if (portraitEl) renderPortrait(portraitEl, c.id);
-    });
-  }
+  const charGridHTML = Object.values(CHARS).map(c => {
+    const active = c.id === ACTIVE_CHAR;
+    return `<div class="char-select-card ${active ? 'active' : ''}" onclick="selectChar('${c.id}')" style="${active ? `border-color:${c.nameColor};background:${c.nameColor}18` : ''}">
+      <div class="char-portrait" id="sp-${c.id}"></div>
+      <div class="char-name-label" style="${active ? `color:${c.nameColor};font-weight:700` : ''}">${c.name}</div>
+      <div class="char-style-label" style="${active ? `color:${c.nameColor};font-weight:600` : ''}">
+        ${active ? '✓ Current Companion' : c.emoji}
+      </div>
+    </div>`;
+  }).join('');
 
-  // ── Profile Section ─────────────────────
   const profileHTML = `
     <div class="settings-section">
-      <div class="section-head">
-        <div class="section-title">Your Profile</div>
-      </div>
+      <div class="section-head"><div class="section-title">Your Profile</div></div>
       <div style="display:flex;gap:16px;align-items:center;margin-bottom:16px">
         <div style="width:72px;height:72px;border-radius:50%;background:var(--plum3);display:flex;align-items:center;justify-content:center;font-size:32px;flex-shrink:0" id="profile-avatar">
           ${PROFILE?.avatar_emoji || '🌸'}
         </div>
         <div style="flex:1">
-          <div style="font-size:17px;font-weight:600" id="profile-username">${PROFILE?.username || USER?.email?.split('@')[0] || 'Learner'}</div>
+          <div style="font-size:17px;font-weight:600" id="profile-username">${PROFILE?.username || 'Learner'}</div>
           <div style="font-size:13px;color:var(--ink3)" id="profile-email">${USER?.email || ''}</div>
           <div style="margin-top:8px;display:flex;gap:16px;font-size:13px">
-            <div>⭐ <strong>${PROFILE?.level || 1}</strong> <span style="color:var(--ink3)">Level</span></div>
-            <div>⚡ <strong>${PROFILE?.xp || 0}</strong> <span style="color:var(--ink3)">XP</span></div>
-            <div>🔥 <strong>${PROFILE?.streak || 0}</strong> <span style="color:var(--ink3)">day streak</span></div>
+            <div>⭐ <strong>${PROFILE?.level || 1}</strong></div>
+            <div>⚡ <strong>${PROFILE?.xp || 0}</strong> XP</div>
+            <div>🔥 <strong>${PROFILE?.streak || 0}</strong>d streak</div>
           </div>
         </div>
       </div>
@@ -1680,32 +1670,27 @@ function renderSettings() {
     </div>
 
     <div class="settings-section">
-      <div class="section-head">
-        <div class="section-title">Companion</div>
-      </div>
-      <div style="font-size:13px;color:var(--ink3);margin-bottom:12px">
-        Your current companion is <strong id="current-companion-name">${getChar().name}</strong>
+      <div class="section-head"><div class="section-title">Companion</div></div>
+      <div style="margin-bottom:12px">
+        Your current companion is <strong id="current-companion-name" style="color:${getChar().nameColor}">${getChar().name}</strong>
       </div>
       <button class="btn btn-secondary" onclick="openCompanionModal()">Talk to ${getChar().name}</button>
     </div>
   `;
 
-  // Insert profile section before the account section
-  const accountSection = document.querySelector('#page-settings .settings-section:last-child');
+  // Insert new content before the final account section
+  const accountSection = settingsPage.querySelector('.settings-section:last-child');
   if (accountSection) {
-    const profileDiv = document.createElement('div');
-    profileDiv.innerHTML = profileHTML;
-    accountSection.parentNode.insertBefore(profileDiv, accountSection);
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = charGridHTML + profileHTML;
+    accountSection.parentNode.insertBefore(tempDiv, accountSection);
   }
 
-  // Account section (keep logout)
-  const acct = document.getElementById('acct-info');
-  if (acct) {
-    acct.innerHTML = `
-      Signed in as <strong>${PROFILE?.username || USER?.email || 'User'}</strong><br>
-      <span style="font-size:12px;color:var(--ink3)">${USER?.email}</span>
-    `;
-  }
+  // Render character portraits
+  Object.values(CHARS).forEach(c => {
+    const el = document.getElementById('sp-' + c.id);
+    if (el) renderPortrait(el, c.id);
+  });
 }
   
 async function selectChar(id) {
