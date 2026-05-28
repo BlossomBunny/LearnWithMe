@@ -1253,6 +1253,7 @@ function renderKQ() {
 }
 
 function checkKQ(el, chosen) {
+  hideBubble('kq-bubble');
   // Lock options immediately
   document.querySelectorAll('.kana-opt').forEach(o => {
     o.style.pointerEvents = 'none';
