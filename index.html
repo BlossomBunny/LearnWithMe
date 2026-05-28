@@ -897,30 +897,47 @@ SB.auth.onAuthStateChange(async (event, session) => {
 // ═══════════════════════════════════════════
 async function loadUserData() {
   setSyncStatus('⟳', false);
+  
   // Load profile
-  const { data: prof } = await SB.from('profiles').select('*').eq('id', USER.id).single();
+  const { data: prof, error: profError } = await SB.from('profiles')
+    .select('*')
+    .eq('id', USER.id)
+    .single();
+
+  if (profError) console.error("Profile load error:", profError);
+
   if (prof) {
     PROFILE = prof;
     ACTIVE_CHAR = prof.active_character || 'cyrene';
+    console.log(`Loaded character: ${ACTIVE_CHAR}`);
+  } else {
+    console.warn("No profile found - using default character");
+    ACTIVE_CHAR = 'cyrene';
   }
-  // Load kana progress
+
+  // Load kana progress...
   const { data: kp } = await SB.from('progress_kana').select('*').eq('user_id', USER.id);
   KANA_P = {};
-  (kp || []).forEach(r => { KANA_P[r.kana_key] = { correct: r.correct || 0, wrong: r.wrong || 0, seen: true }; }); // any DB record = seen
-  // Load vocab progress
+  (kp || []).forEach(r => { 
+    KANA_P[r.kana_key] = { correct: r.correct || 0, wrong: r.wrong || 0, seen: true }; 
+  });
+
+  // Load vocab progress...
   const { data: vp } = await SB.from('progress_vocab').select('*').eq('user_id', USER.id);
   VOCAB_P = {};
   (vp || []).forEach(r => {
     VOCAB_P[r.vocab_index] = {
-      correct: r.correct || 0, wrong: r.wrong || 0,
+      correct: r.correct || 0, 
+      wrong: r.wrong || 0,
       ease: parseFloat(r.ease) || 2.5,
       interval_ms: r.interval_ms || 0,
       next_review: r.next_review ? new Date(r.next_review).getTime() : 0,
     };
   });
+
   setSyncStatus('', false);
   updateHUD();
-  // Re-render home now that data is loaded
+
   if (document.getElementById('page-home')?.classList.contains('active')) {
     renderHome();
   }
@@ -1676,7 +1693,7 @@ async function selectChar(id) {
   ACTIVE_CHAR = id;
   if (PROFILE) PROFILE.active_character = id;
 
-  // Re-render settings
+  // Immediate UI update
   renderSettings();
 
   const c = getChar();
@@ -1693,11 +1710,22 @@ async function selectChar(id) {
   renderPortrait(document.getElementById('home-portrait'), id);
   renderPortrait(document.getElementById('quiz-portrait'), id);
 
-  // Save to database
+  // Save to Supabase with debugging
   if (USER) {
-    await SB.from('profiles')
+    console.log(`💾 Saving character: ${id} for user ${USER.id}`);
+    
+    const { error } = await SB.from('profiles')
       .update({ active_character: id })
       .eq('id', USER.id);
+
+    if (error) {
+      console.error("❌ Failed to save character:", error);
+      alert("Failed to save companion choice. Check console.");
+    } else {
+      console.log(`✅ Successfully saved ${c.name} as active companion`);
+    }
+  } else {
+    console.warn("⚠️ No user logged in - character change is local only");
   }
 
   openCompanionModal(`Nice to meet you again! I'm ${c.name} ${c.emoji}`);
