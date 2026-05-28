@@ -254,6 +254,75 @@ const CHARS = {
   }
 };
 
+
+
+// ── KANA MNEMONICS ──────────────────────────────────────────────────────
+// Memorable tips shown when a student clicks a new kana cell to study it.
+// Add or improve tips here freely — one per romaji key.
+const KANA_TIPS = {
+  // ── Vowels ──
+  'a':  "Think of an 'A' with arms stretched wide open.",
+  'i':  "Two 'i'-beams standing side by side — い.",
+  'u':  "Like a bull's horns — 'u'p they go.",
+  'e':  "A sideways 'E' squeezed together.",
+  'o':  "A figure opening their mouth in a wide 'o'.",
+  // ── K-row ──
+  'ka': "Looks like a 'K' leaning comfortably back.",
+  'ki': "Like a key — two horizontal cuts on a post.",
+  'ku': "A sharp beak pointing forward — like a bird saying 'coo'.",
+  'ke': "A 'K' with an extra long leg.",
+  'ko': "Two short strokes like a 'co'rner bracket.",
+  // ── S-row ──
+  'sa': "A mast on a 'sa'iling boat.",
+  'shi':"A fishhook 'shi'mmering in water.",
+  'su': "A 'su'per-hero looping down to land.",
+  'se': "S and E fused into one efficient stroke.",
+  'so': "A single swooping 'so'aring curve.",
+  // ── T-row ──
+  'ta': "A 'ta'ble — horizontal top, two legs below.",
+  'chi':"A 'ch'eerful curling line.",
+  'tsu':"A tiny wave — 'tsu'nami in miniature.",
+  'te': "A 'T' shape with a hook on the end.",
+  'to': "A 'to'wer with a sword stabbed through it.",
+  // ── N-row ──
+  'na': "Legs crossing — naughtily tangled together.",
+  'ni': "Two strokes — looks like the number 2. に = 2 = ni!",
+  'nu': "A 'noo'dle looping around on itself.",
+  'ne': "A cat's neck and curling tail — 'ne'ko (cat).",
+  'no': "A single clean diagonal. Simple, no fuss.",
+  // ── H-row ──
+  'ha': "Half a cactus pointing up.",
+  'hi': "'He' with an extra stroke — a little flag on a pole.",
+  'fu': "A hill with a little flag on top.",
+  'he': "The simplest kana — just a mountain peak. へ.",
+  'ho': "A 'ho'use with a chimney on one side.",
+  // ── M-row ──
+  'ma': "A messy bun of hair on 'ma''s head.",
+  'mi': "Three little mice tails curling away.",
+  'mu': "A cow saying 'moo' — with horns!",
+  'me': "An eye shape — and め (me) means 'eye' in Japanese!",
+  'mo': "A fishing hook catching 'mo're and more fish.",
+  // ── Y-row ──
+  'ya': "A 'ya'k stretching its neck.",
+  'yu': "A 'U'-shaped bowl tipped on its side.",
+  'yo': "Two strokes — like train tracks curving together.",
+  // ── R-row ──
+  'ra': "A ragged lightning bolt — 'ra'!",
+  'ri': "Two downward strokes like reeds by a river.",
+  'ru': "A looping kangaroo ('roo') tail.",
+  're': "Rewinding a curly tape — れ.",
+  'ro': "A rocket's launch curve arcing up.",
+  // ── W-row + N ──
+  'wa': "A wavering antenna — 'wa'!",
+  'wo': "Only used as the object particle を. Just remember: を = the target!",
+  'n':  "The only standalone consonant. One stroke — just 'n'.",
+};
+
+// ── STUDY STATE ──────────────────────────────────────────────────────────
+window._kanaStudyChar   = null;
+window._kanaStudyRomaji = null;
+
+
 // ═══════════════════════════════════════════
 //  CHARACTER HELPERS
 // ═══════════════════════════════════════════
