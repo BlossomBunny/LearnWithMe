@@ -252,7 +252,8 @@ const CHARS = {
     quizOk: "Adequate. The results are within acceptable parameters, though 'acceptable' and 'sufficient' are not synonymous. Study the errors.",
     quizPoor: "The results are... below optimal. I'm recalibrating the difficulty model. This is not failure — it's diagnostic data. Begin again.",
   }
-    
+};
+
 // ═══════════════════════════════════════════
 //  CHARACTER HELPERS
 // ═══════════════════════════════════════════
