@@ -105,14 +105,14 @@ const CHARS = {
       ],
     },
     correct: [
-      "Ha! Called it. 正解 (seikai)！ The odds were always in your favour — you just had to believe that.",
-      "Well played. 完璧 (kanpeki)！ I almost doubted you. Almost.",
-      "正解 (seikai)！ See? A little risk, a big reward. That's the game.",
+      "Ha! Called it. せいかい (seikai)！ The odds were always in your favour — you just had to believe that.",
+      "Well played. かんぺき (kanpeki)！ I almost doubted you. Almost.",
+      "せいかい (seikai)！ See? A little risk, a big reward. That's the game.",
       "Now *that's* what I'm talking about. You've got good instincts. ✨",
-      "正解 (seikai) 🎲 Nice one! You're starting to read the table like a pro.",
+      "せいかい (seikai) 🎲 Nice one! You're starting to read the table like a pro.",
       "Hah, look at that. You just hit the jackpot on that question. Well done.",
       "Exactly right. I never bet against you for long. Keep this up. 😏",
-      "正解 (seikai)！ That’s how you turn the tide. Proud of that play.",
+      "せいかい (seikai)！ That’s how you turn the tide. Proud of that play.",
     ],
     wrong: [
       "Hmm. The house wins one. Don't let it rattle you — even I've taken a loss or two. Recalibrate.",
@@ -124,7 +124,7 @@ const CHARS = {
       "Not your best hand, but I’ve seen worse. Shake it off and raise the stakes next time.",
       "Wrong. Don’t sweat it. Even the best players bluff their way through bad rounds. ✨",
     ],
-    quizGood: "...I'll admit, that impressed me. 最高 (saikou)！ Not many pull off a score like that. Well played. 🎲",
+    quizGood: "...I'll admit, that impressed me. さいこう (saikou)！ Not many pull off a score like that. Well played. 🎲",
     quizOk: "Decent. Not spectacular, but decent has potential. Sharpen up and go again.",
     quizPoor: "Rough round. But the best gamblers lose gracefully and come back smarter. So — again?",
   },
@@ -155,7 +155,7 @@ const CHARS = {
         "こんばんは (konbanwa)！！ EVENING GRIND!! さあ (saa)、はじめましょう (hajimemashou)！！ 🐉🔥",
         "こんばんは (konbanwa)！！ We don't stop!! がんばって (ganbatte)！！",
         "こんばんは (konbanwa)！！ Evening is for legends!! Let's show 'em what the gang can do!! ⚡",
-        "こんばんは (konbanwa)！！ The day’s winding down but we’re just getting fired up!! いっしょに (issho ni) 勉強 (benkyou)しようぜ！！",
+        "こんばんは (konbanwa)！！ The day’s winding down but we’re just getting fired up!!",
         "こんばんは (konbanwa)！！ Real warriors train at all hours!! You ready to go all out?! 🐉",
       ],
       night: [
@@ -167,14 +167,14 @@ const CHARS = {
       ],
     },
     correct: [
-      "YOOOOO!! 正解 (seikai)!! That's INCREDIBLE!! You're a LEGEND!! 🐉🔥",
-      "YEAH YEAH YEAH!! 完璧 (kanpeki)!! The gang is going WILD right now!! SO PROUD!!",
-      "THAT'S MY STUDENT!! 正解 (seikai)!! We are UNSTOPPABLE!!",
+      "YOOOOO!! せいかい (seikai)!! That's INCREDIBLE!! You're a LEGEND!! 🐉🔥",
+      "YEAH YEAH YEAH!! かんぺき (kanpeki)!! The gang is going WILD right now!! SO PROUD!!",
+      "THAT'S MY STUDENT!! せいかい (seikai)!! We are UNSTOPPABLE!!",
       "WHOOOOO!! You're on FIRE!! Keep going, KEEP GOING!! ⚡",
-      "BOOM!! 正解 (seikai)！！ Did you see that?! You're absolutely CRUSHING it!! 🐉",
-      "HAHAHA!! Look at you go!! 完璧 (kanpeki)！！ The Arataki Gang approves!! 🔥",
+      "BOOM!! せいかい (seikai)！！ Did you see that?! You're absolutely CRUSHING it!! 🐉",
+      "HAHAHA!! Look at you go!! かんぺき (kanpeki)！！ The Arataki Gang approves!! 🔥",
       "YOOO THAT'S RIGHT!! You're built different!! Keep dropping these wins!! 💪",
-      "正解 (seikai)！！ The crowd goes wild!! You're making the whole gang proud right now!! 🐉✨",
+      "せいかい (seikai)！！ The crowd goes wild!! You're making the whole gang proud right now!! 🐉✨",
     ],
     wrong: [
       "Aw MAN!! But hey — even Itto gets knocked down sometimes!! The real L is STAYING down!! GET UP!!",
@@ -186,7 +186,7 @@ const CHARS = {
       "Wrong?! No problem!! Every champion has failed before!! Let's turn this into fuel!! がんばって (ganbatte)！！",
       "Hahaha!! That one got us good!! But the Arataki Gang always bounces back stronger!! Try again!! 🐉",
     ],
-    quizGood: "OHHHHH!! THAT SCORE!! 最高 (saikou)!! THE ARATAKI GANG IS GOING ABSOLUTELY NUTS RIGHT NOW!! 🐉🔥🐉🔥",
+    quizGood: "OHHHHH!! THAT SCORE!! さいこう (saikou)!! THE ARATAKI GANG IS GOING ABSOLUTELY NUTS RIGHT NOW!! 🐉🔥",
     quizOk: "HEY that's SOLID!! Not bad at ALL!! More practice and we'll be LEGENDARY!! 💪",
     quizPoor: "Okay LISTEN!! We just needed a WARM UP ROUND!! Now we're WARMED UP!! GO AGAIN!! 🔥",
   },
@@ -232,11 +232,11 @@ const CHARS = {
       "Correct. As expected — I had already marked that answer in your favour before you responded.",
       "ただしい (tadashii)。 The neural pathway has been reinforced. Efficient. Move on.",
       "Acceptable. Though I note you hesitated for approximately two seconds. We'll address that.",
-      "完璧 (kanpeki)。 That is the correct answer. I would congratulate you, but you were merely performing as designed.",
-      "正解 (seikai)。 Precisely within parameters. Your conditioning appears to be working.",
+      "かんぺき (kanpeki)。 That is the correct answer. I would congratulate you, but you were merely performing as designed.",
+      "せいかい (seikai)。 Precisely within parameters. Your conditioning appears to be working.",
       "Hm. Correct. The probability of this outcome was 87%. You continue to meet expectations.",
       "Well done. For once, the subject exceeded the predicted success rate. How rare.",
-      "正解 (seikai)。 Data logged. This result will be added to your growing success profile.",
+      "せいかい (seikai)。 Data logged. This result will be added to your growing success profile.",
     ],
     wrong: [
       "Incorrect. I've logged it. The error pattern is... not unexpected, given your current stage. Adjust.",
@@ -248,12 +248,11 @@ const CHARS = {
       "Wrong answer. But every failed test is an opportunity for refinement. Don't make me repeat myself.",
       "Tch. Incorrect. The margin of error is increasing. Fix it before it becomes a pattern.",
     ],
-    quizGood: "Exceptional performance. Score logged. The data suggests you are progressing within the upper percentile. I expected nothing less. 正解続き (seikai tsuzuki)。",
+    quizGood: "Exceptional performance. Score logged. The data suggests you are progressing within the upper percentile. I expected nothing less.",
     quizOk: "Adequate. The results are within acceptable parameters, though 'acceptable' and 'sufficient' are not synonymous. Study the errors.",
     quizPoor: "The results are... below optimal. I'm recalibrating the difficulty model. This is not failure — it's diagnostic data. Begin again.",
   }
-};
-
+    
 // ═══════════════════════════════════════════
 //  CHARACTER HELPERS
 // ═══════════════════════════════════════════
