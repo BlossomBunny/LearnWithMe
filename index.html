@@ -1627,33 +1627,38 @@ async function sendFriendReq(fId, btn) {
   await SB.from('friends').insert({ user_id: USER.id, friend_id: fId, status: 'pending' });
 }
 function renderSettings() {
-  const settingsPage = document.getElementById('page-settings');
+  const page = document.getElementById('page-settings');
   
-  // Clear previous dynamic content (except the original account section)
-  const existingDynamic = settingsPage.querySelectorAll('.settings-section:not(:last-child)');
-  existingDynamic.forEach(el => el.remove());
+  // Remove all previous dynamic sections (keep only the last static account section)
+  const dynamicSections = page.querySelectorAll('.settings-section');
+  dynamicSections.forEach((section, index) => {
+    if (index < dynamicSections.length - 1) section.remove();
+  });
 
   const charGridHTML = Object.values(CHARS).map(c => {
-    const active = c.id === ACTIVE_CHAR;
-    return `<div class="char-select-card ${active ? 'active' : ''}" onclick="selectChar('${c.id}')" style="${active ? `border-color:${c.nameColor};background:${c.nameColor}18` : ''}">
-      <div class="char-portrait" id="sp-${c.id}"></div>
-      <div class="char-name-label" style="${active ? `color:${c.nameColor};font-weight:700` : ''}">${c.name}</div>
-      <div class="char-style-label" style="${active ? `color:${c.nameColor};font-weight:600` : ''}">
-        ${active ? '✓ Current Companion' : c.emoji}
-      </div>
-    </div>`;
+    const isActive = c.id === ACTIVE_CHAR;
+    return `
+      <div class="char-select-card ${isActive ? 'active' : ''}" 
+           onclick="selectChar('${c.id}')" 
+           style="${isActive ? `border-color:${c.nameColor};background:${c.nameColor}18` : ''}">
+        <div class="char-portrait" id="sp-${c.id}"></div>
+        <div class="char-name-label" style="${isActive ? `color:${c.nameColor};font-weight:700` : ''}">${c.name}</div>
+        <div class="char-style-label" style="${isActive ? `color:${c.nameColor};font-weight:600` : ''}">
+          ${isActive ? '✓ Current Companion' : c.emoji}
+        </div>
+      </div>`;
   }).join('');
 
-  const profileHTML = `
+  const settingsHTML = `
     <div class="settings-section">
       <div class="section-head"><div class="section-title">Your Profile</div></div>
       <div style="display:flex;gap:16px;align-items:center;margin-bottom:16px">
-        <div style="width:72px;height:72px;border-radius:50%;background:var(--plum3);display:flex;align-items:center;justify-content:center;font-size:32px;flex-shrink:0" id="profile-avatar">
+        <div style="width:72px;height:72px;border-radius:50%;background:var(--plum3);display:flex;align-items:center;justify-content:center;font-size:32px;flex-shrink:0">
           ${PROFILE?.avatar_emoji || '🌸'}
         </div>
         <div style="flex:1">
-          <div style="font-size:17px;font-weight:600" id="profile-username">${PROFILE?.username || 'Learner'}</div>
-          <div style="font-size:13px;color:var(--ink3)" id="profile-email">${USER?.email || ''}</div>
+          <div style="font-size:17px;font-weight:600">${PROFILE?.username || 'Learner'}</div>
+          <div style="font-size:13px;color:var(--ink3)">${USER?.email || ''}</div>
           <div style="margin-top:8px;display:flex;gap:16px;font-size:13px">
             <div>⭐ <strong>${PROFILE?.level || 1}</strong></div>
             <div>⚡ <strong>${PROFILE?.xp || 0}</strong> XP</div>
@@ -1661,7 +1666,6 @@ function renderSettings() {
           </div>
         </div>
       </div>
-      
       <div style="font-size:12.5px;color:var(--ink3);margin-bottom:8px">Change Display Name</div>
       <div style="display:flex;gap:8px">
         <input type="text" id="new-username" placeholder="New username" style="flex:1;padding:9px 12px;border:1.5px solid var(--border2);border-radius:var(--r);font-size:14px">
@@ -1678,15 +1682,15 @@ function renderSettings() {
     </div>
   `;
 
-  // Insert new content before the final account section
-  const accountSection = settingsPage.querySelector('.settings-section:last-child');
+  // Insert before the last (static) account section
+  const accountSection = page.querySelector('.settings-section:last-child');
   if (accountSection) {
-    const tempDiv = document.createElement('div');
-    tempDiv.innerHTML = charGridHTML + profileHTML;
-    accountSection.parentNode.insertBefore(tempDiv, accountSection);
+    const wrapper = document.createElement('div');
+    wrapper.innerHTML = charGridHTML + settingsHTML;
+    accountSection.parentNode.insertBefore(wrapper, accountSection);
   }
 
-  // Render character portraits
+  // Render portraits
   Object.values(CHARS).forEach(c => {
     const el = document.getElementById('sp-' + c.id);
     if (el) renderPortrait(el, c.id);
@@ -1699,11 +1703,11 @@ async function selectChar(id) {
   ACTIVE_CHAR = id;
   if (PROFILE) PROFILE.active_character = id;
 
-  // Immediate UI feedback
   renderSettings();
-  
+
   const c = getChar();
-  // Update home companion bar
+
+  // Update home bar
   const nameEl = document.getElementById('home-char-name');
   if (nameEl) {
     nameEl.textContent = c.name;
@@ -1715,20 +1719,17 @@ async function selectChar(id) {
   renderPortrait(document.getElementById('home-portrait'), id);
   renderPortrait(document.getElementById('quiz-portrait'), id);
 
-  // Save to database
+  // Save to DB
   if (USER) {
-    const { error } = await SB.from('profiles')
+    await SB.from('profiles')
       .update({ active_character: id })
       .eq('id', USER.id);
-    
-    if (error) console.error("Failed to save character:", error);
-    else console.log(`✅ Companion changed to ${c.name}`);
   }
 
-  // Welcome message from new companion
   openCompanionModal(`Nice to meet you again! I'm ${c.name} ${c.emoji}`);
 }
 
+  
 // ═══════════════════════════════════════════
 //  REALTIME
 // ═══════════════════════════════════════════
