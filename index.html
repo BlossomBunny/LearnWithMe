@@ -1696,7 +1696,7 @@ async function selectChar(id) {
 
   const c = getChar();
 
-  // Update UI immediately
+  // Update UI
   const nameEl = document.getElementById('home-char-name');
   if (nameEl) {
     nameEl.textContent = c.name;
@@ -1708,31 +1708,23 @@ async function selectChar(id) {
   renderPortrait(document.getElementById('home-portrait'), id);
   renderPortrait(document.getElementById('quiz-portrait'), id);
 
-  // === STRONG DEBUG SAVE ===
   if (USER) {
-    console.log(`💾 Attempting to save character: ${id} for user ${USER.id}`);
+    console.log(`💾 Saving ${id}...`);
 
-    try {
-      const { data, error } = await SB
-        .from('profiles')
-        .update({ active_character: id })
-        .eq('id', USER.id)
-        .select('active_character, username')
-        .single();
+    const { data, error } = await SB
+      .from('profiles')
+      .update({ active_character: id })
+      .eq('id', USER.id)
+      .select('active_character')
+      .single();
 
-      if (error) {
-        console.error("❌ Supabase Update ERROR:", error);
-        alert(`Failed to save companion.\n\nError: ${error.message}\nCode: ${error.code}`);
-      } else {
-        console.log("✅ SUCCESS! Database now has:", data);
-        alert(`✅ Saved ${c.name} successfully!`);
-      }
-    } catch (err) {
-      console.error("💥 Exception during save:", err);
-      alert("Unexpected error while saving. Check console.");
+    if (error) {
+      console.error("❌ SAVE FAILED:", error);
+      alert("Save failed: " + error.message);
+    } else {
+      console.log("✅ Saved! DB value:", data?.active_character);
+      alert(`✅ ${c.name} is now your companion!`);
     }
-  } else {
-    console.warn("⚠️ No user logged in");
   }
 
   openCompanionModal(`Nice to meet you again! I'm ${c.name} ${c.emoji}`);
