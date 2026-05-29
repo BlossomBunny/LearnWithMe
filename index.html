@@ -1,16 +1,13 @@
-<!DOCTYPE ht
-let kQSet = [], kQIdx = 0, kQScore = 0, kQCurrentSet = 'h';
-
-ml>
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Learn With Me — JP!</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="./characters.js"></script>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
-<style>*{box-sizing:border-box;margin:0;padding:0}
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&family=Shippori+Mincho:wght@400;600&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
 :root{
   --ink:#1c1624;--ink2:#4a3f5c;--ink3:#8f84a8;
   --bg:#f5f2ee;--card:#ffffff;--surface:#faf8f6;
@@ -21,14 +18,14 @@ ml>
   --teal2:#2dd4bf;--teal3:#ccfbf1;
   --green:#16a34a;--green3:#dcfce7;
   --red:#dc2626;--red3:#fee2e2;
-  --ff:'DM Sans',sans-serif;--ffj:'Noto Sans JP',sans-serif;
+  --ff:'DM Sans',sans-serif;--ffj:'Noto Sans JP',sans-serif;--ffs:'Shippori Mincho',serif;
   --r:12px;--r2:18px;--shadow:0 2px 12px rgba(100,80,140,0.10);
 }
 body{font-family:var(--ff);background:var(--bg);color:var(--ink);min-height:100vh;overflow-x:hidden}
 .hidden{display:none!important}
 
 /* ── AUTH ── */
-#auth-screen{position:fixed;inset:0;background:var(--bg);z-index:500;display:flex;align-items:center;justify-content:center}
+#auth-screen{position:fixed;inset:0;background:var(--bg);z-index:500;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:20px}
 .auth-card{background:var(--card);border:1px solid var(--border2);border-radius:24px;padding:44px 40px;width:420px;max-width:95vw;box-shadow:0 8px 40px rgba(100,80,140,0.14)}
 .auth-logo{font-family:var(--ffj);font-size:52px;text-align:center;margin-bottom:6px}
 .auth-title{font-size:22px;font-weight:600;text-align:center;margin-bottom:4px}
@@ -42,219 +39,198 @@ body{font-family:var(--ff);background:var(--bg);color:var(--ink);min-height:100v
 .auth-field input:focus{border-color:var(--plum)}
 .auth-err{font-size:13px;color:var(--red);min-height:18px;margin-bottom:10px}
 .auth-ok{font-size:13px;color:var(--green);min-height:18px;margin-bottom:10px}
-.auth-btn{width:100%;padding:13px;background:var(--plum);color:#fff;border:none;border-radius:var(--r);font-family:var(--ff);font-size:15px;font-weight:600;cursor:pointer;transition:background .15s;margin-top:4px;display:flex;align-items:center;justify-content:center;gap:8px}
+.auth-btn{width:100%;padding:13px;background:var(--plum);color:#fff;border:none;border-radius:var(--r);font-family:var(--ff);font-size:15px;font-weight:600;cursor:pointer;transition:background .15s;margin-top:4px}
 .auth-btn:hover{background:#6d28d9}
 .auth-btn:disabled{opacity:.6;cursor:not-allowed}
 
 /* ── APP LAYOUT ── */
-.app{display:grid;grid-template-columns:68px 1fr;grid-template-rows:54px 1fr;min-height:100vh}
-.sidebar{grid-row:1/3;background:var(--ink);display:flex;flex-direction:column;align-items:center;padding:16px 0;gap:3px;position:sticky;top:0;height:100vh;z-index:10}
-.topbar{display:flex;align-items:center;justify-content:space-between;padding:0 22px;background:var(--card);border-bottom:1px solid var(--border);grid-column:2;height:54px}
-.main{grid-column:2;padding:22px 26px;overflow-y:auto;height:calc(100vh - 54px)}
+.app{display:grid;grid-template-columns:72px 1fr;grid-template-rows:56px 1fr;min-height:100vh}
+.sidebar{grid-row:1/3;background:var(--ink);display:flex;flex-direction:column;align-items:center;padding:18px 0;gap:4px;position:sticky;top:0;height:100vh;z-index:10}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:0 24px;background:var(--card);border-bottom:1px solid var(--border);grid-column:2;height:56px}
+.main{grid-column:2;padding:24px 28px;overflow-y:auto;height:calc(100vh - 56px)}
 
 /* ── SIDEBAR ── */
-.nav-logo{width:34px;height:34px;background:var(--plum);border-radius:9px;display:flex;align-items:center;justify-content:center;font-family:var(--ffj);font-size:16px;color:#fff;font-weight:700;margin-bottom:12px;cursor:pointer;flex-shrink:0}
-.nav-btn{width:44px;height:44px;border-radius:10px;border:none;background:transparent;color:rgba(255,255,255,0.38);cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;transition:all .14s;flex-shrink:0}
+.nav-logo{width:36px;height:36px;background:var(--plum);border-radius:10px;display:flex;align-items:center;justify-content:center;font-family:var(--ffj);font-size:17px;color:#fff;font-weight:700;margin-bottom:12px;cursor:pointer;flex-shrink:0}
+.nav-btn{width:46px;height:46px;border-radius:10px;border:none;background:transparent;color:rgba(255,255,255,0.4);cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;transition:all .15s;flex-shrink:0}
 .nav-btn:hover,.nav-btn.active{background:rgba(255,255,255,0.08);color:#fff}
 .nav-btn.active{background:var(--plum)}
-.nav-btn svg{width:17px;height:17px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
-.nav-label{font-size:8px;font-weight:500;letter-spacing:.3px;text-transform:uppercase;line-height:1}
-.nav-sep{width:28px;height:1px;background:rgba(255,255,255,0.07);margin:5px 0;flex-shrink:0}
-.sidebar-bottom{margin-top:auto;display:flex;flex-direction:column;align-items:center;gap:6px;padding-bottom:4px}
-.xp-ring{width:34px;height:34px;position:relative}
+.nav-btn svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.nav-label{font-size:8.5px;font-weight:500;letter-spacing:.3px;text-transform:uppercase;line-height:1}
+.nav-sep{width:30px;height:1px;background:rgba(255,255,255,0.07);margin:6px 0;flex-shrink:0}
+.sidebar-bottom{margin-top:auto;display:flex;flex-direction:column;align-items:center;gap:8px;padding-bottom:6px}
+.xp-ring{width:36px;height:36px;position:relative;cursor:default}
 .xp-ring svg{transform:rotate(-90deg)}
-.xp-ring .level{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;color:#fff}
+.xp-ring .level{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:#fff}
 
 /* ── TOPBAR ── */
-.page-title{font-size:16px;font-weight:600}
-.page-sub{font-size:11px;color:var(--ink3)}
-.pill{display:flex;align-items:center;gap:4px;border-radius:20px;padding:3px 9px;font-size:12px;font-weight:500}
+.page-title{font-size:17px;font-weight:600;color:var(--ink)}
+.page-sub{font-size:12px;color:var(--ink3)}
+.pill{display:flex;align-items:center;gap:4px;border-radius:20px;padding:4px 10px;font-size:12px;font-weight:500}
 .pill-gold{background:var(--gold3);border:1px solid var(--gold2);color:var(--gold)}
 .pill-plum{background:var(--plum3);border:1px solid var(--plum2);color:var(--plum)}
-.icon-btn{background:transparent;border:none;cursor:pointer;color:var(--ink3);padding:5px;border-radius:7px;display:flex;align-items:center;transition:all .14s}
+.icon-btn{background:transparent;border:none;cursor:pointer;color:var(--ink3);padding:6px;border-radius:8px;display:flex;align-items:center;transition:all .15s}
 .icon-btn:hover{color:var(--ink);background:var(--surface)}
 
 /* ── PAGE ── */
-.page{display:none;animation:fadeIn .16s ease}
+.page{display:none;animation:fadeIn .18s ease}
 .page.active{display:block}
-@keyframes fadeIn{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
 
 /* ── COMPANION BAR ── */
-.companion-bar{display:flex;align-items:center;gap:13px;background:var(--card);border:1px solid var(--border);border-radius:var(--r2);padding:13px 16px;margin-bottom:20px;box-shadow:var(--shadow)}
-.companion-portrait{width:50px;height:50px;border-radius:50%;flex-shrink:0;object-fit:cover;display:flex;align-items:center;justify-content:center;font-size:22px;overflow:hidden}
+.companion-bar{display:flex;align-items:center;gap:14px;background:var(--card);border:1px solid var(--border);border-radius:var(--r2);padding:14px 18px;margin-bottom:22px;box-shadow:var(--shadow)}
+.companion-portrait{width:52px;height:52px;border-radius:50%;flex-shrink:0;object-fit:cover;background:linear-gradient(135deg,#7c3aed,#e11d74);display:flex;align-items:center;justify-content:center;font-size:24px;overflow:hidden}
 .companion-portrait img{width:100%;height:100%;object-fit:cover;border-radius:50%}
-.companion-name{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.8px;margin-bottom:3px}
-.companion-msg{font-size:13px;color:var(--ink2);line-height:1.5}
+.companion-name{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.8px;margin-bottom:3px}
+.companion-msg{font-size:13.5px;color:var(--ink2);line-height:1.5}
 
 /* ── GRIDS ── */
-.grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:11px;margin-bottom:22px}
-.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:13px;margin-bottom:22px}
-.grid-2{display:grid;grid-template-columns:repeat(2,1fr);gap:13px;margin-bottom:22px}
+.grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px}
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:24px}
+.grid-2{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-bottom:24px}
 
-/* ── CARDS ── */
-.stat-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r2);padding:15px 17px;box-shadow:var(--shadow)}
-.stat-icon{font-size:19px;margin-bottom:5px}
-.stat-num{font-size:24px;font-weight:600;margin-bottom:2px}
-.stat-label{font-size:10px;color:var(--ink3);font-weight:500;text-transform:uppercase;letter-spacing:.5px}
-.mode-card{background:var(--card);border:1.5px solid var(--border);border-radius:var(--r2);padding:18px;cursor:pointer;transition:all .14s;display:flex;flex-direction:column;gap:7px;box-shadow:var(--shadow)}
-.mode-card:hover{border-color:var(--plum2);transform:translateY(-2px);box-shadow:0 6px 18px rgba(124,58,237,0.11)}
-.mode-icon{width:36px;height:36px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0}
-.mode-title{font-size:13.5px;font-weight:600}
-.mode-desc{font-size:11.5px;color:var(--ink3);line-height:1.5}
-.mode-badge{font-size:10px;font-weight:600;color:var(--plum);background:var(--plum3);padding:2px 7px;border-radius:20px;display:inline-block;width:fit-content}
+/* ── STAT CARD ── */
+.stat-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r2);padding:16px 18px;box-shadow:var(--shadow)}
+.stat-icon{font-size:20px;margin-bottom:6px}
+.stat-num{font-size:26px;font-weight:600;margin-bottom:2px}
+.stat-label{font-size:11px;color:var(--ink3);font-weight:500;text-transform:uppercase;letter-spacing:.5px}
+
+/* ── MODE CARD ── */
+.mode-card{background:var(--card);border:1.5px solid var(--border);border-radius:var(--r2);padding:20px;cursor:pointer;transition:all .15s;display:flex;flex-direction:column;gap:8px;box-shadow:var(--shadow)}
+.mode-card:hover{border-color:var(--plum2);transform:translateY(-2px);box-shadow:0 6px 20px rgba(124,58,237,0.12)}
+.mode-icon{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.mode-title{font-size:14px;font-weight:600}
+.mode-desc{font-size:12px;color:var(--ink3);line-height:1.5}
+.mode-badge{font-size:10px;font-weight:600;color:var(--plum);background:var(--plum3);padding:2px 8px;border-radius:20px;display:inline-block;width:fit-content}
 
 /* ── BUTTONS ── */
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:8px 16px;border-radius:var(--r);font-family:var(--ff);font-size:13px;font-weight:500;cursor:pointer;transition:all .13s;border:1.5px solid transparent}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:9px 18px;border-radius:var(--r);font-family:var(--ff);font-size:13px;font-weight:500;cursor:pointer;transition:all .14s;border:1.5px solid transparent}
 .btn-primary{background:var(--plum);color:#fff;border-color:var(--plum)}
 .btn-primary:hover{background:#6d28d9}
 .btn-secondary{background:var(--card);color:var(--ink);border-color:var(--border2)}
 .btn-secondary:hover{border-color:var(--plum2);color:var(--plum)}
 .btn-ghost{background:transparent;border-color:transparent;color:var(--ink3)}
 .btn-ghost:hover{color:var(--ink);background:var(--surface)}
-.btn-sm{padding:5px 11px;font-size:11.5px;border-radius:7px}
+.btn-sm{padding:5px 12px;font-size:12px;border-radius:8px}
+.btn-lg{padding:12px 26px;font-size:15px}
 
 /* ── PROGRESS ── */
-.progress-track{height:6px;background:var(--border);border-radius:4px;overflow:hidden}
+.progress-track{height:7px;background:var(--border);border-radius:4px;overflow:hidden}
 .progress-fill{height:100%;border-radius:4px;transition:width .4s ease;background:var(--plum)}
 .progress-fill.teal{background:var(--teal2)}
 
 /* ── TABS ── */
-.tabs{display:flex;gap:3px;background:var(--surface);padding:3px;border-radius:10px;margin-bottom:20px;border:1px solid var(--border)}
-.tab{flex:1;padding:7px 10px;border-radius:7px;font-size:12px;font-weight:500;cursor:pointer;transition:all .13s;text-align:center;border:none;background:transparent;color:var(--ink3);font-family:var(--ff)}
+.tabs{display:flex;gap:3px;background:var(--surface);padding:4px;border-radius:10px;margin-bottom:22px;border:1px solid var(--border)}
+.tab{flex:1;padding:7px 12px;border-radius:8px;font-size:12.5px;font-weight:500;cursor:pointer;transition:all .14s;text-align:center;border:none;background:transparent;color:var(--ink3);font-family:var(--ff)}
 .tab.active{background:var(--card);color:var(--plum);box-shadow:0 1px 4px rgba(0,0,0,0.07)}
 
 /* ── FLASHCARD ── */
-.fc-wrap{display:flex;flex-direction:column;align-items:center;gap:18px;max-width:540px;margin:0 auto}
-.flashcard{width:100%;min-height:190px;background:var(--card);border:1.5px solid var(--border);border-radius:20px;padding:32px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:9px;cursor:pointer;transition:all .18s;box-shadow:var(--shadow);position:relative;text-align:center;user-select:none}
-.flashcard:hover{box-shadow:0 7px 22px rgba(124,58,237,0.13);border-color:var(--plum2)}
+.fc-wrap{display:flex;flex-direction:column;align-items:center;gap:20px;max-width:560px;margin:0 auto}
+.flashcard{width:100%;min-height:200px;background:var(--card);border:1.5px solid var(--border);border-radius:22px;padding:36px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;cursor:pointer;transition:all .2s;box-shadow:var(--shadow);position:relative;text-align:center;user-select:none}
+.flashcard:hover{box-shadow:0 8px 24px rgba(124,58,237,0.14);border-color:var(--plum2)}
 .flashcard.revealed{background:var(--plum3);border-color:var(--plum)}
-.card-badge{position:absolute;top:11px;right:11px;font-size:9.5px;font-weight:600;text-transform:uppercase;padding:2px 7px;border-radius:20px;background:var(--plum3);color:var(--plum)}
-.card-main{font-family:var(--ffj);font-size:60px;color:var(--ink);line-height:1.1}
-.card-main.sm{font-size:26px}
-.card-reading{font-family:var(--ffj);font-size:18px;color:var(--plum)}
-.card-meaning{font-size:20px;font-weight:600;color:var(--ink)}
-.card-example{font-size:11.5px;color:var(--ink3);font-family:var(--ffj);line-height:1.6;margin-top:4px}
-.srs-row{display:flex;gap:7px;width:100%}
-.srs-btn{flex:1;padding:10px 6px;border-radius:var(--r);border:1.5px solid;font-family:var(--ff);font-size:11.5px;font-weight:500;cursor:pointer;transition:all .13s;display:flex;flex-direction:column;align-items:center;gap:2px}
-.srs-next{font-size:9.5px;opacity:.7}
+.card-badge{position:absolute;top:12px;right:12px;font-size:10px;font-weight:600;text-transform:uppercase;padding:2px 8px;border-radius:20px;background:var(--plum3);color:var(--plum)}
+.card-main{font-family:var(--ffj);font-size:64px;color:var(--ink);line-height:1.1}
+.card-main.sm{font-size:28px}
+.card-reading{font-family:var(--ffj);font-size:20px;color:var(--plum)}
+.card-meaning{font-size:22px;font-weight:600;color:var(--ink)}
+.card-example{font-size:12px;color:var(--ink3);font-family:var(--ffj);line-height:1.6;margin-top:4px}
+.srs-row{display:flex;gap:8px;width:100%}
+.srs-btn{flex:1;padding:11px 8px;border-radius:var(--r);border:1.5px solid;font-family:var(--ff);font-size:12px;font-weight:500;cursor:pointer;transition:all .14s;display:flex;flex-direction:column;align-items:center;gap:2px}
+.srs-next{font-size:10px;opacity:.7}
 .srs-again{background:var(--red3);border-color:#fca5a5;color:var(--red)}
 .srs-hard{background:#fff7ed;border-color:#fdba74;color:#c2410c}
 .srs-good{background:var(--green3);border-color:#86efac;color:var(--green)}
 .srs-easy{background:var(--plum3);border-color:var(--plum2);color:var(--plum)}
-.fc-progress-row{width:100%;display:flex;align-items:center;gap:9px;font-size:11.5px;color:var(--ink3)}
+.fc-progress-row{width:100%;display:flex;align-items:center;gap:10px;font-size:12px;color:var(--ink3)}
 
 /* ── QUIZ ── */
-.quiz-q-card{background:var(--card);border:1.5px solid var(--border);border-radius:18px;padding:28px;text-align:center;box-shadow:var(--shadow)}
-.quiz-q-main{font-family:var(--ffj);font-size:44px;color:var(--ink);margin:7px 0}
-.quiz-q-label{font-size:11.5px;color:var(--ink3)}
-.mcq-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.mcq-opt{background:var(--card);border:1.5px solid var(--border2);border-radius:var(--r);padding:12px 14px;cursor:pointer;font-size:13.5px;font-weight:500;transition:all .13s;text-align:left;font-family:var(--ff)}
+.quiz-q-card{background:var(--card);border:1.5px solid var(--border);border-radius:20px;padding:32px;text-align:center;box-shadow:var(--shadow)}
+.quiz-q-main{font-family:var(--ffj);font-size:48px;color:var(--ink);margin:8px 0}
+.quiz-q-label{font-size:12px;color:var(--ink3)}
+.mcq-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.mcq-opt{background:var(--card);border:1.5px solid var(--border2);border-radius:var(--r);padding:13px 16px;cursor:pointer;font-size:14px;font-weight:500;transition:all .14s;text-align:left;font-family:var(--ff)}
 .mcq-opt:hover:not(.disabled){border-color:var(--plum);background:var(--plum3);color:var(--plum)}
 .mcq-opt.correct{background:var(--green3);border-color:#86efac;color:var(--green)}
 .mcq-opt.wrong{background:var(--red3);border-color:#fca5a5;color:var(--red)}
 .mcq-opt.disabled{cursor:default}
-.quiz-fb{background:var(--card);border:1.5px solid var(--border);border-radius:var(--r2);padding:14px 18px;display:none}
+.quiz-fb{background:var(--card);border:1.5px solid var(--border);border-radius:var(--r2);padding:16px 20px;display:none}
 .quiz-fb.show{display:block}
 .quiz-fb.ok{border-color:#86efac;background:var(--green3)}
 .quiz-fb.bad{border-color:#fca5a5;background:var(--red3)}
 
 /* ── GRAMMAR ── */
-.grammar-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r2);overflow:hidden;margin-bottom:11px;box-shadow:var(--shadow)}
-.gc-head{padding:14px 18px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:9px;transition:background .13s}
+.grammar-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r2);overflow:hidden;margin-bottom:13px;box-shadow:var(--shadow)}
+.gc-head{padding:16px 20px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:10px;transition:background .14s}
 .gc-head:hover{background:var(--surface)}
-.gc-pattern{font-family:var(--ffj);font-size:15px;font-weight:500;color:var(--plum)}
-.gc-eng{font-size:11.5px;color:var(--ink3);margin-top:2px}
-.gc-lvl{font-size:9.5px;font-weight:600;background:var(--gold3);color:var(--gold);padding:2px 6px;border-radius:20px}
-.gc-body{padding:0 18px 14px;border-top:1px solid var(--border);display:none}
+.gc-pattern{font-family:var(--ffj);font-size:16px;font-weight:500;color:var(--plum)}
+.gc-eng{font-size:12px;color:var(--ink3);margin-top:2px}
+.gc-lvl{font-size:10px;font-weight:600;background:var(--gold3);color:var(--gold);padding:2px 7px;border-radius:20px}
+.gc-body{padding:0 20px 16px;border-top:1px solid var(--border);display:none}
 .gc-body.open{display:block}
-.gc-rule{font-size:12.5px;color:var(--ink2);line-height:1.7;margin:11px 0 9px}
-.gc-ex{background:var(--surface);border-radius:var(--r);padding:10px 12px;border-left:3px solid var(--plum);margin-bottom:6px}
-.gc-ex-jp{font-family:var(--ffj);font-size:13.5px;color:var(--ink);margin-bottom:2px}
-.gc-ex-read{font-size:10.5px;color:var(--plum);font-family:var(--ffj);margin-bottom:2px}
-.gc-ex-en{font-size:11.5px;color:var(--ink3)}
-.gc-chevron{transition:transform .16s;color:var(--ink3);flex-shrink:0}
+.gc-rule{font-size:13px;color:var(--ink2);line-height:1.7;margin:12px 0 10px}
+.gc-ex{background:var(--surface);border-radius:var(--r);padding:11px 13px;border-left:3px solid var(--plum);margin-bottom:7px}
+.gc-ex-jp{font-family:var(--ffj);font-size:14px;color:var(--ink);margin-bottom:2px}
+.gc-ex-read{font-size:11px;color:var(--plum);font-family:var(--ffj);margin-bottom:2px}
+.gc-ex-en{font-size:12px;color:var(--ink3)}
+.gc-chevron{transition:transform .18s;color:var(--ink3);flex-shrink:0}
 .gc-chevron.open{transform:rotate(180deg)}
 
 /* ── READING ── */
-.rp-text{font-family:var(--ffj);font-size:17px;line-height:2.4;color:var(--ink)}
-.vocab-word{cursor:pointer;border-bottom:2px dotted var(--plum2);color:var(--plum);transition:background .11s;border-radius:2px}
+.rp-text{font-family:var(--ffj);font-size:18px;line-height:2.4;color:var(--ink)}
+.vocab-word{cursor:pointer;border-bottom:2px dotted var(--plum2);color:var(--plum);transition:background .12s;border-radius:2px}
 .vocab-word:hover{background:var(--plum3)}
-#tooltip{position:fixed;background:var(--ink);color:#fff;border-radius:9px;padding:8px 12px;font-size:12px;pointer-events:none;z-index:999;max-width:170px;line-height:1.5;display:none}
+#tooltip{position:fixed;background:var(--ink);color:#fff;border-radius:10px;padding:9px 13px;font-size:12.5px;pointer-events:none;z-index:999;max-width:180px;line-height:1.5;display:none}
 
-/* ── KANA ── */
-.kana-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-bottom:18px}
-.kana-cell{background:var(--card);border:1.5px solid var(--border);border-radius:var(--r);padding:10px 4px;text-align:center;cursor:pointer;transition:all .13s}
+/* ── KANA GRID ── */
+.kana-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:7px;margin-bottom:20px}
+.kana-cell{background:var(--card);border:1.5px solid var(--border);border-radius:var(--r);padding:11px 5px;text-align:center;cursor:pointer;transition:all .14s}
 .kana-cell:hover{border-color:var(--plum2);background:var(--plum3)}
 .kana-cell.mastered{background:var(--green3);border-color:#86efac}
 .kana-cell.learning{background:var(--gold3);border-color:var(--gold2)}
-.kana-char{font-family:var(--ffj);font-size:22px;color:var(--ink);line-height:1.2}
-.kana-rom{font-size:9.5px;color:var(--ink3);margin-top:2px;font-weight:500}
-.kana-cell.seen-kana{background:var(--plum3);border-color:var(--plum2)}
-.kana-cell.new-kana{background:var(--surface);border-color:var(--border);opacity:0.7}
-.kana-cell.new-kana:hover{opacity:1;border-color:var(--plum2);background:var(--plum3);cursor:pointer}
-.kana-opt{padding:9px;background:var(--surface);border:1.5px solid var(--border2);border-radius:var(--r);cursor:pointer;font-size:12.5px;font-weight:500;transition:all .13s;text-align:center}
+.kana-char{font-family:var(--ffj);font-size:24px;color:var(--ink);line-height:1.2}
+.kana-rom{font-size:10px;color:var(--ink3);margin-top:2px;font-weight:500}
+.kana-opt{padding:10px;background:var(--surface);border:1.5px solid var(--border2);border-radius:var(--r);cursor:pointer;font-size:13px;font-weight:500;transition:all .14s;text-align:center}
 .kana-opt:hover:not(.disabled){border-color:var(--plum);background:var(--plum3);color:var(--plum)}
 .kana-opt.correct{background:var(--green3);border-color:#86efac;color:var(--green)}
 .kana-opt.wrong{background:var(--red3);border-color:#fca5a5;color:var(--red)}
 
 /* ── FRIENDS ── */
-.feed-item{background:var(--card);border:1px solid var(--border);border-radius:var(--r2);padding:12px 15px;display:flex;align-items:center;gap:11px;margin-bottom:8px;box-shadow:var(--shadow)}
-.feed-avatar{width:36px;height:36px;border-radius:50%;background:var(--plum3);display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0}
-.feed-text{flex:1;font-size:13px;color:var(--ink2);line-height:1.4}
+.feed-item{background:var(--card);border:1px solid var(--border);border-radius:var(--r2);padding:13px 16px;display:flex;align-items:center;gap:12px;margin-bottom:9px;box-shadow:var(--shadow)}
+.feed-avatar{width:38px;height:38px;border-radius:50%;background:var(--plum3);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.feed-text{flex:1;font-size:13.5px;color:var(--ink2);line-height:1.4}
 .feed-text strong{color:var(--ink);font-weight:600}
 .feed-time{font-size:10px;color:var(--ink3);margin-top:2px}
-.enc-btn{background:var(--rose3);border:1px solid #f9a8d4;border-radius:20px;padding:4px 10px;font-size:11.5px;cursor:pointer;color:var(--rose);font-family:var(--ff);transition:all .13s}
-.enc-btn:hover{transform:scale(1.04)}
+.enc-btn{background:var(--rose3);border:1px solid #f9a8d4;border-radius:20px;padding:4px 11px;font-size:12px;cursor:pointer;color:var(--rose);font-family:var(--ff);transition:all .14s}
+.enc-btn:hover{transform:scale(1.05)}
 .enc-btn.sent{background:var(--green3);border-color:#86efac;color:var(--green);cursor:default}
-.friend-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r2);padding:13px 15px;display:flex;align-items:center;gap:11px;margin-bottom:8px}
-.friend-av{width:40px;height:40px;border-radius:50%;background:var(--plum3);display:flex;align-items:center;justify-content:center;font-size:19px;flex-shrink:0}
+.friend-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r2);padding:14px 16px;display:flex;align-items:center;gap:12px;margin-bottom:9px}
+.friend-av{width:42px;height:42px;border-radius:50%;background:var(--plum3);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
 
 /* ── SETTINGS ── */
-.char-select-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:13px;margin-bottom:22px}
-.char-select-card{background:var(--card);border:2px solid var(--border);border-radius:var(--r2);padding:15px;text-align:center;cursor:pointer;transition:all .14s}
+.char-select-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:24px}
+.char-select-card{background:var(--card);border:2px solid var(--border);border-radius:var(--r2);padding:16px;text-align:center;cursor:pointer;transition:all .15s}
 .char-select-card:hover{border-color:var(--plum2)}
 .char-select-card.active{border-color:var(--plum);background:var(--plum3)}
-.char-portrait{width:68px;height:68px;border-radius:50%;margin:0 auto 9px;object-fit:cover;display:flex;align-items:center;justify-content:center;font-size:30px;overflow:hidden}
+.char-portrait{width:72px;height:72px;border-radius:50%;margin:0 auto 10px;object-fit:cover;background:var(--plum3);display:flex;align-items:center;justify-content:center;font-size:32px;overflow:hidden}
 .char-portrait img{width:100%;height:100%;object-fit:cover;border-radius:50%}
-.char-name-label{font-size:13.5px;font-weight:600;margin-bottom:3px}
+.char-name-label{font-size:14px;font-weight:600;margin-bottom:3px}
 .char-style-label{font-size:11px;color:var(--ink3)}
-.settings-section{background:var(--card);border:1px solid var(--border);border-radius:var(--r2);padding:18px;margin-bottom:16px;box-shadow:var(--shadow)}
+
+/* ── SETTINGS FIELDS ── */
+.settings-section{background:var(--card);border:1px solid var(--border);border-radius:var(--r2);padding:20px;margin-bottom:18px;box-shadow:var(--shadow)}
+.settings-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border)}
+.settings-row:last-child{border-bottom:none}
+.settings-label{font-size:14px;font-weight:500}
+.settings-hint{font-size:11px;color:var(--ink3);margin-top:2px}
+.field-input{padding:7px 11px;border:1.5px solid var(--border2);border-radius:8px;font-family:var(--ff);font-size:13px;background:var(--card);outline:none;cursor:pointer}
+
+/* ── SPINNER ── */
+.spinner{display:inline-block;width:14px;height:14px;border:2px solid var(--border2);border-top-color:var(--plum);border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
 
 /* ── SECTION HEAD ── */
-.section-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:13px}
-.section-title{font-size:13.5px;font-weight:600}
-
-
-/* ── COMPANION MODAL ── */
-.companion-modal-overlay{position:fixed;inset:0;background:rgba(10,5,20,0.7);z-index:200;display:flex;align-items:center;justify-content:center;padding:20px;animation:fadeIn .2s ease;backdrop-filter:blur(4px)}
-.companion-modal{background:var(--card);border-radius:28px;padding:0;width:340px;max-width:95vw;box-shadow:0 24px 60px rgba(0,0,0,0.3);overflow:hidden;animation:slideUp .22s ease}
-@keyframes slideUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
-.cm-portrait-wrap{width:100%;height:260px;position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center}
-.cm-portrait-wrap img{width:100%;height:100%;object-fit:cover;object-position:top}
-.cm-portrait-emoji{font-size:96px;line-height:1}
-.cm-portrait-gradient{position:absolute;bottom:0;left:0;right:0;height:50%;background:linear-gradient(transparent,var(--card))}
-.cm-body{padding:20px 24px 24px}
-.cm-name{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px}
-.cm-message{font-size:15px;line-height:1.65;color:var(--ink2);font-style:italic}
-.cm-close{width:100%;margin-top:18px;padding:11px;background:var(--plum);color:#fff;border:none;border-radius:var(--r);font-family:var(--ff);font-size:14px;font-weight:600;cursor:pointer;transition:background .15s}
-.cm-close:hover{background:#6d28d9}
-
-/* ── COMPANION FEEDBACK BUBBLE ── */
-.companion-bubble{display:none;align-items:flex-start;gap:12px;margin-top:14px;animation:bubbleIn .2s ease}
-.companion-bubble.show{display:flex}
-@keyframes bubbleIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
-.cb-portrait{width:52px;height:52px;border-radius:50%;flex-shrink:0;overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:24px;box-shadow:0 2px 8px rgba(0,0,0,0.15)}
-.cb-portrait img{width:100%;height:100%;object-fit:cover;object-position:top}
-.cb-speech{position:relative;background:var(--card);border:1.5px solid var(--border2);border-radius:16px;border-bottom-left-radius:4px;padding:11px 14px;flex:1;font-size:13px;line-height:1.55;color:var(--ink2);box-shadow:var(--shadow)}
-.cb-speech::before{content:'';position:absolute;left:-9px;bottom:14px;border:5px solid transparent;border-right-color:var(--border2)}
-.cb-speech::after{content:'';position:absolute;left:-7px;bottom:14px;border:5px solid transparent;border-right-color:var(--card)}
-.cb-speech.correct{border-color:#86efac;background:var(--green3)}
-.cb-speech.correct::after{border-right-color:var(--green3)}
-.cb-speech.wrong{border-color:#fca5a5;background:var(--red3)}
-.cb-speech.wrong::after{border-right-color:var(--red3)}
-/* ── SPINNER ── */
-.spinner{display:inline-block;width:13px;height:13px;border:2px solid var(--border2);border-top-color:var(--plum);border-radius:50%;animation:spin .7s linear infinite}
-@keyframes spin{to{transform:rotate(360deg)}}
+.section-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.section-title{font-size:14px;font-weight:600;color:var(--ink)}
 
 @media(max-width:900px){
   .grid-4{grid-template-columns:repeat(2,1fr)}
@@ -271,40 +247,29 @@ body{font-family:var(--ff);background:var(--bg);color:var(--ink);min-height:100v
   <div id="tt-en"></div>
 </div>
 
-
-<!-- COMPANION MODAL -->
-<div id="companion-modal" class="companion-modal-overlay hidden" onclick="if(event.target===this)closeCompanionModal()">
-  <div class="companion-modal">
-    <div class="cm-portrait-wrap" id="cm-portrait-wrap">
-      <div id="cm-portrait-img" style="width:100%;height:100%;display:flex;align-items:center;justify-content:center"></div>
-      <div class="cm-portrait-gradient"></div>
-    </div>
-    <div class="cm-body">
-      <div class="cm-name" id="cm-name" style="color:var(--plum)">Cyrene</div>
-      <div class="cm-message" id="cm-message"></div>
-      <button class="cm-close" onclick="closeCompanionModal()"> Let's continue ✨</button>
-    </div>
-  </div>
-</div>
 <!-- AUTH SCREEN -->
 <div id="auth-screen">
   <div class="auth-card">
     <div class="auth-logo">日</div>
-    <div class="auth-title">Learn With Me — JP! 🌸</div>
+    <div class="auth-title">Learn With Me — JP! ??</div>
     <div class="auth-sub">Your Japanese learning companion — N5 to N1</div>
     <div class="auth-tabs">
       <button class="auth-tab active" id="tab-login" onclick="switchAuthTab('login')">Sign in</button>
       <button class="auth-tab" id="tab-signup" onclick="switchAuthTab('signup')">Create account</button>
     </div>
     <div id="panel-login">
-      <div class="auth-field"><label>Email</label><input type="email" id="login-email" placeholder="you@example.com" onkeydown="if(event.key==='Enter')doLogin()"></div>
-      <div class="auth-field"><label>Password</label><input type="password" id="login-password" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()"></div>
+      <div class="auth-field"><label>Username</label><input type="text" id="login-username" placeholder="your username" onkeydown="if(event.key==='Enter')doLogin()"></div>
+      <div class="auth-field"><label>Password</label><input type="password" id="login-password" placeholder="..." onkeydown="if(event.key==='Enter')doLogin()"></div>
       <div class="auth-err" id="login-err"></div>
       <button class="auth-btn" id="login-btn" onclick="doLogin()">Sign in</button>
     </div>
+
     <div id="panel-signup" class="hidden">
       <div class="auth-field"><label>Username</label><input type="text" id="su-username" placeholder="e.g. sakura_learner"></div>
-      <div class="auth-field"><label>Email</label><input type="email" id="su-email" placeholder="you@example.com"></div>
+      <div class="auth-field"><label>Password</label><input type="password" id="su-password" placeholder="choose a password (min. 6 chars)"></div>
+      <div id="su-msg" class="auth-err"></div>
+      <button class="auth-btn" id="su-btn" onclick="doSignup()">Create account</button>
+    </div>
       <div class="auth-field"><label>Password</label><input type="password" id="su-password" placeholder="min. 6 characters"></div>
       <div id="su-msg" class="auth-err"></div>
       <button class="auth-btn" id="su-btn" onclick="doSignup()">Create account</button>
@@ -312,8 +277,10 @@ body{font-family:var(--ff);background:var(--bg);color:var(--ink);min-height:100v
   </div>
 </div>
 
-<!-- MAIN APP -->
+<!-- MAIN APP (hidden until authed) -->
 <div class="app hidden" id="main-app">
+
+  <!-- SIDEBAR -->
   <nav class="sidebar">
     <div class="nav-logo" onclick="setPage('home')">日</div>
     <button class="nav-btn active" id="nb-home" onclick="setPage('home')">
@@ -350,27 +317,28 @@ body{font-family:var(--ff);background:var(--bg);color:var(--ink);min-height:100v
       <span class="nav-label">Settings</span>
     </button>
     <div class="sidebar-bottom">
-      <div class="xp-ring">
-        <svg width="34" height="34" viewBox="0 0 34 34">
-          <circle cx="17" cy="17" r="14" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="3"/>
-          <circle cx="17" cy="17" r="14" fill="none" stroke="#a78bfa" stroke-width="3" stroke-dasharray="87.96" id="xp-arc" stroke-dashoffset="88" stroke-linecap="round"/>
+      <div class="xp-ring" id="xp-ring">
+        <svg width="36" height="36" viewBox="0 0 36 36">
+          <circle cx="18" cy="18" r="15" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="3"/>
+          <circle cx="18" cy="18" r="15" fill="none" stroke="#a78bfa" stroke-width="3" stroke-dasharray="94.2" id="xp-arc" stroke-dashoffset="94" stroke-linecap="round"/>
         </svg>
         <div class="level" id="level-disp">1</div>
       </div>
     </div>
   </nav>
 
+  <!-- TOPBAR -->
   <header class="topbar">
     <div>
-      <div class="page-title" id="topbar-title">Learn With Me</div>
-      <div class="page-sub" id="topbar-sub">N5 · Beginner</div>
+      <div class="page-title" id="topbar-title">おはよう！</div>
+      <div class="page-sub" id="topbar-sub">N5 • Beginner</div>
     </div>
-    <div style="display:flex;gap:7px;align-items:center">
+    <div style="display:flex;gap:8px;align-items:center">
       <span id="sync-dot" style="font-size:11px;color:var(--ink3)"></span>
-      <div class="pill pill-gold">🔥 <span id="streak-disp">0</span>d</div>
+      <div class="pill pill-gold">?? <span id="streak-disp">0</span>d</div>
       <div class="pill pill-plum">⚡ <span id="xp-disp">0</span></div>
       <button class="icon-btn" onclick="doLogout()" title="Sign out">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
       </button>
     </div>
   </header>
@@ -379,33 +347,32 @@ body{font-family:var(--ff);background:var(--bg);color:var(--ink);min-height:100v
 
     <!-- HOME -->
     <div class="page active" id="page-home">
-      <div class="companion-bar" id="companion-trigger" onclick="openCompanionModal()" style="cursor:pointer" title="Click to chat with your companion">
+      <div class="companion-bar">
         <div class="companion-portrait" id="home-portrait"></div>
-        <div style="flex:1">
+        <div>
           <div class="companion-name" id="home-char-name" style="color:var(--plum)">Cyrene</div>
           <div class="companion-msg" id="companion-msg">Loading...</div>
         </div>
-        <div style="font-size:11px;color:var(--ink3);padding:4px 8px;background:var(--plum3);border-radius:20px;white-space:nowrap">tap to chat</div>
       </div>
       <div class="grid-4">
-        <div class="stat-card"><div class="stat-icon">📚</div><div class="stat-num" id="s-reviewed">0</div><div class="stat-label">Reviewed Today</div></div>
+        <div class="stat-card"><div class="stat-icon">??</div><div class="stat-num" id="s-reviewed">0</div><div class="stat-label">Reviewed Today</div></div>
         <div class="stat-card"><div class="stat-icon">✅</div><div class="stat-num" id="s-accuracy">0%</div><div class="stat-label">Accuracy</div></div>
-        <div class="stat-card"><div class="stat-icon">🎯</div><div class="stat-num" id="s-due">0</div><div class="stat-label">Due for Review</div></div>
+        <div class="stat-card"><div class="stat-icon">??</div><div class="stat-num" id="s-due">0</div><div class="stat-label">Due for Review</div></div>
         <div class="stat-card"><div class="stat-icon">⭐</div><div class="stat-num" id="s-mastered">0</div><div class="stat-label">Mastered</div></div>
       </div>
       <div class="grid-3">
-        <div class="mode-card" onclick="setPage('kana')"><div class="mode-icon" style="background:#ede9fe">🔤</div><div class="mode-title">Kana Mastery</div><div class="mode-desc">Hiragana & katakana with spaced repetition</div><div class="mode-badge" id="mc-kana">Loading...</div></div>
-        <div class="mode-card" onclick="setPage('vocab')"><div class="mode-icon" style="background:#fce7f3">📖</div><div class="mode-title">Vocabulary</div><div class="mode-desc">N5 core vocab SRS flashcards</div><div class="mode-badge">800 words</div></div>
-        <div class="mode-card" onclick="setPage('grammar')"><div class="mode-icon" style="background:#ccfbf1">✍️</div><div class="mode-title">Grammar</div><div class="mode-desc">Essential N5 grammar patterns</div><div class="mode-badge">12 patterns</div></div>
-        <div class="mode-card" onclick="setPage('reading')"><div class="mode-icon" style="background:#fef3c7">📰</div><div class="mode-title">Reading</div><div class="mode-desc">N5 passages with interactive tooltips</div><div class="mode-badge">3 passages</div></div>
-        <div class="mode-card" onclick="setPage('quiz')"><div class="mode-icon" style="background:#fee2e2">🎮</div><div class="mode-title">JLPT Quiz</div><div class="mode-desc">Practice tests in the real JLPT format</div><div class="mode-badge">3 quiz types</div></div>
-        <div class="mode-card" onclick="setPage('friends')"><div class="mode-icon" style="background:#f0fdf4">👥</div><div class="mode-title">Friends</div><div class="mode-desc">Study together & send encouragement</div><div class="mode-badge" id="mc-friends">Add friends</div></div>
+        <div class="mode-card" onclick="setPage('kana')"><div class="mode-icon" style="background:#ede9fe">??</div><div class="mode-title">Kana Mastery</div><div class="mode-desc">Hiragana & katakana with spaced repetition</div><div class="mode-badge" id="mc-kana">Loading...</div></div>
+        <div class="mode-card" onclick="setPage('vocab')"><div class="mode-icon" style="background:#fce7f3">??</div><div class="mode-title">Vocabulary</div><div class="mode-desc">N5 core vocab SRS flashcards</div><div class="mode-badge">800 words</div></div>
+        <div class="mode-card" onclick="setPage('grammar')"><div class="mode-icon" style="background:#ccfbf1">✍️</div><div class="mode-title">Grammar</div><div class="mode-desc">Essential N5 grammar patterns</div><div class="mode-badge">15 patterns</div></div>
+        <div class="mode-card" onclick="setPage('reading')"><div class="mode-icon" style="background:#fef3c7">??</div><div class="mode-title">Reading</div><div class="mode-desc">N5 passages with interactive tooltips</div><div class="mode-badge">3 passages</div></div>
+        <div class="mode-card" onclick="setPage('quiz')"><div class="mode-icon" style="background:#fee2e2">??</div><div class="mode-title">JLPT Quiz</div><div class="mode-desc">Practice tests in the real JLPT format</div><div class="mode-badge">3 quiz types</div></div>
+        <div class="mode-card" onclick="setPage('friends')"><div class="mode-icon" style="background:#f0fdf4">??</div><div class="mode-title">Friends</div><div class="mode-desc">Study together & send encouragement</div><div class="mode-badge" id="mc-friends">Add friends</div></div>
       </div>
       <div class="section-head"><div class="section-title">Kana Progress</div></div>
-      <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--r2);padding:16px;box-shadow:var(--shadow);margin-bottom:22px">
-        <div style="display:flex;justify-content:space-between;font-size:11.5px;color:var(--ink3);margin-bottom:5px"><span>Hiragana</span><span id="hp-lbl">0/46</span></div>
-        <div class="progress-track" style="margin-bottom:11px"><div class="progress-fill" id="hp-bar" style="width:0%"></div></div>
-        <div style="display:flex;justify-content:space-between;font-size:11.5px;color:var(--ink3);margin-bottom:5px"><span>Katakana</span><span id="kp-lbl">0/46</span></div>
+      <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--r2);padding:18px;box-shadow:var(--shadow);margin-bottom:24px">
+        <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--ink3);margin-bottom:6px"><span>Hiragana</span><span id="hp-lbl">0/46</span></div>
+        <div class="progress-track" style="margin-bottom:12px"><div class="progress-fill" id="hp-bar" style="width:0%"></div></div>
+        <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--ink3);margin-bottom:6px"><span>Katakana</span><span id="kp-lbl">0/46</span></div>
         <div class="progress-track"><div class="progress-fill teal" id="kp-bar" style="width:0%"></div></div>
       </div>
       <div id="home-feed-section" class="hidden">
@@ -415,46 +382,22 @@ body{font-family:var(--ff);background:var(--bg);color:var(--ink);min-height:100v
     </div>
 
     <!-- KANA -->
-
-      <!-- Kana Study Overlay -->
-      <div id="kana-study-overlay" class="hidden" style="position:fixed;inset:0;background:rgba(10,5,20,0.75);z-index:300;display:flex;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(4px)" onclick="if(event.target===this)closeKanaStudy()">
-        <div style="background:var(--card);border-radius:24px;width:320px;max-width:95vw;padding:36px 28px;text-align:center;box-shadow:0 24px 60px rgba(0,0,0,0.3)">
-          <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--ink3);margin-bottom:16px" id="ks-script">Hiragana</div>
-          <div style="font-family:var(--ffj);font-size:96px;line-height:1;color:var(--ink);margin-bottom:8px" id="ks-char">あ</div>
-          <div style="font-size:28px;font-weight:600;color:var(--plum);margin-bottom:12px" id="ks-romaji">a</div>
-          <div style="font-size:13px;color:var(--ink3);line-height:1.6;margin-bottom:24px;min-height:40px" id="ks-tip"></div>
-          <button class="btn btn-primary" style="width:100%;margin-bottom:10px" onclick="markKanaSeen()">Got it! 覚えた →</button>
-          <button class="btn btn-ghost btn-sm" style="width:100%" onclick="closeKanaStudy()">Skip for now</button>
-        </div>
-      </div>
     <div class="page" id="page-kana">
       <div class="tabs">
-        <button class="tab active" id="ktab-h" onclick="kanaTab('h',this)">Hiragana</button>
-        <button class="tab" id="ktab-k" onclick="kanaTab('k',this)">Katakana</button>
-        <button class="tab" id="ktab-hq" onclick="kanaTab('hq',this)">Hiragana Quiz</button>
-        <button class="tab" id="ktab-kq" onclick="kanaTab('kq',this)">Katakana Quiz</button>
-        <button class="tab" id="ktab-mixed" onclick="kanaTab('mixed',this)">Mixed</button>
+        <button class="tab active" onclick="kanaTab('h',this)">Hiragana</button>
+        <button class="tab" onclick="kanaTab('k',this)">Katakana</button>
+        <button class="tab" onclick="kanaTab('q',this)">Quiz</button>
       </div>
-
-      <!-- Hiragana grid -->
       <div id="kt-h"></div>
-
-      <!-- Katakana grid -->
       <div id="kt-k" class="hidden"></div>
-
-      <!-- Quiz panel (shared by all 3 quiz tabs) -->
       <div id="kt-q" class="hidden">
-        <div style="background:var(--card);border:1.5px solid var(--border);border-radius:18px;padding:28px;text-align:center;margin-bottom:14px;box-shadow:var(--shadow)">
-          <div style="font-size:11px;color:var(--ink3);margin-bottom:6px;font-weight:500" id="kq-set-label">Hiragana</div>
-          <div style="font-size:13px;color:var(--ink3);margin-bottom:8px" id="kq-prompt">What is the romaji?</div>
-          <div style="font-family:var(--ffj);font-size:72px;line-height:1;margin-bottom:10px;color:var(--ink)" id="kq-char">あ</div>
-          <div style="font-size:12px;color:var(--ink3)" id="kq-score">0 / 0</div>
+        <div style="background:var(--card);border:1.5px solid var(--border);border-radius:20px;padding:36px;text-align:center;margin-bottom:18px;box-shadow:var(--shadow)">
+          <div style="font-size:12px;color:var(--ink3);margin-bottom:6px" id="kq-prompt">Romaji for this character?</div>
+          <div style="font-family:var(--ffj);font-size:72px;line-height:1;margin-bottom:10px" id="kq-char">あ</div>
+          <div style="font-size:11px;color:var(--ink3)" id="kq-score">0/0</div>
         </div>
-        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:14px" id="kq-opts"></div>
-        <div class="companion-bubble" id="kq-bubble">
-          <div class="cb-portrait" id="kq-bubble-portrait"></div>
-          <div class="cb-speech" id="kq-bubble-speech"></div>
-        </div>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:7px" id="kq-opts"></div>
+        <div id="kq-fb" style="display:none;margin-top:12px;padding:10px 14px;border-radius:var(--r);font-size:13px"></div>
       </div>
     </div>
 
@@ -475,10 +418,10 @@ body{font-family:var(--ff);background:var(--bg);color:var(--ink);min-height:100v
             <div class="card-badge" id="fc-badge">vocab</div>
             <div class="card-main" id="fc-front">—</div>
             <div style="font-size:11px;color:var(--ink3)" id="fc-cat"></div>
-            <div style="font-size:12px;color:var(--ink3);margin-top:10px">tap to reveal</div>
+            <div style="font-size:12px;color:var(--ink3);margin-top:12px">tap to reveal</div>
           </div>
-          <div id="fc-back" class="hidden" style="width:100%;display:flex;flex-direction:column;align-items:center;gap:13px">
-            <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--r2);padding:16px 22px;width:100%;text-align:center;box-shadow:var(--shadow)">
+          <div id="fc-back" class="hidden" style="width:100%;display:flex;flex-direction:column;align-items:center;gap:14px">
+            <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--r2);padding:18px 24px;width:100%;text-align:center;box-shadow:var(--shadow)">
               <div class="card-reading" id="fc-reading"></div>
               <div class="card-meaning" id="fc-meaning"></div>
               <div class="card-example" id="fc-ex"></div>
@@ -490,22 +433,18 @@ body{font-family:var(--ff);background:var(--bg);color:var(--ink);min-height:100v
               <button class="srs-btn srs-easy" onclick="rateCard(3)">Easy<span class="srs-next">4d</span></button>
             </div>
           </div>
-          <div class="companion-bubble" id="fc-bubble">
-            <div class="cb-portrait" id="fc-bubble-portrait"></div>
-            <div class="cb-speech" id="fc-bubble-speech"></div>
-          </div>
-          <div id="fc-done" class="hidden" style="text-align:center;padding:32px">
-            <div style="font-size:42px;margin-bottom:9px">🎉</div>
-            <div style="font-size:18px;font-weight:600;margin-bottom:5px">Session complete!</div>
-            <div style="font-size:12.5px;color:var(--ink3);margin-bottom:18px">All cards reviewed.</div>
+          <div id="fc-done" class="hidden" style="text-align:center;padding:36px">
+            <div style="font-size:44px;margin-bottom:10px">??</div>
+            <div style="font-size:19px;font-weight:600;margin-bottom:6px">Session complete!</div>
+            <div style="font-size:13px;color:var(--ink3);margin-bottom:20px">All cards reviewed.</div>
             <button class="btn btn-primary" onclick="initVocabFC()">Study More</button>
           </div>
         </div>
       </div>
       <div id="vt-browse" class="hidden">
-        <div style="display:flex;gap:8px;margin-bottom:14px">
-          <input type="text" id="vs-search" placeholder="Search..." oninput="renderVocabBrowse()" style="flex:1;padding:7px 11px;border:1.5px solid var(--border2);border-radius:var(--r);font-family:var(--ff);font-size:12.5px;outline:none;background:var(--card)">
-          <select id="vs-cat" onchange="renderVocabBrowse()" style="padding:7px 11px;border:1.5px solid var(--border2);border-radius:var(--r);font-family:var(--ff);font-size:12.5px;background:var(--card)">
+        <div style="display:flex;gap:9px;margin-bottom:16px">
+          <input type="text" id="vs-search" placeholder="Search..." oninput="renderVocabBrowse()" style="flex:1;padding:8px 12px;border:1.5px solid var(--border2);border-radius:var(--r);font-family:var(--ff);font-size:13px;outline:none;background:var(--card)">
+          <select id="vs-cat" onchange="renderVocabBrowse()" style="padding:8px 12px;border:1.5px solid var(--border2);border-radius:var(--r);font-family:var(--ff);font-size:13px;background:var(--card)">
             <option value="">All</option><option value="greeting">Greetings</option><option value="number">Numbers</option><option value="time">Time</option><option value="noun">Nouns</option><option value="verb">Verbs</option><option value="adj">Adjectives</option>
           </select>
         </div>
@@ -515,23 +454,23 @@ body{font-family:var(--ff);background:var(--bg);color:var(--ink);min-height:100v
 
     <!-- GRAMMAR -->
     <div class="page" id="page-grammar">
-      <div style="margin-bottom:16px;font-size:12.5px;color:var(--ink3)">Essential N5 patterns — click to expand.</div>
+      <div style="margin-bottom:18px;font-size:13px;color:var(--ink3)">Essential N5 patterns — click to expand.</div>
       <div id="grammar-list"></div>
     </div>
 
     <!-- READING -->
     <div class="page" id="page-reading">
       <div id="reading-menu">
-        <div style="margin-bottom:16px;font-size:12.5px;color:var(--ink3)">Click any highlighted word for instant translation.</div>
+        <div style="margin-bottom:18px;font-size:13px;color:var(--ink3)">Click any word for instant translation.</div>
         <div class="grid-2" id="passage-cards"></div>
       </div>
       <div id="reading-active" class="hidden">
-        <button class="btn btn-ghost btn-sm" onclick="backToPassages()" style="margin-bottom:14px">← Back</button>
-        <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--r2);padding:22px;margin-bottom:16px;box-shadow:var(--shadow)">
-          <div style="font-size:10.5px;font-weight:600;text-transform:uppercase;letter-spacing:.6px;color:var(--plum);margin-bottom:9px" id="ra-title"></div>
+        <button class="btn btn-ghost btn-sm" onclick="backToPassages()" style="margin-bottom:16px">← Back</button>
+        <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--r2);padding:24px;margin-bottom:18px;box-shadow:var(--shadow)">
+          <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.6px;color:var(--plum);margin-bottom:10px" id="ra-title"></div>
           <div class="rp-text" id="ra-text"></div>
         </div>
-        <div style="font-size:13.5px;font-weight:600;margin-bottom:11px">Comprehension Questions</div>
+        <div style="font-size:14px;font-weight:600;margin-bottom:12px">Comprehension Questions</div>
         <div id="ra-qs"></div>
       </div>
     </div>
@@ -539,43 +478,43 @@ body{font-family:var(--ff);background:var(--bg);color:var(--ink);min-height:100v
     <!-- QUIZ -->
     <div class="page" id="page-quiz">
       <div id="quiz-menu">
-        <div class="companion-bar" style="margin-bottom:20px">
+        <div class="companion-bar" style="margin-bottom:22px">
           <div class="companion-portrait" id="quiz-portrait"></div>
-          <div><div class="companion-name" id="quiz-char-name" style="color:var(--plum)">Cyrene</div><div class="companion-msg" id="quiz-char-msg">Ready for a challenge? 頑張って！</div></div>
+          <div><div class="companion-name" style="color:var(--plum)" id="quiz-char-name">Cyrene</div><div class="companion-msg">Ready for a challenge? 頑張って！</div></div>
         </div>
         <div class="grid-3">
-          <div class="mode-card" onclick="startQuiz('vocab')"><div class="mode-icon" style="background:#ede9fe">📝</div><div class="mode-title">Vocabulary MCQ</div><div class="mode-desc">Choose the correct meaning</div><div class="mode-badge">10 questions</div></div>
-          <div class="mode-card" onclick="startQuiz('grammar')"><div class="mode-icon" style="background:#ccfbf1">🔧</div><div class="mode-title">Grammar Fill-in</div><div class="mode-desc">Pick the right grammar pattern</div><div class="mode-badge">10 questions</div></div>
-          <div class="mode-card" onclick="startQuiz('kana')"><div class="mode-icon" style="background:#fce7f3">🔤</div><div class="mode-title">Kana Speed</div><div class="mode-desc">Rapid-fire kana recognition</div><div class="mode-badge">20 questions</div></div>
+          <div class="mode-card" onclick="startQuiz('vocab')"><div class="mode-icon" style="background:#ede9fe">??</div><div class="mode-title">Vocabulary MCQ</div><div class="mode-desc">Choose the correct meaning for each word</div><div class="mode-badge">10 questions</div></div>
+          <div class="mode-card" onclick="startQuiz('grammar')"><div class="mode-icon" style="background:#ccfbf1">??</div><div class="mode-title">Grammar Fill-in</div><div class="mode-desc">Pick the right grammar pattern</div><div class="mode-badge">10 questions</div></div>
+          <div class="mode-card" onclick="startQuiz('kana')"><div class="mode-icon" style="background:#fce7f3">??</div><div class="mode-title">Kana Speed</div><div class="mode-desc">Rapid-fire kana recognition</div><div class="mode-badge">20 questions</div></div>
         </div>
       </div>
       <div id="quiz-active" class="hidden">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px">
           <button class="btn btn-ghost btn-sm" onclick="endQuiz()">✕ End</button>
-          <div style="font-size:11.5px;color:var(--ink3)">Q<span id="qz-num">1</span>/<span id="qz-tot">10</span></div>
-          <div style="font-size:12.5px;font-weight:600;color:var(--plum)">Score: <span id="qz-score">0</span></div>
+          <div style="font-size:12px;color:var(--ink3)">Q<span id="qz-num">1</span>/<span id="qz-tot">10</span></div>
+          <div style="font-size:13px;font-weight:600;color:var(--plum)">Score: <span id="qz-score">0</span></div>
         </div>
-        <div class="progress-track" style="margin-bottom:20px"><div class="progress-fill" id="qz-progress" style="width:0%"></div></div>
-        <div style="max-width:500px;margin:0 auto;display:flex;flex-direction:column;gap:16px">
+        <div class="progress-track" style="margin-bottom:22px"><div class="progress-fill" id="qz-progress" style="width:0%"></div></div>
+        <div style="max-width:520px;margin:0 auto;display:flex;flex-direction:column;gap:18px">
           <div class="quiz-q-card">
             <div class="quiz-q-label" id="qz-instr"></div>
             <div class="quiz-q-main" id="qz-q">—</div>
-            <div style="font-size:12.5px;color:var(--ink3);font-family:var(--ffj)" id="qz-sub"></div>
+            <div style="font-size:13px;color:var(--ink3);font-family:var(--ffj)" id="qz-sub"></div>
           </div>
           <div class="mcq-grid" id="qz-opts"></div>
           <div class="quiz-fb" id="qz-fb">
-            <div style="font-size:13.5px;font-weight:600;margin-bottom:4px" id="qz-fb-title"></div>
+            <div style="font-size:14px;font-weight:600;margin-bottom:4px" id="qz-fb-title"></div>
             <div style="font-size:12px;color:var(--ink2)" id="qz-fb-body"></div>
             <div style="font-family:var(--ffj);font-size:12px;color:var(--ink2);margin-top:5px" id="qz-fb-ex"></div>
-            <button class="btn btn-primary btn-sm" style="margin-top:9px" onclick="nextQz()">Next →</button>
+            <button class="btn btn-primary btn-sm" style="margin-top:10px" onclick="nextQz()">Next →</button>
           </div>
         </div>
       </div>
-      <div id="quiz-result" class="hidden" style="text-align:center;padding:36px;max-width:360px;margin:0 auto">
-        <div style="font-size:50px;margin-bottom:9px" id="qr-emoji">🎉</div>
-        <div style="font-size:21px;font-weight:600;margin-bottom:5px">Quiz Complete!</div>
-        <div style="font-size:14px;color:var(--ink3);margin-bottom:20px"><span id="qr-score">0</span>/<span id="qr-tot">10</span> correct</div>
-        <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--r2);padding:16px;margin-bottom:18px"><div id="qr-msg" style="font-size:13px;color:var(--ink2)"></div></div>
+      <div id="quiz-result" class="hidden" style="text-align:center;padding:40px;max-width:380px;margin:0 auto">
+        <div style="font-size:52px;margin-bottom:10px" id="qr-emoji">??</div>
+        <div style="font-size:22px;font-weight:600;margin-bottom:5px">Quiz Complete!</div>
+        <div style="font-size:15px;color:var(--ink3);margin-bottom:22px"><span id="qr-score">0</span>/<span id="qr-tot">10</span> correct</div>
+        <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--r2);padding:18px;margin-bottom:20px"><div id="qr-msg" style="font-size:13.5px;color:var(--ink2)"></div></div>
         <button class="btn btn-primary" onclick="endQuiz()">Try Another</button>
       </div>
     </div>
@@ -587,19 +526,19 @@ body{font-family:var(--ff);background:var(--bg);color:var(--ink);min-height:100v
         <button class="tab" onclick="friendsTab('list',this)">Friends</button>
         <button class="tab" onclick="friendsTab('add',this)">Add Friend</button>
       </div>
-      <div id="ft-activity"><div style="text-align:center;padding:36px;color:var(--ink3)"><div class="spinner"></div></div></div>
+      <div id="ft-activity"><div style="text-align:center;padding:40px;color:var(--ink3)"><div class="spinner"></div></div></div>
       <div id="ft-list" class="hidden"><div id="friends-list"></div></div>
       <div id="ft-add" class="hidden">
         <div class="settings-section">
-          <div style="font-size:13.5px;font-weight:600;margin-bottom:13px">Find by username</div>
-          <div style="display:flex;gap:8px">
-            <input type="text" id="fr-search-in" placeholder="e.g. sakura_learner" style="flex:1;padding:8px 11px;border:1.5px solid var(--border2);border-radius:var(--r);font-family:var(--ff);font-size:12.5px;outline:none;background:var(--card)">
-            <button class="btn btn-primary btn-sm" onclick="searchFriend()">Search</button>
+          <div style="font-size:14px;font-weight:600;margin-bottom:14px">Find by username</div>
+          <div style="display:flex;gap:9px">
+            <input type="text" id="fr-search-in" placeholder="e.g. sakura_learner" style="flex:1;padding:9px 12px;border:1.5px solid var(--border2);border-radius:var(--r);font-family:var(--ff);font-size:13px;outline:none;background:var(--card)">
+            <button class="btn btn-primary" onclick="searchFriend()">Search</button>
           </div>
-          <div id="fr-result" style="margin-top:13px"></div>
+          <div id="fr-result" style="margin-top:14px"></div>
         </div>
-        <div style="margin-top:18px">
-          <div style="font-size:13.5px;font-weight:600;margin-bottom:11px">Pending requests</div>
+        <div style="margin-top:20px">
+          <div style="font-size:14px;font-weight:600;margin-bottom:12px">Pending requests</div>
           <div id="fr-requests"></div>
         </div>
       </div>
@@ -607,11 +546,11 @@ body{font-family:var(--ff);background:var(--bg);color:var(--ink);min-height:100v
 
     <!-- SETTINGS -->
     <div class="page" id="page-settings">
-      <div style="font-size:13.5px;font-weight:600;margin-bottom:13px">Choose your companion</div>
+      <div style="font-size:14px;font-weight:600;margin-bottom:14px">Choose your companion</div>
       <div class="char-select-grid" id="char-grid"></div>
       <div class="settings-section">
-        <div style="font-size:13.5px;font-weight:600;margin-bottom:2px">Account</div>
-        <div style="font-size:11.5px;color:var(--ink3);margin-bottom:13px" id="acct-info"></div>
+        <div style="font-size:14px;font-weight:600;margin-bottom:2px">Account</div>
+        <div style="font-size:12px;color:var(--ink3);margin-bottom:14px" id="acct-info"></div>
         <button class="btn btn-secondary btn-sm" onclick="doLogout()">Sign out</button>
       </div>
     </div>
@@ -621,7 +560,7 @@ body{font-family:var(--ff);background:var(--bg);color:var(--ink);min-height:100v
 
 <script>
 // ═══════════════════════════════════════════
-//  SUPABASE CLIENT
+//  SUPABASE
 // ═══════════════════════════════════════════
 const SB = supabase.createClient(
   'https://bnvsljdopxccnncihsvw.supabase.co',
@@ -629,306 +568,377 @@ const SB = supabase.createClient(
 );
 
 // ═══════════════════════════════════════════
-//  STATE — single source of truth, no localStorage
+//  APP STATE — single source of truth, no localStorage
 // ═══════════════════════════════════════════
-let USER     = null;  // Supabase auth user
-let PROFILE  = null;  // profiles row
-let KANA_P   = {};    // romKey -> {correct, wrong}
-let VOCAB_P  = {};    // index  -> {correct, wrong, ease, interval_ms, next_review}
+let USER = null;       // Supabase auth user
+let PROFILE = null;    // profiles row
+let KANA_P = {};       // kana progress: romKey -> {correct,wrong}
+let VOCAB_P = {};      // vocab progress: index -> {correct,wrong,ease,interval_ms,next_review}
 let ACTIVE_CHAR = 'cyrene';
-let RT_CHANNEL  = null;
+let RT_CHANNEL = null; // realtime channel
 
 // ═══════════════════════════════════════════
-//  CHARACTERS  (portraits are repo-root images)
+//  CHARACTERS
 // ═══════════════════════════════════════════
-// Characters, mnemonics and helpers loaded from characters.js
+const CHARS = {
+  cyrene: {
+    id: 'cyrene',
+    name: 'Cyrene',
+    emoji: '??',
+    color: 'linear-gradient(135deg,#c084fc,#f472b6)',
+    nameColor: '#9333ea',
+    portrait: null, // set to image URL once uploaded
+    greetings: [
+      "おはよう… I've been keeping a little hope warm for your return. Ready to study together? ??",
+      "Every word you learn is a small lantern lit. Let's light a few more today. 頑張って！",
+      "I'm glad you're here. Even quiet steps forward are still steps. 良い調子！",
+      "Something gentle told me you'd come back today. Let's make it count. ✨",
+    ],
+    correct: [
+      "Yes — 正解！ That felt right, didn't it? You're growing. ??",
+      "That's exactly it. I knew you had it in you. ✨",
+      "完璧！ Perfect. Small victories are still victories worth keeping.",
+      "正解！ You're doing beautifully. I'm proud of you.",
+    ],
+    wrong: [
+      "Oh… that one slipped past you. But that's okay — let's hold onto it gently and try again.",
+      "Not quite — but every mistake is a memory being made. You'll know this one next time.",
+      "Don't be too hard on yourself. Even I needed time. がんばって！",
+      "Almost — let's sit with this one a little longer and it'll stick. ??",
+    ],
+    quizGood: "最高！ That score is something to be cherished. You've worked so hard for this. ??",
+    quizOk: "A kind effort, and kind efforts grow into something beautiful with time. ??",
+    quizPoor: "It's alright. Every attempt is a seed. Let's water it together and try again. ??",
+  },
+  aventurine: {
+    id: 'aventurine',
+    name: 'Aventurine',
+    emoji: '??',
+    color: 'linear-gradient(135deg,#fbbf24,#f59e0b)',
+    nameColor: '#d97706',
+    portrait: null,
+    greetings: [
+      "Well, well — you're back. I had a *feeling* today's odds were in your favour. Shall we place a bet on how much you learn? ??",
+      "Ah, the student returns. I've been… keeping your seat warm. Don't read into it. Let's go.",
+      "You know, most people fold when it gets hard. You didn't. Interesting. 今日も頑張ろう！",
+      "I don't do encouragement. I do *calculated confidence*. And mine in you? Currently very high. ??",
+    ],
+    correct: [
+      "Ha! Called it. 正解！ The odds were always in your favour — you just had to believe that.",
+      "Well played. 完璧！ I almost doubted you. Almost.",
+      "正解！ See? A little risk, a big reward. That's the game.",
+      "Now *that's* what I'm talking about. You've got good instincts. ✨",
+    ],
+    wrong: [
+      "Hmm. The house wins one. Don't let it rattle you — even I've taken a loss or two. Recalibrate.",
+      "Wrong bet this time. But the next hand's already being dealt. Stay in the game.",
+      "Everyone's luck dips. The smart ones don't walk away — they double down on studying. ??",
+      "Not ideal. But I didn't get where I am by quitting after a setback. Neither will you.",
+    ],
+    quizGood: "...I'll admit, that impressed me. 最高！ Not many pull off a score like that. Well played. ??",
+    quizOk: "Decent. Not spectacular, but decent has potential. Sharpen up and go again.",
+    quizPoor: "Rough round. But the best gamblers lose gracefully and come back smarter. So — again?",
+  },
+  itto: {
+    id: 'itto',
+    name: 'Itto',
+    emoji: '??',
+    color: 'linear-gradient(135deg,#ef4444,#dc2626)',
+    nameColor: '#dc2626',
+    portrait: null,
+    greetings: [
+      "YO!! You showed up!! The ARATAKI GANG is PUMPED!! 今日も頑張ろう, let's DO THIS!! ????",
+      "HEYYY!! I was WAITING for you!! Nobody studies harder than US!! LET'S GOOO!!",
+      "OH YEAH!! Another day, another chance to be ABSOLUTELY UNSTOPPABLE at Japanese!! READY?! ??",
+      "The GREAT and POWERFUL Arataki Itto has been warming up!! NOW YOU'RE HERE!! LET'S SMASH IT!!",
+    ],
+    correct: [
+      "YOOOOO!! 正解!! That's INCREDIBLE!! You're a LEGEND!! ????",
+      "YEAH YEAH YEAH!! 完璧!! The gang is going WILD right now!! SO PROUD!!",
+      "THAT'S MY STUDENT!! 正解!! We are UNSTOPPABLE!!",
+      "WHOOOOO!! You're on FIRE!! Keep going, KEEP GOING!! ⚡",
+    ],
+    wrong: [
+      "Aw MAN!! But hey — even Itto gets knocked down sometimes!! The real L is STAYING down!! GET UP!!",
+      "OKAY OKAY that one was sneaky!! But we don't QUIT!! Try again and CRUSH IT!! ??",
+      "Hmph!! That answer tried to beat us!! But we're TOUGHER!! がんばって!!",
+      "Not today, wrong answer!! We're gonna MEMORIZE THIS and come back SWINGING!! ??",
+    ],
+    quizGood: "OHHHHH!! THAT SCORE!! 最高!! THE ARATAKI GANG IS GOING ABSOLUTELY NUTS RIGHT NOW!! ????????",
+    quizOk: "HEY that's SOLID!! Not bad at ALL!! More practice and we'll be LEGENDARY!! ??",
+    quizPoor: "Okay LISTEN!! We just needed a WARM UP ROUND!! Now we're WARMED UP!! GO AGAIN!! ??",
+  }
+};
 
+function getChar() { return CHARS[ACTIVE_CHAR] || CHARS.cyrene; }
+function charSay(key) {
+  const c = getChar();
+  const v = c[key];
+  if (!v) return c.greetings[0];
+  if (Array.isArray(v)) return v[Math.floor(Math.random() * v.length)];
+  return v;
+}
+function renderPortrait(el, charId) {
+  const c = CHARS[charId || ACTIVE_CHAR];
+  if (!el) return;
+  if (c.portrait) {
+    el.innerHTML = `<img src="${c.portrait}" alt="${c.name}">`;
+  } else {
+    el.style.background = c.color;
+    el.innerHTML = `<span style="font-size:24px">${c.emoji}</span>`;
+  }
+}
 
 // ═══════════════════════════════════════════
-//  KANA DATA
+//  KANA & VOCAB DATA
 // ═══════════════════════════════════════════
-const HG = [
-  {k:'あ',r:'a'},{k:'い',r:'i'},{k:'う',r:'u'},{k:'え',r:'e'},{k:'お',r:'o'},
-  {k:'か',r:'ka'},{k:'き',r:'ki'},{k:'く',r:'ku'},{k:'け',r:'ke'},{k:'こ',r:'ko'},
-  {k:'さ',r:'sa'},{k:'し',r:'shi'},{k:'す',r:'su'},{k:'せ',r:'se'},{k:'そ',r:'so'},
-  {k:'た',r:'ta'},{k:'ち',r:'chi'},{k:'つ',r:'tsu'},{k:'て',r:'te'},{k:'と',r:'to'},
-  {k:'な',r:'na'},{k:'に',r:'ni'},{k:'ぬ',r:'nu'},{k:'ね',r:'ne'},{k:'の',r:'no'},
-  {k:'は',r:'ha'},{k:'ひ',r:'hi'},{k:'ふ',r:'fu'},{k:'へ',r:'he'},{k:'ほ',r:'ho'},
-  {k:'ま',r:'ma'},{k:'み',r:'mi'},{k:'む',r:'mu'},{k:'め',r:'me'},{k:'も',r:'mo'},
-  {k:'や',r:'ya'},{k:'ゆ',r:'yu'},{k:'よ',r:'yo'},
-  {k:'ら',r:'ra'},{k:'り',r:'ri'},{k:'る',r:'ru'},{k:'れ',r:'re'},{k:'ろ',r:'ro'},
-  {k:'わ',r:'wa'},{k:'を',r:'wo'},{k:'ん',r:'n'},
-];
-const KT = [
-  {k:'ア',r:'a'},{k:'イ',r:'i'},{k:'ウ',r:'u'},{k:'エ',r:'e'},{k:'オ',r:'o'},
-  {k:'カ',r:'ka'},{k:'キ',r:'ki'},{k:'ク',r:'ku'},{k:'ケ',r:'ke'},{k:'コ',r:'ko'},
-  {k:'サ',r:'sa'},{k:'シ',r:'shi'},{k:'ス',r:'su'},{k:'セ',r:'se'},{k:'ソ',r:'so'},
-  {k:'タ',r:'ta'},{k:'チ',r:'chi'},{k:'ツ',r:'tsu'},{k:'テ',r:'te'},{k:'ト',r:'to'},
-  {k:'ナ',r:'na'},{k:'ニ',r:'ni'},{k:'ヌ',r:'nu'},{k:'ネ',r:'ne'},{k:'ノ',r:'no'},
-  {k:'ハ',r:'ha'},{k:'ヒ',r:'hi'},{k:'フ',r:'fu'},{k:'ヘ',r:'he'},{k:'ホ',r:'ho'},
-  {k:'マ',r:'ma'},{k:'ミ',r:'mi'},{k:'ム',r:'mu'},{k:'メ',r:'me'},{k:'モ',r:'mo'},
-  {k:'ヤ',r:'ya'},{k:'ユ',r:'yu'},{k:'ヨ',r:'yo'},
-  {k:'ラ',r:'ra'},{k:'リ',r:'ri'},{k:'ル',r:'ru'},{k:'レ',r:'re'},{k:'ロ',r:'ro'},
-  {k:'ワ',r:'wa'},{k:'ヲ',r:'wo'},{k:'ン',r:'n'},
-];
-const ALL_ROM = [...new Set([...HG,...KT].map(x => x.r))];
+const HG=[{k:'あ',r:'a'},{k:'い',r:'i'},{k:'う',r:'u'},{k:'え',r:'e'},{k:'お',r:'o'},{k:'か',r:'ka'},{k:'き',r:'ki'},{k:'く',r:'ku'},{k:'け',r:'ke'},{k:'こ',r:'ko'},{k:'さ',r:'sa'},{k:'し',r:'shi'},{k:'す',r:'su'},{k:'せ',r:'se'},{k:'そ',r:'so'},{k:'た',r:'ta'},{k:'ち',r:'chi'},{k:'つ',r:'tsu'},{k:'て',r:'te'},{k:'と',r:'to'},{k:'な',r:'na'},{k:'に',r:'ni'},{k:'ぬ',r:'nu'},{k:'ね',r:'ne'},{k:'の',r:'no'},{k:'は',r:'ha'},{k:'ひ',r:'hi'},{k:'ふ',r:'fu'},{k:'へ',r:'he'},{k:'ほ',r:'ho'},{k:'ま',r:'ma'},{k:'み',r:'mi'},{k:'む',r:'mu'},{k:'め',r:'me'},{k:'も',r:'mo'},{k:'や',r:'ya'},{k:'ゆ',r:'yu'},{k:'よ',r:'yo'},{k:'ら',r:'ra'},{k:'り',r:'ri'},{k:'る',r:'ru'},{k:'れ',r:'re'},{k:'ろ',r:'ro'},{k:'わ',r:'wa'},{k:'を',r:'wo'},{k:'ん',r:'n'}];
+const KT=[{k:'ア',r:'a'},{k:'イ',r:'i'},{k:'ウ',r:'u'},{k:'エ',r:'e'},{k:'オ',r:'o'},{k:'カ',r:'ka'},{k:'キ',r:'ki'},{k:'ク',r:'ku'},{k:'ケ',r:'ke'},{k:'コ',r:'ko'},{k:'サ',r:'sa'},{k:'シ',r:'shi'},{k:'ス',r:'su'},{k:'セ',r:'se'},{k:'ソ',r:'so'},{k:'タ',r:'ta'},{k:'チ',r:'chi'},{k:'ツ',r:'tsu'},{k:'テ',r:'te'},{k:'ト',r:'to'},{k:'ナ',r:'na'},{k:'ニ',r:'ni'},{k:'ヌ',r:'nu'},{k:'ネ',r:'ne'},{k:'ノ',r:'no'},{k:'ハ',r:'ha'},{k:'ヒ',r:'hi'},{k:'フ',r:'fu'},{k:'ヘ',r:'he'},{k:'ホ',r:'ho'},{k:'マ',r:'ma'},{k:'ミ',r:'mi'},{k:'ム',r:'mu'},{k:'メ',r:'me'},{k:'モ',r:'mo'},{k:'ヤ',r:'ya'},{k:'ユ',r:'yu'},{k:'ヨ',r:'yo'},{k:'ラ',r:'ra'},{k:'リ',r:'ri'},{k:'ル',r:'ru'},{k:'レ',r:'re'},{k:'ロ',r:'ro'},{k:'ワ',r:'wa'},{k:'ヲ',r:'wo'},{k:'ン',r:'n'}];
+const ALL_ROM=[...new Set([...HG,...KT].map(x=>x.r))];
 
-// ═══════════════════════════════════════════
-//  VOCAB DATA
-// ═══════════════════════════════════════════
-const VOCAB = [
-  {j:'おはようございます',r:'ohayou gozaimasu',e:'Good morning (polite)',c:'greeting',x:'おはようございます！今日もいい天気ですね。'},
-  {j:'こんにちは',r:'konnichiwa',e:'Hello / Good afternoon',c:'greeting',x:'こんにちは！お元気ですか？'},
-  {j:'こんばんは',r:'konbanwa',e:'Good evening',c:'greeting',x:'こんばんは。今日も一日お疲れ様でした。'},
-  {j:'ありがとうございます',r:'arigatou gozaimasu',e:'Thank you (polite)',c:'greeting',x:'ありがとうございます！助かりました。'},
-  {j:'すみません',r:'sumimasen',e:'Excuse me / Sorry',c:'greeting',x:'すみません、ちょっとよろしいですか？'},
+const VOCAB=[
+  {j:'おはようございます',r:'ohayou gozaimasu',e:'Good morning (polite)',c:'greeting',x:'おはようございます！'},
+  {j:'こんにちは',r:'konnichiwa',e:'Hello / Good afternoon',c:'greeting',x:'こんにちは！'},
+  {j:'こんばんは',r:'konbanwa',e:'Good evening',c:'greeting',x:'こんばんは。'},
+  {j:'ありがとうございます',r:'arigatou gozaimasu',e:'Thank you (polite)',c:'greeting',x:'ありがとうございます！'},
+  {j:'すみません',r:'sumimasen',e:'Excuse me / Sorry',c:'greeting',x:'すみません。'},
   {j:'はい',r:'hai',e:'Yes',c:'greeting',x:'はい、そうです。'},
-  {j:'いいえ',r:'iie',e:'No',c:'greeting',x:'いいえ、違います。'},
-  {j:'さようなら',r:'sayounara',e:'Goodbye',c:'greeting',x:'さようなら、また明日！'},
-  {j:'はじめまして',r:'hajimemashite',e:'Nice to meet you',c:'greeting',x:'はじめまして、田中です。'},
-  {j:'よろしくおねがいします',r:'yoroshiku onegaishimasu',e:'Please treat me well / Nice to meet you',c:'greeting',x:'よろしくお願いします！'},
-  {j:'いち',r:'ichi',e:'One (1)',c:'number',x:'リンゴをいちつください。'},
+  {j:'いいえ',r:'iie',e:'No',c:'greeting',x:'いいえ、ちがいます。'},
+  {j:'さようなら',r:'sayounara',e:'Goodbye',c:'greeting',x:'さようなら！'},
+  {j:'いち',r:'ichi',e:'One (1)',c:'number',x:'いちまい。'},
   {j:'に',r:'ni',e:'Two (2)',c:'number',x:'にほん。'},
   {j:'さん',r:'san',e:'Three (3)',c:'number',x:'さんにん。'},
   {j:'よん',r:'yon',e:'Four (4)',c:'number',x:'よんじかん。'},
   {j:'ご',r:'go',e:'Five (5)',c:'number',x:'ごふん。'},
-  {j:'ろく',r:'roku',e:'Six (6)',c:'number',x:'ろくじ。'},
-  {j:'なな',r:'nana',e:'Seven (7)',c:'number',x:'ななにん。'},
-  {j:'はち',r:'hachi',e:'Eight (8)',c:'number',x:'はちじ。'},
-  {j:'きゅう',r:'kyuu',e:'Nine (9)',c:'number',x:'きゅうふん。'},
-  {j:'じゅう',r:'juu',e:'Ten (10)',c:'number',x:'じゅうえん。'},
-  {j:'いま',r:'ima',e:'Now',c:'time',x:'いま何時ですか？'},
-  {j:'きょう',r:'kyou',e:'Today',c:'time',x:'今日は何日ですか？'},
-  {j:'あした',r:'ashita',e:'Tomorrow',c:'time',x:'明日会いましょう。'},
-  {j:'きのう',r:'kinou',e:'Yesterday',c:'time',x:'昨日映画を見ました。'},
-  {j:'まいにち',r:'mainichi',e:'Every day',c:'time',x:'毎日勉強します。'},
-  {j:'ことし',r:'kotoshi',e:'This year',c:'time',x:'今年日本語を勉強します。'},
-  {j:'わたし',r:'watashi',e:'I / Me',c:'noun',x:'私は学生です。'},
-  {j:'あなた',r:'anata',e:'You',c:'noun',x:'あなたは先生ですか？'},
-  {j:'ともだち',r:'tomodachi',e:'Friend',c:'noun',x:'私の友達はとても優しい。'},
-  {j:'せんせい',r:'sensei',e:'Teacher',c:'noun',x:'先生は日本人です。'},
-  {j:'がくせい',r:'gakusei',e:'Student',c:'noun',x:'私は学生です。'},
-  {j:'がっこう',r:'gakkou',e:'School',c:'noun',x:'毎日学校へ行きます。'},
-  {j:'えき',r:'eki',e:'Train station',c:'noun',x:'駅の近く。'},
-  {j:'みず',r:'mizu',e:'Water',c:'noun',x:'水を飲みます。'},
-  {j:'ごはん',r:'gohan',e:'Rice / Meal',c:'noun',x:'ご飯を食べます。'},
-  {j:'ほん',r:'hon',e:'Book',c:'noun',x:'本を読みます。'},
-  {j:'くるま',r:'kuruma',e:'Car',c:'noun',x:'車で行きます。'},
-  {j:'いぬ',r:'inu',e:'Dog',c:'noun',x:'かわいいいぬ。'},
-  {j:'ねこ',r:'neko',e:'Cat',c:'noun',x:'ねこが好きです。'},
-  {j:'たべる',r:'taberu',e:'To eat',c:'verb',x:'りんごを食べます。'},
-  {j:'のむ',r:'nomu',e:'To drink',c:'verb',x:'水を飲みます。'},
-  {j:'みる',r:'miru',e:'To see / watch',c:'verb',x:'映画を見ます。'},
-  {j:'よむ',r:'yomu',e:'To read',c:'verb',x:'本を読みます。'},
-  {j:'はなす',r:'hanasu',e:'To speak',c:'verb',x:'日本語を話します。'},
-  {j:'いく',r:'iku',e:'To go',c:'verb',x:'学校へ行きます。'},
-  {j:'くる',r:'kuru',e:'To come',c:'verb',x:'家に来ます。'},
-  {j:'かえる',r:'kaeru',e:'To return home',c:'verb',x:'家に帰ります。'},
-  {j:'わかる',r:'wakaru',e:'To understand',c:'verb',x:'日本語がわかります。'},
-  {j:'かく',r:'kaku',e:'To write',c:'verb',x:'手紙を書きます。'},
-  {j:'きく',r:'kiku',e:'To listen / ask',c:'verb',x:'音楽を聞きます。'},
-  {j:'おおきい',r:'ookii',e:'Big / Large',c:'adj',x:'大きい家。'},
-  {j:'ちいさい',r:'chiisai',e:'Small',c:'adj',x:'小さい猫。'},
-  {j:'あたらしい',r:'atarashii',e:'New',c:'adj',x:'新しい本。'},
-  {j:'ふるい',r:'furui',e:'Old',c:'adj',x:'古い車。'},
-  {j:'いい',r:'ii',e:'Good',c:'adj',x:'いい天気。'},
+  {j:'いま',r:'ima',e:'Now',c:'time',x:'いまなんじですか。'},
+  {j:'きょう',r:'kyou',e:'Today',c:'time',x:'きょうはなんにちですか。'},
+  {j:'あした',r:'ashita',e:'Tomorrow',c:'time',x:'あしたあいましょう。'},
+  {j:'きのう',r:'kinou',e:'Yesterday',c:'time',x:'きのうえいがをみました。'},
+  {j:'まいにち',r:'mainichi',e:'Every day',c:'time',x:'まいにちべんきょうします。'},
+  {j:'わたし',r:'watashi',e:'I / Me',c:'noun',x:'わたしはがくせいです。'},
+  {j:'ともだち',r:'tomodachi',e:'Friend',c:'noun',x:'わたしのともだち。'},
+  {j:'せんせい',r:'sensei',e:'Teacher',c:'noun',x:'せんせいはにほんじんです。'},
+  {j:'がくせい',r:'gakusei',e:'Student',c:'noun',x:'わたしはがくせいです。'},
+  {j:'がっこう',r:'gakkou',e:'School',c:'noun',x:'まいにちがっこうへいきます。'},
+  {j:'えき',r:'eki',e:'Train station',c:'noun',x:'えきのちかく。'},
+  {j:'みず',r:'mizu',e:'Water',c:'noun',x:'みずをのみます。'},
+  {j:'ごはん',r:'gohan',e:'Rice / Meal',c:'noun',x:'ごはんをたべます。'},
+  {j:'たべる',r:'taberu',e:'To eat',c:'verb',x:'りんごをたべます。'},
+  {j:'のむ',r:'nomu',e:'To drink',c:'verb',x:'みずをのみます。'},
+  {j:'みる',r:'miru',e:'To see / watch',c:'verb',x:'えいがをみます。'},
+  {j:'よむ',r:'yomu',e:'To read',c:'verb',x:'ほんをよみます。'},
+  {j:'はなす',r:'hanasu',e:'To speak',c:'verb',x:'にほんごをはなします。'},
+  {j:'いく',r:'iku',e:'To go',c:'verb',x:'がっこうへいきます。'},
+  {j:'くる',r:'kuru',e:'To come',c:'verb',x:'うちにきます。'},
+  {j:'かえる',r:'kaeru',e:'To return',c:'verb',x:'いえにかえります。'},
+  {j:'わかる',r:'wakaru',e:'To understand',c:'verb',x:'にほんごがわかります。'},
+  {j:'おおきい',r:'ookii',e:'Big / Large',c:'adj',x:'おおきいいえ。'},
+  {j:'ちいさい',r:'chiisai',e:'Small',c:'adj',x:'ちいさいねこ。'},
+  {j:'あたらしい',r:'atarashii',e:'New',c:'adj',x:'あたらしいほん。'},
+  {j:'いい',r:'ii',e:'Good',c:'adj',x:'いいてんき。'},
   {j:'おいしい',r:'oishii',e:'Delicious',c:'adj',x:'おいしいです！'},
-  {j:'かわいい',r:'kawaii',e:'Cute',c:'adj',x:'かわいい猫。'},
-  {j:'きれいな',r:'kirei na',e:'Beautiful / Clean',c:'adj',x:'きれいな花。'},
-  {j:'たのしい',r:'tanoshii',e:'Fun / Enjoyable',c:'adj',x:'日本語は楽しい！'},
-  {j:'むずかしい',r:'muzukashii',e:'Difficult',c:'adj',x:'日本語は難しいです。'},
+  {j:'かわいい',r:'kawaii',e:'Cute',c:'adj',x:'かわいいねこ。'},
+  {j:'きれいな',r:'kirei na',e:'Beautiful / Clean',c:'adj',x:'きれいなはな。'},
 ];
 
-// ═══════════════════════════════════════════
-//  GRAMMAR DATA
-// ═══════════════════════════════════════════
-const GRAMMAR = [
-  {p:'〜は〜です',e:'[Topic] is [noun]',l:'N5',rule:'は (wa) marks the topic. です (desu) is "is/am/are". This is the most fundamental sentence pattern.',ex:[{j:'わたしはがくせいです。',r:'Watashi wa gakusei desu.',e:'I am a student.'},{j:'これはほんです。',r:'Kore wa hon desu.',e:'This is a book.'}]},
-  {p:'〜が好きです',e:'I like [noun]',l:'N5',rule:'が marks the object of 好き (suki = like) or 嫌い (kirai = dislike). Don\'t use を here.',ex:[{j:'すしがすきです。',r:'Sushi ga suki desu.',e:'I like sushi.'},{j:'にほんごがすきです。',r:'Nihongo ga suki desu.',e:'I like Japanese.'}]},
-  {p:'〜を〜ます',e:'Do [verb] to [object]',l:'N5',rule:'を (wo) marks the direct object of an action. Verb + ます is the polite present/future form.',ex:[{j:'ほんをよみます。',r:'Hon wo yomimasu.',e:'I read a book.'},{j:'みずをのみます。',r:'Mizu wo nomimasu.',e:'I drink water.'}]},
-  {p:'〜に行きます',e:'Go to [place]',l:'N5',rule:'に marks the destination with movement verbs like 行く (go), 来る (come), 帰る (return).',ex:[{j:'がっこうにいきます。',r:'Gakkou ni ikimasu.',e:'I go to school.'},{j:'うちにかえります。',r:'Uchi ni kaerimasu.',e:'I return home.'}]},
-  {p:'〜で〜ます',e:'Do [verb] at/by [place/means]',l:'N5',rule:'で marks where an action happens, or the means/tool used to perform it.',ex:[{j:'としょかんでよみます。',r:'Toshokan de yomimasu.',e:'I read at the library.'},{j:'バスでいきます。',r:'Basu de ikimasu.',e:'I go by bus.'}]},
-  {p:'〜も',e:'Also / too',l:'N5',rule:'も replaces は or が to mean "also" or "too". It adds the subject to a statement already made.',ex:[{j:'わたしもがくせいです。',r:'Watashi mo gakusei desu.',e:'I am also a student.'},{j:'これもいいです。',r:'Kore mo ii desu.',e:'This is also good.'}]},
-  {p:'〜ません',e:'Do not [verb]',l:'N5',rule:'Replace ます with ません to make a polite negative sentence.',ex:[{j:'わかりません。',r:'Wakarimasen.',e:'I don\'t understand.'},{j:'たべません。',r:'Tabemasen.',e:'I don\'t eat.'}]},
-  {p:'〜たい',e:'Want to [verb]',l:'N5',rule:'Attach たい to the verb stem (drop ます) to express desire. Conjugates like an い-adjective.',ex:[{j:'にほんごをはなしたいです。',r:'Nihongo wo hanashitai desu.',e:'I want to speak Japanese.'},{j:'すしをたべたい。',r:'Sushi wo tabetai.',e:'I want to eat sushi.'}]},
-  {p:'〜てください',e:'Please do [verb]',l:'N5',rule:'て-form of the verb + ください is a polite request. The て-form changes by verb type.',ex:[{j:'みてください。',r:'Mite kudasai.',e:'Please look.'},{j:'まってください。',r:'Matte kudasai.',e:'Please wait.'}]},
-  {p:'〜ています',e:'Is doing / in a state of',l:'N5',rule:'て-form + います describes an ongoing action or a resulting state still in effect.',ex:[{j:'いまたべています。',r:'Ima tabete imasu.',e:'I am eating now.'},{j:'にほんごをべんきょうしています。',r:'Nihongo wo benkyou shite imasu.',e:'I am studying Japanese.'}]},
-  {p:'〜から〜まで',e:'From [X] to [Y]',l:'N5',rule:'から = from, まで = until/to. Used for time ranges and distances.',ex:[{j:'くじからごじまではたらきます。',r:'Ku-ji kara go-ji made hatarakimasu.',e:'I work from 9 to 5.'},{j:'えきからがっこうまであるきます。',r:'Eki kara gakkou made arukimasu.',e:'I walk from the station to school.'}]},
-  {p:'〜ましょう',e:"Let's [verb]",l:'N5',rule:'Replace ます with ましょう to suggest doing something together with the listener.',ex:[{j:'たべましょう！',r:'Tabemashou!',e:"Let's eat!"},{j:'いっしょにいきましょう。',r:'Issho ni ikimashou.',e:"Let's go together."}]},
+const GRAMMAR=[
+  {p:'〜は〜です',e:'[Topic] is [noun]',l:'N5',rule:'は (wa) marks the topic. です (desu) is "is/am/are".',ex:[{j:'わたしはがくせいです。',r:'Watashi wa gakusei desu.',e:'I am a student.'},{j:'これはほんです。',r:'Kore wa hon desu.',e:'This is a book.'}]},
+  {p:'〜が好きです',e:'I like [noun]',l:'N5',rule:'が marks the object of 好き (like) / 嫌い (dislike).',ex:[{j:'すしがすきです。',r:'Sushi ga suki desu.',e:'I like sushi.'},{j:'にほんごがすきです。',r:'Nihongo ga suki desu.',e:'I like Japanese.'}]},
+  {p:'〜を〜ます',e:'Do [verb] to [object]',l:'N5',rule:'を marks the direct object. Verb + ます = polite present/future.',ex:[{j:'ほんをよみます。',r:'Hon wo yomimasu.',e:'I read a book.'},{j:'みずをのみます。',r:'Mizu wo nomimasu.',e:'I drink water.'}]},
+  {p:'〜に行きます',e:'Go to [place]',l:'N5',rule:'に marks destination with movement verbs 行く/来る.',ex:[{j:'がっこうにいきます。',r:'Gakkou ni ikimasu.',e:'I go to school.'},{j:'うちにかえります。',r:'Uchi ni kaerimasu.',e:'I return home.'}]},
+  {p:'〜で〜ます',e:'Do [verb] at/by [place/means]',l:'N5',rule:'で marks where an action happens, or the means used.',ex:[{j:'としょかんでよみます。',r:'Toshokan de yomimasu.',e:'I read at the library.'},{j:'バスでいきます。',r:'Basu de ikimasu.',e:'I go by bus.'}]},
+  {p:'〜も',e:'Also / too',l:'N5',rule:'も replaces は or が to mean "also" or "too".',ex:[{j:'わたしもがくせいです。',r:'Watashi mo gakusei desu.',e:'I am also a student.'}]},
+  {p:'〜ません',e:'Do not [verb]',l:'N5',rule:'Replace ます with ません for polite negative.',ex:[{j:'わかりません。',r:'Wakarimasen.',e:'I don't understand.'},{j:'たべません。',r:'Tabemasen.',e:'I don't eat.'}]},
+  {p:'〜たい',e:'Want to [verb]',l:'N5',rule:'Attach たい to verb stem to express desire.',ex:[{j:'にほんごをはなしたいです。',r:'Nihongo wo hanashitai desu.',e:'I want to speak Japanese.'}]},
+  {p:'〜てください',e:'Please do [verb]',l:'N5',rule:'て-form + ください = polite request.',ex:[{j:'みてください。',r:'Mite kudasai.',e:'Please look.'},{j:'まってください。',r:'Matte kudasai.',e:'Please wait.'}]},
+  {p:'〜ています',e:'Is doing / in a state of',l:'N5',rule:'て-form + います = ongoing action or resulting state.',ex:[{j:'いまたべています。',r:'Ima tabete imasu.',e:'I am eating now.'}]},
+  {p:'〜から〜まで',e:'From [X] to [Y]',l:'N5',rule:'から = from, まで = until/to. Time ranges and distances.',ex:[{j:'くじからごじまではたらきます。',r:'Ku-ji kara go-ji made hatarakimasu.',e:'I work from 9 to 5.'}]},
+  {p:'〜ましょう',e:"Let's [verb]",l:'N5',rule:'Replace ます with ましょう to suggest doing something together.',ex:[{j:'たべましょう！',r:'Tabemashou!',e:"Let's eat!"},{j:'いっしょにいきましょう。',r:'Issho ni ikimashou.',e:"Let's go together."}]},
 ];
 
-// ═══════════════════════════════════════════
-//  READING PASSAGES
-// ═══════════════════════════════════════════
-const PASSAGES = [
+const PASSAGES=[
   {id:'intro',title:'はじめまして — Nice to Meet You',
-   text:[
-     {j:'わたし',r:'watashi',e:'I'},' ',{j:'は',r:'wa',e:'(topic)'},' ',{j:'たなか',r:'Tanaka',e:'Tanaka'},' ',{j:'です',r:'desu',e:'am'},'. ',
-     {j:'にほんじん',r:'Nihonjin',e:'Japanese person'},' ',{j:'です',r:'desu',e:'I am'},'. ','\n',
-     {j:'まいにち',r:'mainichi',e:'every day'},' ',{j:'がっこう',r:'gakkou',e:'school'},' ',{j:'で',r:'de',e:'at'},' ',
-     {j:'にほんご',r:'nihongo',e:'Japanese'},' ',{j:'を',r:'wo',e:'(object)'},' ',{j:'べんきょうします',r:'benkyou shimasu',e:'I study'},'. ',
-     {j:'むずかしい',r:'muzukashii',e:'difficult'},' ',{j:'ですが',r:'desu ga',e:'but'},', ',
-     {j:'たのしい',r:'tanoshii',e:'fun'},' ',{j:'です',r:'desu',e:'it is'},'.',
-   ],
-   qs:[
-     {q:'Where does Tanaka study?',opts:['At home','At school','At the library','At a café'],ans:1,explain:'がっこうで = "at school"'},
-     {q:'How does Tanaka feel about Japanese?',opts:['Easy and boring','Difficult but fun','Easy and fun','Too difficult'],ans:1,explain:'むずかしいですが、たのしいです = "Difficult but fun"'},
-   ]},
+   text:[{j:'わたし',r:'watashi',e:'I'},{j:'は',r:'wa',e:'(topic)'},{j:'たなか',r:'Tanaka',e:'Tanaka'},{j:'です。',r:'desu.',e:'am.'},' ',{j:'にほんじん',r:'Nihonjin',e:'Japanese'},{j:'です。',r:'desu.',e:'I am Japanese.'},'\
+',{j:'まいにち',r:'mainichi',e:'every day'},{j:'がっこう',r:'gakkou',e:'school'},{j:'で',r:'de',e:'at'},{j:'にほんご',r:'nihongo',e:'Japanese'},{j:'を',r:'wo',e:'(obj)'},{j:'べんきょうします。',r:'benkyou shimasu.',e:'I study.'},' ',{j:'むずかしい',r:'muzukashii',e:'difficult'},{j:'ですが、',r:'desu ga,',e:'is, but'},{j:'たのしい',r:'tanoshii',e:'fun'},{j:'です。',r:'desu.',e:'it is.'}],
+   qs:[{q:'Where does Tanaka study?',opts:['At home','At school','Library','Cafe'],ans:1,explain:'がっこうで = "at school"'},
+       {q:'How does Tanaka feel about Japanese?',opts:['Easy & boring','Difficult but fun','Easy & fun','Too hard'],ans:1,explain:'むずかしいですが、たのしいです = "Difficult but fun"'}]},
   {id:'weather',title:'てんき — The Weather',
-   text:[
-     {j:'きょう',r:'kyou',e:'today'},' ',{j:'は',r:'wa',e:'(topic)'},' ',{j:'いい',r:'ii',e:'good'},' ',{j:'てんき',r:'tenki',e:'weather'},' ',{j:'です',r:'desu',e:'it is'},'. ',
-     {j:'そと',r:'soto',e:'outside'},' ',{j:'は',r:'wa',e:'(topic)'},' ',{j:'あたたかい',r:'atatakai',e:'warm'},' ',{j:'です',r:'desu',e:'it is'},'.','\n',
-     {j:'こうえん',r:'kouen',e:'park'},' ',{j:'で',r:'de',e:'at'},' ',{j:'さんぽ',r:'sanpo',e:'a walk'},' ',{j:'を',r:'wo',e:'(object)'},' ',{j:'します',r:'shimasu',e:'I take'},'.',
-   ],
-   qs:[
-     {q:'What is the weather like?',opts:['Rainy','Cold','Good / Fine','Cloudy'],ans:2,explain:'いいてんきです = "good weather"'},
-     {q:'What activity will the narrator do?',opts:['Shopping','Go to school','Take a walk in the park','Cook dinner'],ans:2,explain:'こうえんでさんぽをします = "take a walk in the park"'},
-   ]},
+   text:[{j:'きょう',r:'kyou',e:'today'},{j:'は',r:'wa',e:'(topic)'},{j:'いい',r:'ii',e:'good'},{j:'てんき',r:'tenki',e:'weather'},{j:'です。',r:'desu.',e:'It is.'},' ',{j:'そと',r:'soto',e:'outside'},{j:'は',r:'wa',e:'(topic)'},{j:'あたたかい',r:'atatakai',e:'warm'},{j:'です。',r:'desu.',e:'It is.'},'\
+',{j:'こうえん',r:'kouen',e:'park'},{j:'で',r:'de',e:'at'},{j:'さんぽ',r:'sanpo',e:'walk'},{j:'を',r:'wo',e:'(obj)'},{j:'します。',r:'shimasu.',e:'I take a walk.'}],
+   qs:[{q:'What is the weather like?',opts:['Rainy','Cold','Good / Fine','Cloudy'],ans:2,explain:'いいてんきです = "good weather"'},
+       {q:'What will the narrator do?',opts:['Shopping','Go to school','Take a walk','Cook'],ans:2,explain:'さんぽをします = "take a walk"'}]},
   {id:'food',title:'レストランで — At the Restaurant',
-   text:[
-     {j:'レストラン',r:'resutoran',e:'restaurant'},' ',{j:'で',r:'de',e:'at'},' ',{j:'ひるごはん',r:'hirugohan',e:'lunch'},' ',{j:'を',r:'wo',e:'(object)'},' ',{j:'たべます',r:'tabemasu',e:'I eat'},'.','\n',
-     {j:'すし',r:'sushi',e:'sushi'},' ',{j:'が',r:'ga',e:'(subject)'},' ',{j:'おいしそう',r:'oishisou',e:'looks delicious'},' ',{j:'です',r:'desu',e:'it does'},'.','\n',
-     {j:'すみません',r:'Sumimasen',e:'Excuse me'},', ',{j:'すし',r:'sushi',e:'sushi'},' ',{j:'を',r:'wo',e:'(object)'},' ',{j:'ひとつ',r:'hitotsu',e:'one'},' ',{j:'ください',r:'kudasai',e:'please'},'.',
-   ],
-   qs:[
-     {q:'What meal is being eaten?',opts:['Breakfast','Lunch','Dinner','A snack'],ans:1,explain:'ひるごはん = "lunch"'},
-     {q:'What is ordered?',opts:['Ramen','Tempura','Sushi','Bread'],ans:2,explain:'すしをひとつください = "one sushi please"'},
-   ]},
+   text:[{j:'レストラン',r:'resutoran',e:'restaurant'},{j:'で',r:'de',e:'at'},{j:'ひるごはん',r:'hirugohan',e:'lunch'},{j:'を',r:'wo',e:'(obj)'},{j:'たべます。',r:'tabemasu.',e:'I eat.'},'\
+',{j:'すし',r:'sushi',e:'sushi'},{j:'が',r:'ga',e:'(subj)'},{j:'おいしそう',r:'oishisou',e:'looks delicious'},{j:'です。',r:'desu.',e:'It does.'},'\
+',{j:'すみません、',r:'Sumimasen,',e:'Excuse me,'},{j:'すしをひとつ',r:'sushi wo hitotsu',e:'one sushi'},{j:'ください。',r:'kudasai.',e:'please.'}],
+   qs:[{q:'What meal is being eaten?',opts:['Breakfast','Lunch','Dinner','Snack'],ans:1,explain:'ひるごはん = "lunch"'},
+       {q:'What is ordered?',opts:['Ramen','Tempura','Sushi','Bread'],ans:2,explain:'すしをひとつください = "one sushi please"'}]},
 ];
 
 // ═══════════════════════════════════════════
-//  AUTH — THE ONLY auth entry point
+//  AUTH — simple username + password, no Supabase auth
 // ═══════════════════════════════════════════
+
 function switchAuthTab(tab) {
-  document.getElementById('tab-login').classList.toggle('active', tab === 'login');
+  document.getElementById('tab-login').classList.toggle('active',  tab === 'login');
   document.getElementById('tab-signup').classList.toggle('active', tab === 'signup');
-  document.getElementById('panel-login').classList.toggle('hidden', tab !== 'login');
+  document.getElementById('panel-login').classList.toggle('hidden',  tab !== 'login');
   document.getElementById('panel-signup').classList.toggle('hidden', tab !== 'signup');
 }
 
+// SHA-256 hash of password+salt using Web Crypto
+async function hashPassword(password, salt) {
+  const enc  = new TextEncoder();
+  const data = enc.encode(password + salt);
+  const buf  = await crypto.subtle.digest('SHA-256', data);
+  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
+}
+function randomSalt() {
+  return Array.from(crypto.getRandomValues(new Uint8Array(16)))
+    .map(b => b.toString(16).padStart(2,'0')).join('');
+}
+
+// Wrap any Supabase call with a timeout so nothing hangs forever
+function withTimeout(promise, ms = 8000) {
+  const t = new Promise((_, reject) =>
+    setTimeout(() => reject(new Error('Request timed out after ' + ms + 'ms')), ms)
+  );
+  return Promise.race([promise, t]).catch(e => ({ data: null, error: { message: e.message } }));
+}
+
 async function doLogin() {
-  const email    = document.getElementById('login-email').value.trim();
+  const username = document.getElementById('login-username').value.trim().toLowerCase();
   const password = document.getElementById('login-password').value;
   const btn = document.getElementById('login-btn');
   const err = document.getElementById('login-err');
-  if (!email || !password) { err.textContent = 'Please fill in all fields.'; return; }
+  if (!username || !password) { err.textContent = 'Please fill in all fields.'; return; }
   err.textContent = '';
   btn.disabled = true;
   btn.innerHTML = '<span class="spinner"></span> Signing in…';
-  const { error } = await SB.auth.signInWithPassword({ email, password });
-  if (error) {
-    err.textContent = error.message;
-    btn.disabled = false;
-    btn.textContent = 'Sign in';
+
+  const { data: users, error } = await withTimeout(
+    SB.from('users').select('id,username,password_hash,salt').eq('username', username).limit(1)
+  );
+  if (error || !users?.length) {
+    err.textContent = 'Username not found.';
+    btn.disabled = false; btn.textContent = 'Sign in'; return;
   }
-  // ✅ On success: onAuthStateChange fires and takes over
+  const user = users[0];
+  const hash = await hashPassword(password, user.salt);
+  if (hash !== user.password_hash) {
+    err.textContent = 'Wrong password.';
+    btn.disabled = false; btn.textContent = 'Sign in'; return;
+  }
+  USER = { id: user.id, username: user.username };
+  await bootApp();
 }
 
 async function doSignup() {
-  const username = document.getElementById('su-username').value.trim();
-  const email    = document.getElementById('su-email').value.trim();
+  const username = document.getElementById('su-username').value.trim().toLowerCase();
   const password = document.getElementById('su-password').value;
   const btn = document.getElementById('su-btn');
   const msg = document.getElementById('su-msg');
-  if (!username || !email || !password) { msg.textContent = 'Please fill in all fields.'; msg.className = 'auth-err'; return; }
-  if (password.length < 6) { msg.textContent = 'Password must be at least 6 characters.'; msg.className = 'auth-err'; return; }
+  if (!username || !password)   { msg.textContent = 'Please fill in all fields.'; msg.className = 'auth-err'; return; }
+  if (username.length < 3)      { msg.textContent = 'Username must be at least 3 characters.'; msg.className = 'auth-err'; return; }
+  if (password.length < 6)      { msg.textContent = 'Password must be at least 6 characters.'; msg.className = 'auth-err'; return; }
+  if (!/^[a-z0-9_]+$/.test(username)) { msg.textContent = 'Username: letters, numbers and _ only.'; msg.className = 'auth-err'; return; }
   msg.textContent = ''; msg.className = 'auth-err';
   btn.disabled = true;
   btn.innerHTML = '<span class="spinner"></span> Creating account…';
-  const { error } = await SB.auth.signUp({
-    email, password,
-    options: { data: { username, display_name: username } }
-  });
-  if (error) {
-    msg.textContent = error.message;
-    btn.disabled = false;
-    btn.textContent = 'Create account';
-  } else {
-    msg.className = 'auth-ok';
-    msg.textContent = '✓ Check your email to confirm, then sign in!';
-    btn.textContent = 'Check your email ✓';
+
+  // Check username not taken
+  const { data: existing } = await withTimeout(
+    SB.from('users').select('id').eq('username', username).limit(1)
+  );
+  if (existing?.length) {
+    msg.textContent = 'Username already taken — try another.';
+    btn.disabled = false; btn.textContent = 'Create account'; return;
   }
+
+  const id   = crypto.randomUUID();
+  const salt = randomSalt();
+  const hash = await hashPassword(password, salt);
+
+  const { error: uErr } = await withTimeout(
+    SB.from('users').insert({ id, username, password_hash: hash, salt })
+  );
+  if (uErr) {
+    msg.textContent = 'Error: ' + uErr.message;
+    btn.disabled = false; btn.textContent = 'Create account'; return;
+  }
+  await withTimeout(
+    SB.from('profiles').insert({ id, username, display_name: username, avatar_emoji: '??', active_character: 'cyrene' })
+  );
+
+  USER = { id, username };
+  await bootApp();
 }
 
-async function doLogout() {
+function doLogout() {
   closeCompanionModal();
-  if (RT_CHANNEL) { SB.removeChannel(RT_CHANNEL); RT_CHANNEL = null; }
-  // Force UI reset immediately — don't wait for onAuthStateChange
   USER = null; PROFILE = null; KANA_P = {}; VOCAB_P = {};
+  try { localStorage.removeItem('lwm_session'); } catch(e) {}
   document.getElementById('main-app').classList.add('hidden');
   document.getElementById('auth-screen').classList.remove('hidden');
+  document.getElementById('login-username').value = '';
+  document.getElementById('login-password').value = '';
+  document.getElementById('login-err').textContent = '';
   const btn = document.getElementById('login-btn');
   if (btn) { btn.disabled = false; btn.textContent = 'Sign in'; }
-  document.getElementById('login-err').textContent = '';
-  // Sign out in background
-  SB.auth.signOut().catch(() => {});
+  switchAuthTab('login');
 }
 
-// ── THE SINGLE AUTH LISTENER ───────────────
-SB.auth.onAuthStateChange(async (event, session) => {
-  if (session && session.user) {
-    USER = session.user;
-    // Show app, hide auth
-    document.getElementById('auth-screen').classList.add('hidden');
-    document.getElementById('main-app').classList.remove('hidden');
-    // Load data then render
-    // Show app structure immediately, data loads async
-    document.getElementById('main-app').classList.remove('hidden');
-    setupRealtime();
-    // Show home skeleton first
-    setPage('home');
-    // Load data — loadUserData will re-render home when done
-    await loadUserData();
-    // Show welcome modal after everything is ready
-    setTimeout(() => openCompanionModal(), 400);
-  } else {
-    USER    = null;
-    PROFILE = null;
-    // Hide app, show auth, reset form
-    document.getElementById('main-app').classList.add('hidden');
-    document.getElementById('auth-screen').classList.remove('hidden');
-    const btn = document.getElementById('login-btn');
-    if (btn) { btn.disabled = false; btn.textContent = 'Sign in'; }
-  }
-});
+async function bootApp() {
+  // Persist session
+  try { localStorage.setItem('lwm_session', JSON.stringify({ id: USER.id, username: USER.username, ts: Date.now() })); } catch(e) {}
+  document.getElementById('auth-screen').classList.add('hidden');
+  document.getElementById('main-app').classList.remove('hidden');
+  setPage('home');
+  await loadUserData();
+  setTimeout(() => openCompanionModal(), 400);
+}
+
+// Restore session on page load
+(function restoreSession() {
+  try {
+    const saved = localStorage.getItem('lwm_session');
+    if (!saved) return;
+    const { id, username, ts } = JSON.parse(saved);
+    if (Date.now() - ts > 7 * 86400000) { localStorage.removeItem('lwm_session'); return; }
+    USER = { id, username };
+    bootApp();
+  } catch(e) { try { localStorage.removeItem('lwm_session'); } catch(e2) {} }
+})();
 
 // ═══════════════════════════════════════════
 //  DATA LOADING
 // ═══════════════════════════════════════════
 async function loadUserData() {
   setSyncStatus('⟳', false);
-  
-  // Load profile
-  const { data: prof, error: profError } = await SB.from('profiles')
-    .select('*')
-    .eq('id', USER.id)
-    .single();
 
-  if (profError) console.error("Profile load error:", profError);
-
+  const { data: prof } = await withTimeout(
+    SB.from('profiles').select('*').eq('id', USER.id).single()
+  );
   if (prof) {
     PROFILE = prof;
     ACTIVE_CHAR = prof.active_character || 'cyrene';
-    console.log(`Loaded character: ${ACTIVE_CHAR}`);
-  } else {
-    console.warn("No profile found - using default character");
-    ACTIVE_CHAR = 'cyrene';
   }
 
-  // Load kana progress...
-  const { data: kp } = await SB.from('progress_kana').select('*').eq('user_id', USER.id);
+  const { data: kp } = await withTimeout(
+    SB.from('progress_kana').select('*').eq('user_id', USER.id)
+  );
   KANA_P = {};
-  (kp || []).forEach(r => { 
-    KANA_P[r.kana_key] = { correct: r.correct || 0, wrong: r.wrong || 0, seen: true }; 
+  (kp || []).forEach(r => {
+    KANA_P[r.kana_key] = { correct: r.correct || 0, wrong: r.wrong || 0, seen: true };
   });
 
-  // Load vocab progress...
-  const { data: vp } = await SB.from('progress_vocab').select('*').eq('user_id', USER.id);
+  const { data: vp } = await withTimeout(
+    SB.from('progress_vocab').select('*').eq('user_id', USER.id)
+  );
   VOCAB_P = {};
   (vp || []).forEach(r => {
     VOCAB_P[r.vocab_index] = {
-      correct: r.correct || 0, 
-      wrong: r.wrong || 0,
+      correct: r.correct || 0, wrong: r.wrong || 0,
       ease: parseFloat(r.ease) || 2.5,
       interval_ms: r.interval_ms || 0,
       next_review: r.next_review ? new Date(r.next_review).getTime() : 0,
@@ -937,48 +947,40 @@ async function loadUserData() {
 
   setSyncStatus('', false);
   updateHUD();
-
-  if (document.getElementById('page-home')?.classList.contains('active')) {
-    renderHome();
-  }
+  if (document.getElementById('page-home')?.classList.contains('active')) renderHome();
 }
 
-function setSyncStatus(msg) {
-  const el = document.getElementById('sync-dot');
-  if (el) el.textContent = msg;
-}
-
-// ═══════════════════════════════════════════
 //  XP / STREAK / HUD
 // ═══════════════════════════════════════════
 function updateHUD() {
   if (!PROFILE) return;
-  const xp     = PROFILE.xp || 0;
-  const lvl    = PROFILE.level || 1;
+  const xp = PROFILE.xp || 0;
+  const lvl = PROFILE.level || 1;
   const streak = PROFILE.streak || 0;
-  document.getElementById('xp-disp').textContent     = xp;
+  document.getElementById('xp-disp').textContent = xp;
   document.getElementById('streak-disp').textContent = streak;
-  document.getElementById('level-disp').textContent  = lvl;
+  document.getElementById('level-disp').textContent = lvl;
   const pct = (xp % 200) / 200;
-  document.getElementById('xp-arc').style.strokeDashoffset = 87.96 * (1 - pct);
+  document.getElementById('xp-arc').style.strokeDashoffset = 94.2 * (1 - pct);
 }
 
 async function addXP(amount) {
   if (!PROFILE) return;
-  const newXp  = (PROFILE.xp || 0) + amount;
+  const newXp = (PROFILE.xp || 0) + amount;
   const newLvl = Math.floor(newXp / 200) + 1;
-  if (newLvl > (PROFILE.level || 1)) logActivity('level_up', { level: newLvl });
+  const lvledUp = newLvl > (PROFILE.level || 1);
   await SB.from('profiles').update({ xp: newXp, level: newLvl }).eq('id', USER.id);
   PROFILE.xp = newXp; PROFILE.level = newLvl;
+  if (lvledUp) logActivity('level_up', { level: newLvl });
   updateHUD();
 }
 
 async function checkStreak() {
   if (!PROFILE) return;
   const today = new Date().toDateString();
-  const last  = PROFILE.last_study_date ? new Date(PROFILE.last_study_date).toDateString() : null;
+  const last = PROFILE.last_study_date ? new Date(PROFILE.last_study_date).toDateString() : null;
   if (last === today) return;
-  const yest      = new Date(Date.now() - 86400000).toDateString();
+  const yest = new Date(Date.now() - 86400000).toDateString();
   const newStreak = last === yest ? (PROFILE.streak || 0) + 1 : 1;
   await SB.from('profiles').update({ streak: newStreak, last_study_date: new Date().toISOString().split('T')[0] }).eq('id', USER.id);
   PROFILE.streak = newStreak;
@@ -994,86 +996,69 @@ async function logActivity(type, payload = {}) {
 // ═══════════════════════════════════════════
 //  NAVIGATION
 // ═══════════════════════════════════════════
-function getTimeTitle() {
-  const h = new Date().getHours();
-  if (h >= 5  && h < 11) return 'おはようございます！';
-  if (h >= 11 && h < 17) return 'こんにちは！';
-  if (h >= 17 && h < 22) return 'こんばんは！';
-  return 'お疲れ様！';
-}
-
 const PAGE_META = {
-  home:     { title: () => getTimeTitle(), sub: 'N5 · Beginner' },
-  kana:     { title: 'Kana Mastery',    sub: 'Hiragana & Katakana' },
-  vocab:    { title: 'Vocabulary',      sub: 'N5 Core Vocab' },
-  grammar:  { title: 'Grammar',         sub: 'N5 Patterns' },
-  reading:  { title: 'Reading',         sub: 'N5 Passages' },
-  quiz:     { title: 'JLPT Quiz',       sub: 'Practice Tests' },
-  friends:  { title: 'Friends',         sub: 'Study Together' },
-  settings: { title: 'Settings',        sub: 'Preferences' },
+  home: { title: 'おはよう！', sub: 'N5 · Beginner' },
+  kana: { title: 'Kana Mastery', sub: 'Hiragana & Katakana' },
+  vocab: { title: 'Vocabulary', sub: 'N5 Core Vocab' },
+  grammar: { title: 'Grammar', sub: 'N5 Patterns' },
+  reading: { title: 'Reading', sub: 'N5 Passages' },
+  quiz: { title: 'JLPT Quiz', sub: 'Practice Tests' },
+  friends: { title: 'Friends', sub: 'Study Together' },
+  settings: { title: 'Settings', sub: 'Preferences' },
 };
 
 function setPage(page) {
   Object.keys(PAGE_META).forEach(p => {
-    document.getElementById('page-'  + p)?.classList.toggle('active', p === page);
-    document.getElementById('nb-'    + p)?.classList.toggle('active', p === page);
+    document.getElementById('page-' + p)?.classList.toggle('active', p === page);
+    document.getElementById('nb-' + p)?.classList.toggle('active', p === page);
   });
   const m = PAGE_META[page] || {};
-  document.getElementById('topbar-title').textContent = typeof m.title === 'function' ? m.title() : (m.title || page);
-  document.getElementById('topbar-sub').textContent   = m.sub   || '';
-  if (page === 'home')     renderHome();
-  if (page === 'kana')     renderKanaGrids();
-  if (page === 'vocab')    initVocabFC();
-  if (page === 'grammar')  renderGrammar();
-  if (page === 'reading')  renderPassageList();
-  if (page === 'quiz')     renderQuizMenu();
+  document.getElementById('topbar-title').textContent = m.title || page;
+  document.getElementById('topbar-sub').textContent = m.sub || '';
+  if (page === 'home') renderHome();
+  if (page === 'kana') renderKanaGrids();
+  if (page === 'vocab') initVocabFC();
+  if (page === 'grammar') renderGrammar();
+  if (page === 'reading') renderPassageList();
+  if (page === 'quiz') renderQuizMenu();
   if (page === 'settings') renderSettings();
-  if (page === 'friends')  loadFriendsActivity(false);
+  if (page === 'friends') { loadFriendsActivity(); }
 }
 
 // ═══════════════════════════════════════════
 //  HOME
 // ═══════════════════════════════════════════
 function renderHome() {
-  if (!PROFILE) {
-    // Show skeleton state — character known from CHARS default, data still loading
-    const c = getChar();
-    renderPortrait(document.getElementById('home-portrait'), ACTIVE_CHAR);
-    const nameEl = document.getElementById('home-char-name');
-    if (nameEl) { nameEl.textContent = c.name; nameEl.style.color = c.nameColor; }
-    const msgEl = document.getElementById('companion-msg');
-    if (msgEl) msgEl.textContent = charSay('greetings');
-    return;
-  }
+  if (!PROFILE) return;
   const c = getChar();
   renderPortrait(document.getElementById('home-portrait'), ACTIVE_CHAR);
-  const nameEl = document.getElementById('home-char-name');
-  nameEl.textContent  = c.name;
-  nameEl.style.color  = c.nameColor;
+  document.getElementById('home-char-name').textContent = c.name;
+  document.getElementById('home-char-name').style.color = c.nameColor;
   document.getElementById('companion-msg').textContent = charSay('greetings');
 
-  const now      = Date.now();
-  const due      = VOCAB.filter((_, i) => { const p = VOCAB_P[i]; return !p || p.next_review <= now; }).length;
+  const now = Date.now();
+  const due = VOCAB.filter((_, i) => { const p = VOCAB_P[i]; return !p || p.next_review <= now; }).length;
   const mastered = Object.values(VOCAB_P).filter(p => p.interval_ms > 3000000).length;
+  const reviewed = PROFILE.reviewed_today || 0;
+  const acc = (PROFILE.total_today || 0) > 0 ? Math.round((PROFILE.correct_today || 0) / PROFILE.total_today * 100) : 0;
 
-  document.getElementById('s-reviewed').textContent = PROFILE.reviewed_today || 0;
-  document.getElementById('s-accuracy').textContent = (PROFILE.total_today || 0) > 0
-    ? Math.round((PROFILE.correct_today || 0) / PROFILE.total_today * 100) + '%' : '0%';
-  document.getElementById('s-due').textContent      = due;
+  document.getElementById('s-reviewed').textContent = reviewed;
+  document.getElementById('s-accuracy').textContent = acc + '%';
+  document.getElementById('s-due').textContent = due;
   document.getElementById('s-mastered').textContent = mastered;
 
   const hM = HG.filter(k => (KANA_P[k.r] || {}).correct >= 3).length;
   const kM = KT.filter(k => (KANA_P[k.r] || {}).correct >= 3).length;
-  document.getElementById('hp-lbl').textContent       = hM + '/46';
-  document.getElementById('kp-lbl').textContent       = kM + '/46';
-  document.getElementById('hp-bar').style.width       = Math.round(hM / 46 * 100) + '%';
-  document.getElementById('kp-bar').style.width       = Math.round(kM / 46 * 100) + '%';
+  document.getElementById('hp-lbl').textContent = hM + '/46';
+  document.getElementById('kp-lbl').textContent = kM + '/46';
+  document.getElementById('hp-bar').style.width = Math.round(hM / 46 * 100) + '%';
+  document.getElementById('kp-bar').style.width = Math.round(kM / 46 * 100) + '%';
 
-  const kanaDue = [...HG,...KT].filter(k => { const p = KANA_P[k.r]; return !p || p.correct < 3; }).length;
-  document.getElementById('mc-kana').textContent = kanaDue > 0 ? kanaDue + ' to review' : 'All mastered! 🎉';
+  const kanaDue = [...HG, ...KT].filter(k => { const p = KANA_P[k.r]; return !p || p.correct < 3; }).length;
+  document.getElementById('mc-kana').textContent = kanaDue > 0 ? kanaDue + ' to review' : 'All mastered! ??';
 
   checkStreak();
-  loadFriendsActivity(true);
+  loadFriendsActivity(true); // true = home feed only
 }
 
 // ═══════════════════════════════════════════
@@ -1081,233 +1066,196 @@ function renderHome() {
 // ═══════════════════════════════════════════
 function srsNext(prog, rating) {
   const ease = prog.ease || 2.5;
-  if (rating === 0) return { interval_ms: 60000,   ease: Math.max(1.3, ease - 0.20), next_review: Date.now() + 60000 };
-  if (rating === 1) return { interval_ms: 600000,  ease: Math.max(1.3, ease - 0.15), next_review: Date.now() + 600000 };
-  const iv = rating === 3
-    ? (prog.interval_ms || 86400000) * ease * 1.3
-    : (prog.interval_ms || 86400000) * ease;
+  if (rating === 0) return { interval_ms: 60000, ease: Math.max(1.3, ease - 0.2), next_review: Date.now() + 60000 };
+  if (rating === 1) return { interval_ms: 600000, ease: Math.max(1.3, ease - 0.15), next_review: Date.now() + 600000 };
+  const iv = rating === 3 ? (prog.interval_ms || 86400000) * ease * 1.3 : (prog.interval_ms || 86400000) * ease;
   return { interval_ms: iv, ease: Math.min(3.0, ease + (rating === 3 ? 0.15 : 0)), next_review: Date.now() + iv };
 }
 
 // ═══════════════════════════════════════════
 //  KANA
 // ═══════════════════════════════════════════
-
+let kQSet = [], kQIdx = 0, kQScore = 0;
 
 function renderKanaGrids() {
-  renderKanaGrid(HG, 'kt-h');
-  renderKanaGrid(KT, 'kt-k');
+  renderKanaGrid(HG, document.getElementById('kt-h'));
+  renderKanaGrid(KT, document.getElementById('kt-k'));
 }
 
-function renderKanaGrid(set, elId) {
-  const el = document.getElementById(elId);
+function renderKanaGrid(set, el) {
   if (!el) return;
-  const isH = set === HG;
-  const quizTab = isH ? 'hq' : 'kq';
-  const quizTabEl = isH ? 'ktab-hq' : 'ktab-kq';
-
-  let html = '<div style="font-size:11px;color:var(--ink3);margin-bottom:10px;display:flex;gap:14px;flex-wrap:wrap">'
-    + '<span>🟩 Mastered</span>'
-    + '<span>🟨 Learning</span>'
-    + '<span style="color:var(--plum)">🟪 Seen</span>'
-    + '<span>◻ New — click to study!</span>'
-    + '</div><div class="kana-grid">';
-
+  let html = '<div style="font-size:12px;color:var(--ink3);margin-bottom:12px"><span style="color:var(--green);font-weight:600">■</span> Mastered &nbsp;<span style="color:var(--gold);font-weight:600">■</span> Learning &nbsp;<span style="color:var(--ink3)">■</span> New</div><div class="kana-grid">';
   set.forEach(k => {
-    const p   = KANA_P[k.r] || {};
-    const mastered = p.correct >= 3;
-    const learning = p.correct >= 1;
-    const seen     = p.seen;
-    const isNew    = !seen && !learning && !mastered;
-    let cls = mastered ? 'mastered' : learning ? 'learning' : seen ? 'seen-kana' : 'new-kana';
-    // New chars are clickable to study; known chars just show status
-    const onclick = isNew ? `onclick="openKanaStudy('${k.k}','${k.r}','${isH ? 'Hiragana' : 'Katakana'}')"` : '';
-    const cursor  = isNew ? 'cursor:pointer' : '';
-    const title   = isNew ? `title="Click to study ${k.r}"` : '';
-    html += `<div class="kana-cell ${cls}" ${onclick} ${title} style="${cursor}"><div class="kana-char">${k.k}</div><div class="kana-rom">${p.seen || learning || mastered ? k.r : '?'}</div></div>`;
+    const p = KANA_P[k.r] || {};
+    const cls = p.correct >= 3 ? 'mastered' : p.correct >= 1 ? 'learning' : '';
+    html += `<div class="kana-cell ${cls}"><div class="kana-char">${k.k}</div><div class="kana-rom">${k.r}</div></div>`;
   });
-
-  const mastered = set.filter(k => (KANA_P[k.r] || {}).correct >= 3).length;
-  html += `</div>
-  <div style="margin-top:14px;display:flex;align-items:center;justify-content:space-between">
-    <span style="font-size:12px;color:var(--ink3)">${mastered} / ${set.length} mastered</span>
-    <button class="btn btn-primary btn-sm" onclick="kanaTab('${quizTab}', document.getElementById('${quizTabEl}'))">
-      Start ${isH ? 'Hiragana' : 'Katakana'} Quiz →
-    </button>
-  </div>`;
-
+  html += '</div><button class="btn btn-primary btn-sm" style="margin-top:8px" onclick="startKanaQuiz()">Quiz this set →</button>';
   el.innerHTML = html;
-}
-
-
-function openKanaStudy(char, romaji, script) {
-  window._kanaStudyChar   = char;
-  window._kanaStudyRomaji = romaji;
-  document.getElementById('ks-char').textContent   = char;
-  document.getElementById('ks-romaji').textContent = romaji;
-  document.getElementById('ks-script').textContent = script;
-  document.getElementById('ks-tip').textContent    = KANA_TIPS[romaji] || 'Trace the shape — connect it to the sound.';
-  document.getElementById('kana-study-overlay').classList.remove('hidden');
-  document.getElementById('kana-study-overlay').style.display = 'flex';
-  document.body.style.overflow = 'hidden';
-}
-
-function closeKanaStudy() {
-  document.getElementById('kana-study-overlay').classList.add('hidden');
-  document.getElementById('kana-study-overlay').style.display = '';
-  document.body.style.overflow = '';
-}
-
-function markKanaSeen() {
-  const romaji = window._kanaStudyRomaji;
-  if (!romaji) { closeKanaStudy(); return; }
-  // Mark as seen in local state
-  if (!KANA_P[romaji]) KANA_P[romaji] = { correct: 0, wrong: 0, seen: true };
-  else KANA_P[romaji].seen = true;
-  // Save to DB
- if (USER) {
-  SB.from('progress_kana')
-    .upsert({ 
-      user_id: USER.id, 
-      kana_key: romaji, 
-      correct: 0, 
-      wrong: 0,
-      next_review: new Date().toISOString(), 
-      updated_at: new Date().toISOString() 
-    }, { onConflict: 'user_id,kana_key' })
-    .then(({ error }) => {
-      if (error) console.error("Supabase Error:", error);
-    })
-    .catch((err) => console.error("Network/Unexpected Error:", err));
-}
-  closeKanaStudy();
-  // Re-render the active grid
-  renderKanaGrids();
 }
 
 function kanaTab(t, btn) {
   document.querySelectorAll('#page-kana .tab').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
-  const isQuiz = t === 'hq' || t === 'kq' || t === 'mixed';
   document.getElementById('kt-h').classList.toggle('hidden', t !== 'h');
   document.getElementById('kt-k').classList.toggle('hidden', t !== 'k');
-  document.getElementById('kt-q').classList.toggle('hidden', !isQuiz);
-  if (isQuiz) {
-    const set = t === 'hq' ? 'h' : t === 'kq' ? 'k' : 'mixed';
-    startKanaQuiz(set);
-  }
+  document.getElementById('kt-q').classList.toggle('hidden', t !== 'q');
+  if (t === 'q') startKanaQuiz();
 }
 
-function startKanaQuiz(set) {
-  kQCurrentSet = set;
-  const QUIZ_SIZE = 15;
-  const fullPool = set === 'h' ? [...HG] : set === 'k' ? [...KT] : [...HG, ...KT];
-  const pool = shuffle(fullPool).slice(0, QUIZ_SIZE);
-  kQSet   = shuffle(pool);
-  kQIdx   = 0;
-  kQScore = 0;
-  hideBubble('kq-bubble');
-  // Update set label
-  const labels = { h: 'Hiragana Quiz', k: 'Katakana Quiz', mixed: 'Mixed Quiz' };
-  document.getElementById('kq-set-label').textContent = labels[set] || 'Quiz';
+function startKanaQuiz() {
+  kQSet = shuffle([...HG, ...KT]);
+  kQIdx = 0; kQScore = 0;
   renderKQ();
 }
 
 function renderKQ() {
- // hideBubble('kq-bubble');
-
-  // Quiz complete
   if (kQIdx >= kQSet.length) {
-    const pct = kQSet.length > 0 ? kQScore / kQSet.length : 0;
-    document.getElementById('kq-char').textContent   = pct >= 0.8 ? '🏆' : pct >= 0.5 ? '😊' : '💪';
-    document.getElementById('kq-prompt').textContent = 'Complete!';
-    document.getElementById('kq-score').textContent  = kQScore + ' / ' + kQSet.length + ' correct';
-    const setLabel = kQCurrentSet === 'h' ? 'Hiragana' : kQCurrentSet === 'k' ? 'Katakana' : 'Mixed';
-    document.getElementById('kq-opts').innerHTML =
-      `<button class="btn btn-primary" style="grid-column:span 4" onclick="startKanaQuiz(kQCurrentSet)">Play Again (${setLabel})</button>`;
-    const msg = pct >= 0.8 ? charSay('quizGood') : pct >= 0.5 ? charSay('quizOk') : charSay('quizPoor');
-    setTimeout(() => openCompanionModal(msg), 400);
+    document.getElementById('kq-char').textContent = '??';
+    document.getElementById('kq-prompt').textContent = 'Done! Score: ' + kQScore + '/' + kQSet.length;
+    document.getElementById('kq-opts').innerHTML = '<button class="btn btn-primary" style="grid-column:span 4" onclick="startKanaQuiz()">Play Again</button>';
+    document.getElementById('kq-score').textContent = '';
     return;
   }
-
   const q = kQSet[kQIdx];
-  // Alternate direction: even = see char → pick romaji, odd = see romaji → pick char
-  const showChar = kQIdx % 2 === 0;
-  window._kqShowChar   = showChar;
-  window._kqRomaji     = q.r;
-  window._kqCharacter  = q.k;
-  window._kqCorrect    = showChar ? q.r : q.k;
-
-  document.getElementById('kq-char').textContent   = showChar ? q.k : q.r;
-  document.getElementById('kq-prompt').textContent = showChar ? 'What is the romaji reading?' : 'Which character matches this sound?';
-  document.getElementById('kq-score').textContent  = (kQIdx + 1) + ' / ' + kQSet.length;
-
-  // Build 4 options from same script only
-  const samePool = kQCurrentSet === 'h' ? HG : kQCurrentSet === 'k' ? KT : kQSet;
-  const wrongPool = shuffle(samePool.filter(x => (showChar ? x.r : x.k) !== window._kqCorrect));
-  const opts = shuffle([window._kqCorrect, ...wrongPool.slice(0, 3).map(x => showChar ? x.r : x.k)]);
-
+  document.getElementById('kq-char').textContent = q.k;
+  document.getElementById('kq-score').textContent = kQScore + '/' + kQIdx;
+  document.getElementById('kq-fb').style.display = 'none';
+  const opts = shuffle([q.r, ...shuffle(ALL_ROM.filter(r => r !== q.r)).slice(0, 3)]);
   document.getElementById('kq-opts').innerHTML = opts.map(o =>
-    `<div class="kana-opt" onclick="checkKQ(this, '${o}')">${o}</div>`
+    `<div class="kana-opt" onclick="checkKQ(this,'${o}','${q.r}','${q.k}')">${o}</div>`
   ).join('');
 }
 
-function checkKQ(el, chosen) {
-  hideBubble('kq-bubble');
-  // Lock options immediately
-  document.querySelectorAll('.kana-opt').forEach(o => {
-    o.style.pointerEvents = 'none';
-    o.classList.add('disabled');
-  });
-
-  const correct    = window._kqCorrect;
-  const isCorrect  = chosen === correct;
-  const showChar   = window._kqShowChar;
-  const answerNote = showChar
-    ? window._kqCharacter + ' = ' + window._kqRomaji
-    : window._kqRomaji + ' = ' + window._kqCharacter;
-
-  const prog = KANA_P[window._kqRomaji] || { correct: 0, wrong: 0 };
-
-  if (isCorrect) {
+async function checkKQ(el, chosen, correct, kana) {
+  document.querySelectorAll('.kana-opt').forEach(o => { o.classList.add('disabled'); o.style.pointerEvents = 'none'; });
+  const prog = KANA_P[correct] || { correct: 0, wrong: 0 };
+  const fb = document.getElementById('kq-fb');
+  if (chosen === correct) {
     el.classList.add('correct');
     prog.correct = (prog.correct || 0) + 1;
     kQScore++;
-    showBubble('kq-bubble', 'kq-bubble-portrait', 'kq-bubble-speech',
-      charSay('correct') + '  ✓ ' + answerNote, 'correct');
-    if (prog.correct === 3) logActivity('kana_mastered', {
-      kana: window._kqCharacter,
-      script: HG.some(h => h.r === window._kqRomaji) ? 'hiragana' : 'katakana'
-    }).catch(() => {});
+    fb.style.display = 'block'; fb.style.background = 'var(--green3)'; fb.style.color = 'var(--green)'; fb.style.padding = '10px 14px'; fb.style.borderRadius = 'var(--r)';
+    fb.textContent = charSay('correct') + ' ✓ ' + kana + ' = ' + correct;
+    await addXP(5);
+    if (prog.correct === 3) logActivity('kana_mastered', { kana, script: HG.some(h => h.r === correct) ? 'hiragana' : 'katakana' });
   } else {
-    // Highlight the correct answer
-    document.querySelectorAll('.kana-opt').forEach(o => {
-      if (o.textContent.trim() === correct) o.classList.add('correct');
-    });
     el.classList.add('wrong');
+    document.querySelectorAll('.kana-opt').forEach(o => { if (o.textContent.trim() === correct) o.classList.add('correct'); });
     prog.wrong = (prog.wrong || 0) + 1;
-    showBubble('kq-bubble', 'kq-bubble-portrait', 'kq-bubble-speech',
-      charSay('wrong') + '  ✗ ' + answerNote, 'wrong');
+    fb.style.display = 'block'; fb.style.background = 'var(--red3)'; fb.style.color = 'var(--red)'; fb.style.padding = '10px 14px'; fb.style.borderRadius = 'var(--r)';
+    fb.textContent = charSay('wrong') + ' — ' + kana + ' is "' + correct + '"';
   }
+  KANA_P[correct] = prog;
+  if (USER) await SB.from('progress_kana').upsert({ user_id: USER.id, kana_key: correct, correct: prog.correct, wrong: prog.wrong, next_review: new Date().toISOString(), updated_at: new Date().toISOString() }, { onConflict: 'user_id,kana_key' });
+  setTimeout(() => { kQIdx++; renderKQ(); }, 1400);
+}
 
-  prog.seen = true;
-  KANA_P[window._kqRomaji] = prog;
+// ═══════════════════════════════════════════
+//  VOCAB SRS
+// ═══════════════════════════════════════════
+let fcQueue = [], fcIdx = 0, fcRevealed = false;
 
-  // Advance after delay — completely fire-and-forget, nothing blocks it
-  setTimeout(() => { kQIdx++; renderKQ(); }, 2200);
+function getDueVocab() {
+  const now = Date.now();
+  return VOCAB.map((v, i) => ({ v, i })).filter(({ i }) => { const p = VOCAB_P[i]; return !p || p.next_review <= now; }).slice(0, 20);
+}
 
-  // Save to DB in background
-  if (USER) {
-    SB.from('progress_kana').upsert(
-      { user_id: USER.id, kana_key: window._kqRomaji,
-        correct: prog.correct, wrong: prog.wrong,
-        next_review: new Date().toISOString(), updated_at: new Date().toISOString() },
-      { onConflict: 'user_id,kana_key' }
-    ).catch(() => {});
-    if (isCorrect) addXP(5).catch(() => {});
+function initVocabFC() {
+  const due = getDueVocab();
+  fcQueue = due.map(({ v, i }) => ({ ...v, idx: i }));
+  fcIdx = 0; fcRevealed = false;
+  document.getElementById('fc-done').classList.add('hidden');
+  document.getElementById('fc-back').classList.add('hidden');
+  document.getElementById('flashcard').style.display = 'flex';
+  if (!fcQueue.length) {
+    document.getElementById('flashcard').style.display = 'none';
+    document.getElementById('fc-done').classList.remove('hidden');
+  } else {
+    updateFC();
   }
 }
 
+function updateFC() {
+  if (fcIdx >= fcQueue.length) {
+    document.getElementById('flashcard').style.display = 'none';
+    document.getElementById('fc-back').classList.add('hidden');
+    document.getElementById('fc-done').classList.remove('hidden');
+    return;
+  }
+  const card = fcQueue[fcIdx];
+  const el = document.getElementById('fc-front');
+  el.textContent = card.j;
+  el.className = 'card-main' + (card.j.length > 4 ? ' sm' : '');
+  document.getElementById('fc-cat').textContent = '[' + card.c + ']';
+  document.getElementById('fc-badge').textContent = card.c || 'vocab';
+  document.getElementById('flashcard').classList.remove('revealed');
+  document.getElementById('fc-back').classList.add('hidden');
+  document.getElementById('flashcard').style.display = 'flex';
+  document.getElementById('fc-cur').textContent = fcIdx + 1;
+  document.getElementById('fc-tot').textContent = fcQueue.length;
+  document.getElementById('fc-left').textContent = (fcQueue.length - fcIdx) + ' left';
+  document.getElementById('fc-bar').style.width = Math.round(fcIdx / fcQueue.length * 100) + '%';
+  fcRevealed = false;
+}
+
+function revealCard() {
+  if (fcRevealed) return;
+  fcRevealed = true;
+  const card = fcQueue[fcIdx];
+  document.getElementById('flashcard').classList.add('revealed');
+  document.getElementById('fc-reading').textContent = card.r;
+  document.getElementById('fc-meaning').textContent = card.e;
+  document.getElementById('fc-ex').textContent = card.x || '';
+  document.getElementById('fc-back').classList.remove('hidden');
+}
+
+async function rateCard(rating) {
+  if (!fcRevealed) return;
+  const card = fcQueue[fcIdx];
+  const prog = VOCAB_P[card.idx] || { correct: 0, wrong: 0, ease: 2.5, interval_ms: 0 };
+  const next = srsNext(prog, rating);
+  const updated = { ...prog, ...next, correct: prog.correct + (rating >= 2 ? 1 : 0), wrong: prog.wrong + (rating < 2 ? 1 : 0) };
+  VOCAB_P[card.idx] = updated;
+  if (USER) await SB.from('progress_vocab').upsert({ user_id: USER.id, vocab_index: card.idx, correct: updated.correct, wrong: updated.wrong, ease: updated.ease, interval_ms: updated.interval_ms, next_review: new Date(updated.next_review).toISOString(), updated_at: new Date().toISOString() }, { onConflict: 'user_id,vocab_index' });
+  if (rating >= 2) {
+    await addXP(10);
+    if (PROFILE) {
+      const rt = (PROFILE.reviewed_today || 0) + 1;
+      const ct = (PROFILE.correct_today || 0) + 1;
+      const tt = (PROFILE.total_today || 0) + 1;
+      await SB.from('profiles').update({ reviewed_today: rt, correct_today: ct, total_today: tt }).eq('id', USER.id);
+      PROFILE.reviewed_today = rt; PROFILE.correct_today = ct; PROFILE.total_today = tt;
+      if ([10, 50, 100].includes(rt)) logActivity('vocab_milestone', { count: rt });
+    }
+  } else if (PROFILE) {
+    const tt = (PROFILE.total_today || 0) + 1;
+    await SB.from('profiles').update({ total_today: tt }).eq('id', USER.id);
+    PROFILE.total_today = tt;
+  }
+  fcIdx++;
+  updateFC();
+}
+
+function vocabTab(t, btn) {
+  document.querySelectorAll('#page-vocab .tab').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('vt-fc').classList.toggle('hidden', t !== 'fc');
+  document.getElementById('vt-browse').classList.toggle('hidden', t !== 'browse');
+  if (t === 'browse') renderVocabBrowse();
+}
+
+function renderVocabBrowse() {
+  const search = document.getElementById('vs-search').value.toLowerCase();
+  const cat = document.getElementById('vs-cat').value;
+  const items = VOCAB.filter(v => (!cat || v.c === cat) && (!search || v.j.includes(search) || v.r.includes(search) || v.e.toLowerCase().includes(search)));
+  document.getElementById('vocab-list').innerHTML = items.map(v =>
+    `<div style="background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:11px 14px;margin-bottom:7px;display:flex;justify-content:space-between;align-items:center">
+      <div><span style="font-family:var(--ffj);font-size:17px;margin-right:9px">${v.j}</span><span style="font-size:12px;color:var(--plum)">${v.r}</span><div style="font-size:11px;color:var(--ink3);margin-top:1px">${v.e}</div></div>
+      <span style="font-size:10px;font-weight:600;text-transform:uppercase;background:var(--plum3);color:var(--plum);padding:2px 7px;border-radius:20px">${v.c}</span>
+    </div>`
+  ).join('');
+}
 
 // ═══════════════════════════════════════════
 //  GRAMMAR
@@ -1315,30 +1263,19 @@ function checkKQ(el, chosen) {
 function renderGrammar() {
   document.getElementById('grammar-list').innerHTML = GRAMMAR.map((g, i) =>
     `<div class="grammar-card">
-       <div class="gc-head" onclick="toggleG(${i})">
-         <div><div class="gc-pattern">${g.p}</div><div class="gc-eng">${g.e}</div></div>
-         <div style="display:flex;gap:6px;align-items:center">
-           <span class="gc-lvl">${g.l}</span>
-           <svg class="gc-chevron" id="gc-cv-${i}" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
-         </div>
-       </div>
-       <div class="gc-body" id="gc-b-${i}">
-         <div class="gc-rule">${g.rule}</div>
-         ${g.ex.map(e =>
-           `<div class="gc-ex">
-              <div class="gc-ex-jp">${e.j}</div>
-              <div class="gc-ex-read">${e.r}</div>
-              <div class="gc-ex-en">${e.e}</div>
-            </div>`
-         ).join('')}
-       </div>
-     </div>`
+      <div class="gc-head" onclick="toggleG(${i})">
+        <div><div class="gc-pattern">${g.p}</div><div class="gc-eng">${g.e}</div></div>
+        <div style="display:flex;gap:7px;align-items:center"><span class="gc-lvl">${g.l}</span>
+          <svg class="gc-chevron" id="gc-cv-${i}" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+      </div>
+      <div class="gc-body" id="gc-b-${i}"><div class="gc-rule">${g.rule}</div>
+        ${g.ex.map(e => `<div class="gc-ex"><div class="gc-ex-jp">${e.j}</div><div class="gc-ex-read">${e.r}</div><div class="gc-ex-en">${e.e}</div></div>`).join('')}
+      </div>
+    </div>`
   ).join('');
 }
-function toggleG(i) {
-  document.getElementById('gc-b-'  + i).classList.toggle('open');
-  document.getElementById('gc-cv-' + i).classList.toggle('open');
-}
+function toggleG(i) { document.getElementById('gc-b-' + i).classList.toggle('open'); document.getElementById('gc-cv-' + i).classList.toggle('open'); }
 
 // ═══════════════════════════════════════════
 //  READING
@@ -1346,11 +1283,11 @@ function toggleG(i) {
 function renderPassageList() {
   document.getElementById('passage-cards').innerHTML = PASSAGES.map(p =>
     `<div class="mode-card" onclick="openPassage('${p.id}')">
-       <div class="mode-icon" style="background:var(--gold3)">📖</div>
-       <div class="mode-title">${p.title}</div>
-       <div class="mode-desc">Click any word for instant translation.</div>
-       <div class="mode-badge">${p.qs.length} questions</div>
-     </div>`
+      <div class="mode-icon" style="background:var(--gold3)">??</div>
+      <div class="mode-title">${p.title}</div>
+      <div class="mode-desc">Click any word for instant translation.</div>
+      <div class="mode-badge">${p.qs.length} questions</div>
+    </div>`
   ).join('');
 }
 
@@ -1362,56 +1299,40 @@ function openPassage(id) {
   document.getElementById('ra-title').textContent = p.title;
   let html = '';
   p.text.forEach(part => {
-    if (typeof part === 'string') {
-      html += part === '\n' ? '<br>' : part;
-    } else {
-      html += `<span class="vocab-word" data-j="${part.j}" data-r="${part.r}" data-e="${part.e}"
-        onmouseenter="showTip(event,this)" onmouseleave="hideTip()">${part.j}</span>`;
-    }
+    if (typeof part === 'string') { html += part === '\
+' ? '<br>' : ' '; }
+    else html += `<span class="vocab-word" data-j="${part.j}" data-r="${part.r}" data-e="${part.e}" onmouseenter="showTip(event,this)" onmouseleave="hideTip()">${part.j}</span>`;
   });
   document.getElementById('ra-text').innerHTML = html;
   document.getElementById('ra-qs').innerHTML = p.qs.map((q, qi) =>
-    `<div style="background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:13px 15px;margin-bottom:9px">
-       <div style="font-size:13px;font-weight:500;margin-bottom:9px">${qi + 1}. ${q.q}</div>
-       <div style="display:flex;flex-direction:column;gap:5px">
-         ${q.opts.map((o, oi) =>
-           `<div class="rq-opt" style="padding:7px 11px;border:1.5px solid var(--border2);border-radius:8px;cursor:pointer;font-size:12.5px;transition:all .13s"
-             onclick="checkRQ(this,${oi},${q.ans},'${q.explain.replace(/'/g, "\\'")}')">
-             ${String.fromCharCode(65 + oi)}. ${o}
-           </div>`
-         ).join('')}
-       </div>
-     </div>`
+    `<div style="background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:14px 16px;margin-bottom:10px">
+      <div style="font-size:13px;font-weight:500;margin-bottom:10px">${qi + 1}. ${q.q}</div>
+      <div style="display:flex;flex-direction:column;gap:5px">${q.opts.map((o, oi) =>
+        `<div class="rq-opt" style="padding:8px 12px;border:1.5px solid var(--border2);border-radius:8px;cursor:pointer;font-size:12.5px;transition:all .14s" onclick="checkRQ(this,${oi},${q.ans},'${q.explain.replace(/'/g, "'")}')">
+          ${String.fromCharCode(65 + oi)}. ${o}
+        </div>`).join('')}
+      </div>
+    </div>`
   ).join('');
 }
 
 function showTip(e, el) {
   const t = document.getElementById('tooltip');
-  document.getElementById('tt-jp').textContent   = el.dataset.j;
+  document.getElementById('tt-jp').textContent = el.dataset.j;
   document.getElementById('tt-read').textContent = el.dataset.r;
-  document.getElementById('tt-en').textContent   = el.dataset.e;
+  document.getElementById('tt-en').textContent = el.dataset.e;
   t.style.display = 'block';
-  t.style.left    = Math.min(e.clientX + 10, window.innerWidth - 190) + 'px';
-  t.style.top     = (e.clientY - 70) + 'px';
+  t.style.left = Math.min(e.clientX + 10, window.innerWidth - 200) + 'px';
+  t.style.top = (e.clientY - 70) + 'px';
 }
 function hideTip() { document.getElementById('tooltip').style.display = 'none'; }
-
 async function checkRQ(el, chosen, correct, explain) {
   el.parentElement.querySelectorAll('.rq-opt').forEach(o => o.style.pointerEvents = 'none');
-  if (chosen === correct) {
-    el.style.cssText += ';background:var(--green3);border-color:#86efac;color:var(--green)';
-    await addXP(15);
-  } else {
-    el.style.cssText += ';background:var(--red3);border-color:#fca5a5;color:var(--red)';
-    el.parentElement.querySelectorAll('.rq-opt')[correct].style.cssText += ';background:var(--green3);border-color:#86efac;color:var(--green)';
-  }
+  if (chosen === correct) { el.style.background = 'var(--green3)'; el.style.borderColor = '#86efac'; el.style.color = 'var(--green)'; await addXP(15); }
+  else { el.style.background = 'var(--red3)'; el.style.borderColor = '#fca5a5'; el.style.color = 'var(--red)'; el.parentElement.querySelectorAll('.rq-opt')[correct].style.background = 'var(--green3)'; }
   document.getElementById('companion-msg').textContent = explain;
 }
-
-function backToPassages() {
-  document.getElementById('reading-menu').classList.remove('hidden');
-  document.getElementById('reading-active').classList.add('hidden');
-}
+function backToPassages() { document.getElementById('reading-menu').classList.remove('hidden'); document.getElementById('reading-active').classList.add('hidden'); }
 
 // ═══════════════════════════════════════════
 //  QUIZ
@@ -1419,54 +1340,36 @@ function backToPassages() {
 let qzQs = [], qzIdx = 0, qzScore = 0;
 
 function renderQuizMenu() {
-  const c  = getChar();
+  const c = getChar();
   renderPortrait(document.getElementById('quiz-portrait'), ACTIVE_CHAR);
   const cn = document.getElementById('quiz-char-name');
   if (cn) { cn.textContent = c.name; cn.style.color = c.nameColor; }
-  const cm = document.getElementById('quiz-char-msg');
-  if (cm) cm.textContent = charSay('greetings');
 }
 
 function startQuiz(type) {
   document.getElementById('quiz-menu').classList.add('hidden');
   document.getElementById('quiz-result').classList.add('hidden');
   document.getElementById('quiz-active').classList.remove('hidden');
-  if (type === 'vocab')   qzQs = buildVocabQ(10);
+  if (type === 'vocab') qzQs = buildVocabQ(10);
   else if (type === 'grammar') qzQs = buildGrammarQ(10);
-  else                    qzQs = buildKanaQ(20);
+  else qzQs = buildKanaQ(20);
   qzIdx = 0; qzScore = 0;
   document.getElementById('qz-tot').textContent = qzQs.length;
   renderQZ();
 }
-
-function buildVocabQ(n) {
-  return shuffle([...VOCAB]).slice(0, n).map(v => {
-    const wrongs = shuffle(VOCAB.filter(x => x.e !== v.e)).slice(0, 3).map(x => x.e);
-    return { instr: 'What does this word mean?', q: v.j, sub: v.r, ans: v.e, opts: shuffle([v.e, ...wrongs]), explain: v.j + ' = ' + v.e, ex: v.x || '' };
-  });
-}
-function buildGrammarQ(n) {
-  return shuffle([...GRAMMAR]).slice(0, n).map(g => {
-    const wrongs = shuffle(GRAMMAR.filter(x => x.p !== g.p)).slice(0, 3).map(x => x.e);
-    return { instr: 'What does this pattern mean?', q: g.p, sub: '', ans: g.e, opts: shuffle([g.e, ...wrongs]), explain: g.p + ' — ' + g.e, ex: g.ex[0].j + ' → ' + g.ex[0].e };
-  });
-}
-function buildKanaQ(n) {
-  return shuffle([...HG,...KT]).slice(0, n).map(k => {
-    const wrongs = shuffle(ALL_ROM.filter(r => r !== k.r)).slice(0, 3);
-    return { instr: 'Romaji reading?', q: k.k, sub: '', ans: k.r, opts: shuffle([k.r, ...wrongs]), explain: k.k + ' = "' + k.r + '"', ex: '' };
-  });
-}
+function buildVocabQ(n) { return shuffle([...VOCAB]).slice(0, n).map(v => { const w = shuffle(VOCAB.filter(x => x.e !== v.e)).slice(0, 3).map(x => x.e); return { instr: 'What does this word mean?', q: v.j, sub: v.r, ans: v.e, opts: shuffle([v.e, ...w]), explain: v.j + ' = ' + v.e, ex: v.x || '' }; }); }
+function buildGrammarQ(n) { return shuffle([...GRAMMAR]).slice(0, n).map(g => { const w = shuffle(GRAMMAR.filter(x => x.p !== g.p)).slice(0, 3).map(x => x.e); return { instr: 'What does this pattern mean?', q: g.p, sub: '', ans: g.e, opts: shuffle([g.e, ...w]), explain: g.p + ' — ' + g.e, ex: g.ex[0].j + ' → ' + g.ex[0].e }; }); }
+function buildKanaQ(n) { const pool = shuffle([...HG, ...KT]).slice(0, n); return pool.map(k => { const w = shuffle(ALL_ROM.filter(r => r !== k.r)).slice(0, 3); return { instr: 'Romaji reading?', q: k.k, sub: '', ans: k.r, opts: shuffle([k.r, ...w]), explain: k.k + ' = "' + k.r + '"', ex: '' }; }); }
 
 function renderQZ() {
   if (qzIdx >= qzQs.length) { showQZResult(); return; }
   const q = qzQs[qzIdx];
-  document.getElementById('qz-num').textContent      = qzIdx + 1;
+  document.getElementById('qz-num').textContent = qzIdx + 1;
   document.getElementById('qz-progress').style.width = Math.round(qzIdx / qzQs.length * 100) + '%';
-  document.getElementById('qz-score').textContent    = qzScore;
-  document.getElementById('qz-instr').textContent    = q.instr;
-  document.getElementById('qz-q').textContent        = q.q;
-  document.getElementById('qz-sub').textContent      = q.sub;
+  document.getElementById('qz-score').textContent = qzScore;
+  document.getElementById('qz-instr').textContent = q.instr;
+  document.getElementById('qz-q').textContent = q.q;
+  document.getElementById('qz-sub').textContent = q.sub;
   document.getElementById('qz-fb').classList.remove('show', 'ok', 'bad');
   document.getElementById('qz-opts').innerHTML = q.opts.map(o =>
     `<button class="mcq-opt" onclick="checkQZ(this,${JSON.stringify(o)},${JSON.stringify(q.ans)},${qzIdx})">${o}</button>`
@@ -1475,13 +1378,12 @@ function renderQZ() {
 
 async function checkQZ(el, chosen, correct, qi) {
   document.querySelectorAll('.mcq-opt').forEach(o => o.classList.add('disabled'));
-  const q  = qzQs[qi];
+  const q = qzQs[qi];
   const fb = document.getElementById('qz-fb');
   if (chosen === correct) {
-    el.classList.add('correct'); qzScore++;
-    document.getElementById('qz-score').textContent = qzScore;
+    el.classList.add('correct'); qzScore++; document.getElementById('qz-score').textContent = qzScore;
     fb.classList.add('show', 'ok');
-    document.getElementById('qz-fb-title').textContent = '✓ Correct!  ' + charSay('correct');
+    document.getElementById('qz-fb-title').textContent = '✓ Correct! ' + charSay('correct');
     await addXP(10);
   } else {
     el.classList.add('wrong');
@@ -1490,26 +1392,19 @@ async function checkQZ(el, chosen, correct, qi) {
     document.getElementById('qz-fb-title').textContent = '✗ Not quite — ' + charSay('wrong');
   }
   document.getElementById('qz-fb-body').textContent = q.explain;
-  document.getElementById('qz-fb-ex').textContent   = q.ex;
+  document.getElementById('qz-fb-ex').textContent = q.ex;
 }
-
 function nextQz() { qzIdx++; renderQZ(); }
-
-function endQuiz() {
-  document.getElementById('quiz-active').classList.add('hidden');
-  document.getElementById('quiz-result').classList.add('hidden');
-  document.getElementById('quiz-menu').classList.remove('hidden');
-  renderQuizMenu();
-}
+function endQuiz() { document.getElementById('quiz-active').classList.add('hidden'); document.getElementById('quiz-result').classList.add('hidden'); document.getElementById('quiz-menu').classList.remove('hidden'); renderQuizMenu(); }
 
 async function showQZResult() {
   document.getElementById('quiz-active').classList.add('hidden');
   document.getElementById('quiz-result').classList.remove('hidden');
   const pct = qzScore / qzQs.length;
-  document.getElementById('qr-emoji').textContent = pct >= 0.8 ? '🏆' : pct >= 0.6 ? '😊' : '💪';
+  document.getElementById('qr-emoji').textContent = pct >= 0.8 ? '??' : pct >= 0.6 ? '??' : '??';
   document.getElementById('qr-score').textContent = qzScore;
-  document.getElementById('qr-tot').textContent   = qzQs.length;
-  document.getElementById('qr-msg').textContent   = pct >= 0.8 ? charSay('quizGood') : pct >= 0.5 ? charSay('quizOk') : charSay('quizPoor');
+  document.getElementById('qr-tot').textContent = qzQs.length;
+  document.getElementById('qr-msg').textContent = pct >= 0.8 ? charSay('quizGood') : pct >= 0.5 ? charSay('quizOk') : charSay('quizPoor');
   await addXP(qzScore * 15);
   logActivity('quiz_complete', { score: qzScore, total: qzQs.length });
 }
@@ -1520,60 +1415,52 @@ async function showQZResult() {
 function friendsTab(t, btn) {
   document.querySelectorAll('#page-friends .tab').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
-  ['activity','list','add'].forEach(id => document.getElementById('ft-' + id).classList.toggle('hidden', id !== t));
+  document.getElementById('ft-activity').classList.toggle('hidden', t !== 'activity');
+  document.getElementById('ft-list').classList.toggle('hidden', t !== 'list');
+  document.getElementById('ft-add').classList.toggle('hidden', t !== 'add');
   if (t === 'activity') loadFriendsActivity(false);
-  if (t === 'list')     loadFriendsList();
-  if (t === 'add')      loadFriendRequests();
+  if (t === 'list') loadFriendsList();
+  if (t === 'add') loadFriendRequests();
 }
 
 function timeAgo(iso) {
   const d = (Date.now() - new Date(iso).getTime()) / 1000;
-  if (d < 60)    return 'just now';
-  if (d < 3600)  return Math.floor(d / 60)    + 'm ago';
-  if (d < 86400) return Math.floor(d / 3600)  + 'h ago';
+  if (d < 60) return 'just now';
+  if (d < 3600) return Math.floor(d / 60) + 'm ago';
+  if (d < 86400) return Math.floor(d / 3600) + 'h ago';
   return Math.floor(d / 86400) + 'd ago';
 }
 
 function actLabel(a) {
   const t = a.type, p = a.payload || {};
-  if (t === 'streak')          return `hit a <strong>${p.days}-day streak</strong> 🔥`;
-  if (t === 'level_up')        return `reached <strong>Level ${p.level}</strong> ⭐`;
-  if (t === 'kana_mastered')   return `mastered <strong>${p.kana}</strong> in ${p.script || 'kana'}!`;
-  if (t === 'quiz_complete')   return `scored <strong>${p.score}/${p.total}</strong> on a quiz 🎯`;
-  if (t === 'vocab_milestone') return `learned their <strong>${p.count}th word</strong> 📖`;
+  if (t === 'streak') return 'hit a <strong>' + p.days + '-day streak</strong> ??';
+  if (t === 'level_up') return 'reached <strong>Level ' + p.level + '</strong> ⭐';
+  if (t === 'kana_mastered') return 'mastered <strong>' + p.kana + '</strong> in ' + (p.script || 'kana') + '!';
+  if (t === 'quiz_complete') return 'scored <strong>' + p.score + '/' + p.total + '</strong> on a quiz ??';
+  if (t === 'vocab_milestone') return 'learned their <strong>' + p.count + 'th word</strong> ??';
   return 'studied Japanese';
 }
 
 async function loadFriendsActivity(homeOnly = false) {
   if (!USER) return;
-  const { data: fRows } = await SB.from('friends')
-    .select('user_id,friend_id')
-    .or(`user_id.eq.${USER.id},friend_id.eq.${USER.id}`)
-    .eq('status', 'accepted');
+  const { data: fRows } = await SB.from('friends').select('user_id,friend_id').or('user_id.eq.' + USER.id + ',friend_id.eq.' + USER.id).eq('status', 'accepted');
   const fIds = (fRows || []).map(r => r.user_id === USER.id ? r.friend_id : r.user_id);
 
   if (!fIds.length) {
-    if (!homeOnly) {
-      const el = document.getElementById('ft-activity');
-      if (el) el.innerHTML = '<div style="text-align:center;padding:40px;color:var(--ink3)"><div style="font-size:30px;margin-bottom:10px">👥</div>Add friends to see their activity here.</div>';
-    }
+    const el = document.getElementById('ft-activity');
+    if (el && !homeOnly) el.innerHTML = '<div style="text-align:center;padding:40px;color:var(--ink3)"><div style="font-size:30px;margin-bottom:10px">??</div>Add friends to see their activity here.</div>';
     document.getElementById('home-feed-section')?.classList.add('hidden');
     return;
   }
 
-  const { data: acts } = await SB.from('activity')
-    .select('*,profiles(username,avatar_emoji)')
-    .in('user_id', fIds)
-    .order('created_at', { ascending: false })
-    .limit(20);
-  const items = acts || [];
+  const { data: acts } = await SB.from('activity').select('*,profiles(username,avatar_emoji)').in('user_id', fIds).order('created_at', { ascending: false }).limit(20);
+  const items = (acts || []);
 
   if (!homeOnly) {
     const el = document.getElementById('ft-activity');
-    if (el) el.innerHTML = items.length
-      ? items.map(a => feedItem(a)).join('')
-      : '<div style="padding:22px;color:var(--ink3)">No activity yet.</div>';
+    if (el) el.innerHTML = items.length ? items.map(a => feedItem(a)).join('') : '<div style="padding:24px;color:var(--ink3)">No activity yet.</div>';
   }
+
   const homeEl = document.getElementById('home-feed');
   if (homeEl && items.length) {
     document.getElementById('home-feed-section')?.classList.remove('hidden');
@@ -1584,49 +1471,42 @@ async function loadFriendsActivity(homeOnly = false) {
 function feedItem(a) {
   const prof = a.profiles || {};
   return `<div class="feed-item">
-    <div class="feed-avatar">${prof.avatar_emoji || '🌸'}</div>
+    <div class="feed-avatar">${prof.avatar_emoji || '??'}</div>
     <div class="feed-text"><strong>${prof.username || 'Friend'}</strong> ${actLabel(a)}<div class="feed-time">${timeAgo(a.created_at)}</div></div>
-    <button class="enc-btn" id="enc-${a.id}" onclick="sendEnc('${a.id}',this)">🌸 Cheer</button>
+    <button class="enc-btn" id="enc-${a.id}" onclick="sendEnc('${a.id}',this)">?? Cheer</button>
   </div>`;
 }
 
 async function sendEnc(id, btn) {
   if (btn.classList.contains('sent')) return;
-  btn.classList.add('sent'); btn.textContent = '🌸 Sent!';
+  btn.classList.add('sent'); btn.textContent = '?? Sent!';
   const { data: act } = await SB.from('activity').select('encouragements').eq('id', id).single();
-  const encs = [...(act?.encouragements || []), { from_id: USER.id, emoji: '🌸', at: new Date().toISOString() }];
+  const encs = act?.encouragements || [];
+  encs.push({ from_id: USER.id, emoji: '??', at: new Date().toISOString() });
   await SB.from('activity').update({ encouragements: encs }).eq('id', id);
 }
 
 async function loadFriendsList() {
   const el = document.getElementById('friends-list');
   if (!el || !USER) return;
-  const { data: r1 } = await SB.from('friends').select('friend_id,profiles!friends_friend_id_fkey(username,avatar_emoji,xp,streak)').eq('user_id', USER.id).eq('status','accepted');
-  const { data: r2 } = await SB.from('friends').select('user_id,profiles!friends_user_id_fkey(username,avatar_emoji,xp,streak)').eq('friend_id', USER.id).eq('status','accepted');
-  const all = [...(r1||[]).map(r => r.profiles), ...(r2||[]).map(r => r.profiles)].filter(Boolean);
-  el.innerHTML = all.length
-    ? all.map(f =>
-        `<div class="friend-card"><div class="friend-av">${f.avatar_emoji || '🌸'}</div>
-         <div><div style="font-size:13.5px;font-weight:600">${f.username}</div>
-         <div style="font-size:11px;color:var(--ink3)">⚡ ${f.xp||0} XP &nbsp;🔥 ${f.streak||0}d streak</div></div></div>`
-      ).join('')
-    : '<div style="padding:22px;color:var(--ink3)">No friends yet — use the Add Friend tab!</div>';
+  const { data: r1 } = await SB.from('friends').select('friend_id,profiles!friends_friend_id_fkey(username,avatar_emoji,xp,streak)').eq('user_id', USER.id).eq('status', 'accepted');
+  const { data: r2 } = await SB.from('friends').select('user_id,profiles!friends_user_id_fkey(username,avatar_emoji,xp,streak)').eq('friend_id', USER.id).eq('status', 'accepted');
+  const all = [...(r1 || []).map(r => r.profiles), ...(r2 || []).map(r => r.profiles)].filter(Boolean);
+  el.innerHTML = all.length ? all.map(f =>
+    `<div class="friend-card"><div class="friend-av">${f.avatar_emoji || '??'}</div>
+     <div><div style="font-size:14px;font-weight:600">${f.username}</div><div style="font-size:11px;color:var(--ink3)">⚡ ${f.xp || 0} XP &nbsp;?? ${f.streak || 0}d streak</div></div></div>`
+  ).join('') : '<div style="padding:24px;color:var(--ink3)">No friends yet. Use Add Friend!</div>';
 }
 
 async function loadFriendRequests() {
   const el = document.getElementById('fr-requests');
   if (!el || !USER) return;
-  const { data: reqs } = await SB.from('friends')
-    .select('id,profiles!friends_user_id_fkey(username,avatar_emoji)')
-    .eq('friend_id', USER.id).eq('status','pending');
-  el.innerHTML = (reqs||[]).length
-    ? reqs.map(r =>
-        `<div class="friend-card"><div class="friend-av">${r.profiles?.avatar_emoji||'🌸'}</div>
-         <div style="flex:1"><div style="font-size:13.5px;font-weight:600">${r.profiles?.username}</div>
-         <div style="font-size:11px;color:var(--ink3)">Wants to study with you!</div></div>
-         <button class="btn btn-primary btn-sm" onclick="acceptFriend('${r.id}')">Accept</button></div>`
-      ).join('')
-    : '<div style="font-size:12.5px;color:var(--ink3)">No pending requests.</div>';
+  const { data: reqs } = await SB.from('friends').select('id,profiles!friends_user_id_fkey(username,avatar_emoji)').eq('friend_id', USER.id).eq('status', 'pending');
+  el.innerHTML = (reqs || []).length ? reqs.map(r =>
+    `<div class="friend-card"><div class="friend-av">${r.profiles?.avatar_emoji || '??'}</div>
+     <div style="flex:1"><div style="font-size:14px;font-weight:600">${r.profiles?.username}</div><div style="font-size:11px;color:var(--ink3)">Wants to study with you!</div></div>
+     <button class="btn btn-primary btn-sm" onclick="acceptFriend('${r.id}')">Accept</button></div>`
+  ).join('') : '<div style="font-size:13px;color:var(--ink3)">No pending requests.</div>';
 }
 
 async function acceptFriend(id) {
@@ -1635,14 +1515,13 @@ async function acceptFriend(id) {
 }
 
 async function searchFriend() {
-  const un  = document.getElementById('fr-search-in').value.trim();
+  const un = document.getElementById('fr-search-in').value.trim();
   const res = document.getElementById('fr-result');
   if (!un) return;
   const { data } = await SB.from('profiles').select('id,username,avatar_emoji,xp,streak').eq('username', un).neq('id', USER.id).single();
-  if (!data) { res.innerHTML = '<div style="font-size:12.5px;color:var(--ink3)">No user found with that username.</div>'; return; }
-  res.innerHTML = `<div class="friend-card"><div class="friend-av">${data.avatar_emoji||'🌸'}</div>
-    <div style="flex:1"><div style="font-size:13.5px;font-weight:600">${data.username}</div>
-    <div style="font-size:11px;color:var(--ink3)">⚡ ${data.xp||0} XP</div></div>
+  if (!data) { res.innerHTML = '<div style="font-size:13px;color:var(--ink3)">No user found.</div>'; return; }
+  res.innerHTML = `<div class="friend-card"><div class="friend-av">${data.avatar_emoji || '??'}</div>
+    <div style="flex:1"><div style="font-size:14px;font-weight:600">${data.username}</div><div style="font-size:11px;color:var(--ink3)">⚡ ${data.xp || 0} XP</div></div>
     <button class="btn btn-primary btn-sm" onclick="sendFriendReq('${data.id}',this)">+ Add</button></div>`;
 }
 
@@ -1651,102 +1530,43 @@ async function sendFriendReq(fId, btn) {
   await SB.from('friends').insert({ user_id: USER.id, friend_id: fId, status: 'pending' });
 }
 
-  function renderSettings() {
-  const page = document.getElementById('page-settings');
-  if (!page) return;
-
-  // Clear previous character grid content
-  const charGrid = document.getElementById('char-grid');
-  if (charGrid) charGrid.innerHTML = '';
-
-  // Populate Character Grid
-  const charGridHTML = Object.values(CHARS).map(c => {
-    const isActive = c.id === ACTIVE_CHAR;
-    return `
-      <div class="char-select-card ${isActive ? 'active' : ''}" 
-           onclick="selectChar('${c.id}')" 
-           style="${isActive ? `border-color:${c.nameColor};background:${c.nameColor}18` : ''}">
+// ═══════════════════════════════════════════
+//  SETTINGS
+// ═══════════════════════════════════════════
+function renderSettings() {
+  const el = document.getElementById('char-grid');
+  if (el) {
+    el.innerHTML = Object.values(CHARS).map(c => {
+      const active = c.id === ACTIVE_CHAR;
+      return `<div class="char-select-card ${active ? 'active' : ''}" onclick="selectChar('${c.id}')">
         <div class="char-portrait" id="sp-${c.id}"></div>
-        <div class="char-name-label" style="${isActive ? `color:${c.nameColor};font-weight:700` : ''}">${c.name}</div>
-        <div class="char-style-label" style="${isActive ? `color:${c.nameColor};font-weight:600` : ''}">
-          ${isActive ? '✓ Current Companion' : c.emoji}
-        </div>
+        <div class="char-name-label">${c.name}</div>
+        <div class="char-style-label">${active ? '✓ Active' : c.emoji}</div>
       </div>`;
-  }).join('');
-
-  if (charGrid) {
-    charGrid.innerHTML = charGridHTML;
+    }).join('');
+    Object.values(CHARS).forEach(c => renderPortrait(document.getElementById('sp-' + c.id), c.id));
   }
-
-  // Render portraits
-  Object.values(CHARS).forEach(c => {
-    const el = document.getElementById('sp-' + c.id);
-    if (el) renderPortrait(el, c.id);
-  });
-
-  // Update profile info if needed
   const acct = document.getElementById('acct-info');
-  if (acct) {
-    acct.innerHTML = `
-      Signed in as <strong>${PROFILE?.username || USER?.email?.split('@')[0] || 'User'}</strong><br>
-      <span style="font-size:12px;color:var(--ink3)">${USER?.email || ''}</span>
-    `;
-  }
+  if (acct && PROFILE) acct.textContent = 'Signed in as ' + (PROFILE.username || USER?.email || '...') + '  ·  ' + (USER?.email || '');
 }
+
 async function selectChar(id) {
-  if (!CHARS[id]) return;
-
   ACTIVE_CHAR = id;
+  if (USER) await SB.from('profiles').update({ active_character: id }).eq('id', USER.id);
   if (PROFILE) PROFILE.active_character = id;
-
   renderSettings();
-
-  const c = getChar();
-
-  // Update UI
-  const nameEl = document.getElementById('home-char-name');
-  if (nameEl) {
-    nameEl.textContent = c.name;
-    nameEl.style.color = c.nameColor;
-  }
-  const msgEl = document.getElementById('companion-msg');
-  if (msgEl) msgEl.textContent = charSay('greetings');
-
-  renderPortrait(document.getElementById('home-portrait'), id);
-  renderPortrait(document.getElementById('quiz-portrait'), id);
-
-  if (USER) {
-    console.log(`💾 Saving ${id}...`);
-
-    const { data, error } = await SB
-      .from('profiles')
-      .update({ active_character: id })
-      .eq('id', USER.id)
-      .select('active_character')
-      .single();
-
-    if (error) {
-      console.error("❌ SAVE FAILED:", error);
-      alert("Save failed: " + error.message);
-    } else {
-      console.log("✅ Saved! DB value:", data?.active_character);
-      alert(`✅ ${c.name} is now your companion!`);
-    }
-  }
-
-  openCompanionModal(`Nice to meet you again! I'm ${c.name} ${c.emoji}`);
 }
-  
+
 // ═══════════════════════════════════════════
 //  REALTIME
 // ═══════════════════════════════════════════
 function setupRealtime() {
-  if (RT_CHANNEL) { SB.removeChannel(RT_CHANNEL); RT_CHANNEL = null; }
+  if (RT_CHANNEL) SB.removeChannel(RT_CHANNEL);
   RT_CHANNEL = SB.channel('lwm-activity')
     .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'activity' }, () => {
-      const onHome    = document.getElementById('page-home')?.classList.contains('active');
-      const onFriends = document.getElementById('page-friends')?.classList.contains('active');
-      if (onHome || onFriends) loadFriendsActivity(onHome && !onFriends);
+      if (document.getElementById('page-friends').classList.contains('active') || document.getElementById('page-home').classList.contains('active')) {
+        loadFriendsActivity(document.getElementById('page-home').classList.contains('active'));
+      }
     })
     .subscribe();
 }
@@ -1754,277 +1574,8 @@ function setupRealtime() {
 // ═══════════════════════════════════════════
 //  UTILS
 // ═══════════════════════════════════════════
+function shuffle(arr) { const a = [...arr]; for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
 
-  async function updateUsername() {
-  const newName = document.getElementById('new-username').value.trim();
-  if (!newName || !USER) return;
-
-  const { error } = await SB.from('profiles')
-    .update({ username: newName })
-    .eq('id', USER.id);
-
-  if (error) {
-    alert("Failed to update username: " + error.message);
-  } else {
-    if (PROFILE) PROFILE.username = newName;
-    renderSettings();
-    document.getElementById('new-username').value = '';
-    alert("✅ Username updated!");
-  }
-}
-
-// ── COMPANION FEEDBACK BUBBLE ─────────────────────────────
-function showBubble(bubbleId, portraitId, speechId, msg, type) {
-  const bubble   = document.getElementById(bubbleId);
-  const portrait = document.getElementById(portraitId);
-  const speech   = document.getElementById(speechId);
-  if (!bubble) return;
-
-  // Render portrait
-  const c = getChar();
-  if (c.portrait) {
-    portrait.style.background = 'transparent';
-    portrait.innerHTML = `<img src="${c.portrait}" alt="${c.name}" onerror="this.parentElement.innerHTML='<span>${c.emoji}</span>'">`;
-  } else {
-    portrait.style.background = c.color;
-    portrait.innerHTML = `<span>${c.emoji}</span>`;
-  }
-
-  // Set message & colour
-  speech.innerHTML = msg;
-  speech.className = 'cb-speech ' + (type || '');
-
-  // Show
-  bubble.classList.add('show');
-}
-
-function hideBubble(bubbleId) {
-  const bubble = document.getElementById(bubbleId);
-  if (bubble) bubble.classList.remove('show');
-}
-// ── COMPANION MODAL ──────────────────────────────────────────
-function openCompanionModal(msgOverride) {
-  const c = getChar();
-  const msg = msgOverride || charSay('greetings');
-  
-  // Portrait
-  const imgEl = document.getElementById('cm-portrait-img');
-  if (c.portrait) {
-    imgEl.innerHTML = `<img src="${c.portrait}" alt="${c.name}" style="width:100%;height:260px;object-fit:cover;object-position:top" onerror="this.parentElement.innerHTML='<span style=font-size:96px>${c.emoji}</span>'">`;
-  } else {
-    imgEl.style.background = c.color;
-    imgEl.innerHTML = `<span style="font-size:96px">${c.emoji}</span>`;
-  }
-  
-  // Set portrait wrap gradient to match char colour
-  document.getElementById('cm-portrait-wrap').style.background = c.color;
-  
-  // Text
-  const nameEl = document.getElementById('cm-name');
-  nameEl.textContent = c.name;
-  nameEl.style.color = c.nameColor;
-  document.getElementById('cm-message').textContent = msg;
-  
-  document.getElementById('companion-modal').classList.remove('hidden');
-  document.body.style.overflow = 'hidden';
-}
-
-function closeCompanionModal() {
-  document.getElementById('companion-modal').classList.add('hidden');
-  document.body.style.overflow = '';
-}
-function shuffle(arr) {
-  const a = [...arr];
-  for (let i = a.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [a[i], a[j]] = [a[j], a[i]];
-  }
-  return a;
-}
-
-
-// ── VOCAB SRS ─────────────────────────────────────────────────────────
-
-const SESSION_SIZE = 10;
-let fcQueue = [], fcIdx = 0, fcRevealed = false, fcSessionCorrect = 0;
-
-function getDueVocab() {
-  const now = Date.now();
-  const due = VOCAB.map((v, i) => ({ v, i })).filter(({ i }) => {
-    const p = VOCAB_P[i];
-    return !p || p.next_review <= now;
-  });
-  const newCards = due.filter(({ i }) => !VOCAB_P[i]);
-  const overdue  = due.filter(({ i }) =>  VOCAB_P[i]);
-  return [...newCards, ...overdue].slice(0, SESSION_SIZE);
-}
-
-function vocabTab(t, btn) {
-  document.querySelectorAll('#page-vocab .tab').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  document.getElementById('vt-fc').classList.toggle('hidden', t !== 'fc');
-  document.getElementById('vt-browse').classList.toggle('hidden', t !== 'browse');
-  if (t === 'browse') renderVocabBrowse();
-}
-
-function initVocabFC() {
-  hideBubble('fc-bubble');
-  const due = getDueVocab();
-  fcQueue = due.map(({ v, i }) => ({ ...v, idx: i }));
-  fcIdx = 0; fcRevealed = false; fcSessionCorrect = 0;
-  const doneEl = document.getElementById('fc-done');
-  const backEl = document.getElementById('fc-back');
-  const cardEl = document.getElementById('flashcard');
-  if (!fcQueue.length) {
-    if (cardEl) cardEl.style.display = 'none';
-    if (backEl) backEl.classList.add('hidden');
-    if (doneEl) {
-      doneEl.classList.remove('hidden');
-      doneEl.innerHTML = `<div style="font-size:38px;margin-bottom:9px">✨</div>
-        <div style="font-size:17px;font-weight:600;margin-bottom:5px">All caught up!</div>
-        <div style="font-size:13px;color:var(--ink3);margin-bottom:16px">No cards due. Come back later or browse all vocab.</div>
-        <button class="btn btn-secondary btn-sm" onclick="vocabTab('browse',document.querySelectorAll('#page-vocab .tab')[1])">Browse vocab →</button>`;
-    }
-  } else {
-    if (doneEl) doneEl.classList.add('hidden');
-    if (backEl) backEl.classList.add('hidden');
-    if (cardEl) cardEl.style.display = 'flex';
-    updateFC();
-  }
-}
-
-function updateFC() {
-  hideBubble('fc-bubble');
-  if (fcIdx >= fcQueue.length) {
-    document.getElementById('flashcard').style.display = 'none';
-    document.getElementById('fc-back').classList.add('hidden');
-    const doneEl = document.getElementById('fc-done');
-    doneEl.classList.remove('hidden');
-    const pct = fcQueue.length > 0 ? Math.round(fcSessionCorrect / fcQueue.length * 100) : 0;
-    const emoji = pct >= 80 ? '🏆' : pct >= 50 ? '😊' : '💪';
-    doneEl.innerHTML = `<div style="font-size:38px;margin-bottom:9px">${emoji}</div>
-      <div style="font-size:17px;font-weight:600;margin-bottom:5px">Session complete!</div>
-      <div style="font-size:13px;color:var(--ink3);margin-bottom:16px">${fcSessionCorrect} / ${fcQueue.length} correct</div>
-      <button class="btn btn-primary" style="margin-bottom:8px" onclick="initVocabFC()">Next session →</button><br>
-      <button class="btn btn-ghost btn-sm" onclick="vocabTab('browse',document.querySelectorAll('#page-vocab .tab')[1])">Browse all vocab</button>`;
-    const msg = pct >= 80 ? charSay('quizGood') : pct >= 50 ? charSay('quizOk') : charSay('quizPoor');
-    setTimeout(() => openCompanionModal(msg), 400);
-    return;
-  }
-  const card = fcQueue[fcIdx];
-  const fe = document.getElementById('fc-front');
-  fe.textContent = card.j;
-  fe.className = 'card-main' + (card.j.length > 5 ? ' sm' : '');
-  document.getElementById('fc-cat').textContent = '[' + card.c + ']';
-
-  // Colour-coded badge + card border based on SRS state
-  const p = VOCAB_P[card.idx];
-  let badgeLabel, badgeBg, badgeColor, cardBorder;
-  if (!p || p.correct === 0) {
-    badgeLabel = 'NEW';      badgeBg = 'var(--teal3)';  badgeColor = 'var(--teal2)'; cardBorder = 'var(--teal2)';
-  } else if (p.interval_ms > 3000000) {
-    badgeLabel = 'MASTERED'; badgeBg = 'var(--green3)'; badgeColor = 'var(--green)'; cardBorder = '#86efac';
-  } else if (p.correct >= 2) {
-    badgeLabel = 'LEARNING'; badgeBg = 'var(--gold3)';  badgeColor = 'var(--gold)';  cardBorder = 'var(--gold2)';
-  } else {
-    badgeLabel = 'SEEN';     badgeBg = 'var(--plum3)';  badgeColor = 'var(--plum)';  cardBorder = 'var(--plum2)';
-  }
-  const badge = document.getElementById('fc-badge');
-  badge.textContent = badgeLabel;
-  badge.style.background = badgeBg;
-  badge.style.color = badgeColor;
-  const cardEl = document.getElementById('flashcard');
-  cardEl.style.borderColor = cardBorder;
-
-  document.getElementById('flashcard').classList.remove('revealed');
-  document.getElementById('fc-back').classList.add('hidden');
-  document.getElementById('flashcard').style.display = 'flex';
-  document.getElementById('fc-cur').textContent  = fcIdx + 1;
-  document.getElementById('fc-tot').textContent  = fcQueue.length;
-  document.getElementById('fc-left').textContent = (fcQueue.length - fcIdx) + ' left';
-  document.getElementById('fc-bar').style.width  = Math.round(fcIdx / fcQueue.length * 100) + '%';
-  fcRevealed = false;
-}
-
-function revealCard() {
-  if (fcRevealed) return;
-  fcRevealed = true;
-  const card = fcQueue[fcIdx];
-  document.getElementById('flashcard').classList.add('revealed');
-  document.getElementById('fc-reading').textContent = card.r;
-  document.getElementById('fc-meaning').textContent = card.e;
-  document.getElementById('fc-ex').textContent      = card.x || '';
-  document.getElementById('fc-back').classList.remove('hidden');
-}
-
-function rateCard(rating) {
-  if (!fcRevealed) return;
-  const card    = fcQueue[fcIdx];
-  const prog    = VOCAB_P[card.idx] || { correct: 0, wrong: 0, ease: 2.5, interval_ms: 0 };
-  const next    = srsNext(prog, rating);
-  const wasRight = rating >= 2;
-  const updated = { ...prog, ...next,
-    correct: prog.correct + (wasRight ? 1 : 0),
-    wrong:   prog.wrong   + (wasRight ? 0 : 1),
-  };
-  VOCAB_P[card.idx] = updated;
-  if (wasRight) fcSessionCorrect++;
-
-  showBubble('fc-bubble','fc-bubble-portrait','fc-bubble-speech',
-    wasRight ? charSay('correct') : charSay('wrong'),
-    wasRight ? 'correct' : 'wrong');
-
-  if (USER) {
-    SB.from('progress_vocab').upsert(
-      { user_id: USER.id, vocab_index: card.idx, correct: updated.correct,
-        wrong: updated.wrong, ease: updated.ease, interval_ms: updated.interval_ms,
-        next_review: new Date(updated.next_review).toISOString(),
-        updated_at: new Date().toISOString() },
-      { onConflict: 'user_id,vocab_index' }
-    ).catch(() => {});
-    if (wasRight) addXP(10).catch(() => {});
-    if (PROFILE) {
-      PROFILE.reviewed_today = (PROFILE.reviewed_today||0)+1;
-      PROFILE.correct_today  = (PROFILE.correct_today ||0)+(wasRight?1:0);
-      PROFILE.total_today    = (PROFILE.total_today   ||0)+1;
-      SB.from('profiles').update({
-        reviewed_today: PROFILE.reviewed_today,
-        correct_today:  PROFILE.correct_today,
-        total_today:    PROFILE.total_today
-      }).eq('id', USER.id).catch(() => {});
-    }
-  }
-  fcIdx++;
-  setTimeout(() => updateFC(), 1000);
-}
-
-function renderVocabBrowse() {
-  const search = (document.getElementById('vs-search')?.value || '').toLowerCase();
-  const cat    =  document.getElementById('vs-cat')?.value || '';
-  const items  = VOCAB.filter(v =>
-    (!cat || v.c === cat) &&
-    (!search || v.j.includes(search) || v.r.includes(search) || v.e.toLowerCase().includes(search))
-  );
-  const listEl = document.getElementById('vocab-list');
-  if (!listEl) return;
-  listEl.innerHTML = items.map(v => {
-    const idx = VOCAB.indexOf(v);
-    const p = VOCAB_P[idx];
-    let status = 'New', statusColor = 'var(--ink3)';
-    if (p && p.interval_ms > 3000000) { status = 'Mastered'; statusColor = 'var(--green)'; }
-    else if (p && p.correct >= 2)      { status = 'Learning'; statusColor = 'var(--gold)'; }
-    else if (p)                         { status = 'Seen';     statusColor = 'var(--plum)'; }
-    return `<div style="background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:10px 13px;margin-bottom:6px;display:flex;justify-content:space-between;align-items:center">
-      <div>
-        <span style="font-family:var(--ffj);font-size:17px;margin-right:8px">${v.j}</span>
-        <span style="font-size:11px;color:var(--plum)">${v.r}</span>
-        <div style="font-size:12px;color:var(--ink2);margin-top:2px">${v.e}</div>
-        <div style="font-size:11px;color:var(--ink3);font-family:var(--ffj);margin-top:2px">${v.x||''}</div>
-      </div>
-      <span style="font-size:10px;font-weight:600;color:${statusColor};white-space:nowrap;margin-left:10px">${status}</span>
-    </div>`;
-  }).join('');
-}
 </script>
 </body>
 </html>
