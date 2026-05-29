@@ -247,36 +247,19 @@ body{font-family:var(--ff);background:var(--bg);color:var(--ink);min-height:100v
   <div id="tt-en"></div>
 </div>
 
-<!-- AUTH SCREEN -->
-<div id="auth-screen">
-  <div class="auth-card">
-    <div class="auth-logo">日</div>
-    <div class="auth-title">Learn With Me — JP! ??</div>
-    <div class="auth-sub">Your Japanese learning companion — N5 to N1</div>
-    <div class="auth-tabs">
-      <button class="auth-tab active" id="tab-login" onclick="switchAuthTab('login')">Sign in</button>
-      <button class="auth-tab" id="tab-signup" onclick="switchAuthTab('signup')">Create account</button>
-    </div>
-    <div id="panel-login">
-      <div class="auth-field"><label>Username</label><input type="text" id="login-username" placeholder="your username" onkeydown="if(event.key==='Enter')doLogin()"></div>
-      <div class="auth-field"><label>Password</label><input type="password" id="login-password" placeholder="..." onkeydown="if(event.key==='Enter')doLogin()"></div>
-      <div class="auth-err" id="login-err"></div>
-      <button class="auth-btn" id="login-btn" onclick="doLogin()">Sign in</button>
-    </div>
-
-    <div id="panel-signup" class="hidden">
-      <div class="auth-field"><label>Username</label><input type="text" id="su-username" placeholder="e.g. sakura_learner"></div>
-      <div class="auth-field"><label>Password</label><input type="password" id="su-password" placeholder="choose a password (min. 6 chars)"></div>
-      <div id="su-msg" class="auth-err"></div>
-      <button class="auth-btn" id="su-btn" onclick="doSignup()">Create account</button>
-    </div>
-      <div class="auth-field"><label>Password</label><input type="password" id="su-password" placeholder="min. 6 characters"></div>
-      <div id="su-msg" class="auth-err"></div>
-      <button class="auth-btn" id="su-btn" onclick="doSignup()">Create account</button>
-    </div>
+  <div id="panel-signup" class="hidden">
+  <div class="auth-field">
+    <label>Username</label>
+    <input type="text" id="su-username" placeholder="e.g. sakura_learner">
   </div>
+  <div class="auth-field">
+    <label>Password</label>
+    <input type="password" id="su-password" placeholder="min. 6 characters">
+  </div>
+  <div id="su-msg" class="auth-err"></div>
+  <button class="auth-btn" id="su-btn" onclick="doSignup()">Create account</button>
 </div>
-
+  
 <!-- MAIN APP (hidden until authed) -->
 <div class="app hidden" id="main-app">
 
