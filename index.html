@@ -567,9 +567,11 @@ body{font-family:var(--ff);background:var(--bg);color:var(--ink);min-height:100v
   </main>
 </div>
 
+  <script src="characters.js"></script>
+  
 <script>
 // ═══════════════════════════════════════════
-//  SUPABASE
+// SUPABASE
 // ═══════════════════════════════════════════
 const SB = supabase.createClient(
   'https://bnvsljdopxccnncihsvw.supabase.co',
@@ -577,15 +579,26 @@ const SB = supabase.createClient(
 );
 
 // ═══════════════════════════════════════════
-//  APP STATE — single source of truth, no localStorage
+// GLOBAL STATE
 // ═══════════════════════════════════════════
-let USER = null;       // Supabase auth user
-let PROFILE = null;    // profiles row
-let KANA_P = {};       // kana progress: romKey -> {correct,wrong}
-let VOCAB_P = {};      // vocab progress: index -> {correct,wrong,ease,interval_ms,next_review}
+let USER = null;
+let PROFILE = null;
+let KANA_P = {};
+let VOCAB_P = {};
 let ACTIVE_CHAR = 'cyrene';
-let RT_CHANNEL = null; // realtime channel
+let RT_CHANNEL = null;
 
+// PAGE_META — MOVED TO TOP TO FIX TEMPORAL DEAD ZONE
+const PAGE_META = {
+  home: { title: 'おはよう！', sub: 'N5 · Beginner' },
+  kana: { title: 'Kana Mastery', sub: 'Hiragana & Katakana' },
+  vocab: { title: 'Vocabulary', sub: 'N5 Core Vocab' },
+  grammar: { title: 'Grammar', sub: 'N5 Patterns' },
+  reading: { title: 'Reading', sub: 'N5 Passages' },
+  quiz: { title: 'JLPT Quiz', sub: 'Practice Tests' },
+  friends: { title: 'Friends', sub: 'Study Together' },
+  settings: { title: 'Settings', sub: 'Preferences' },
+};
 
   function getChar() { return CHARS[ACTIVE_CHAR] || CHARS.cyrene; }
 function charSay(key) {
@@ -910,20 +923,7 @@ async function logActivity(type, payload = {}) {
   await SB.from('activity').insert({ user_id: USER.id, type, payload });
 }
 
-// ═══════════════════════════════════════════
-//  NAVIGATION
-// ═══════════════════════════════════════════
-const PAGE_META = {
-  home: { title: 'おはよう！', sub: 'N5 · Beginner' },
-  kana: { title: 'Kana Mastery', sub: 'Hiragana & Katakana' },
-  vocab: { title: 'Vocabulary', sub: 'N5 Core Vocab' },
-  grammar: { title: 'Grammar', sub: 'N5 Patterns' },
-  reading: { title: 'Reading', sub: 'N5 Passages' },
-  quiz: { title: 'JLPT Quiz', sub: 'Practice Tests' },
-  friends: { title: 'Friends', sub: 'Study Together' },
-  settings: { title: 'Settings', sub: 'Preferences' },
-};
-
+// NAVIGATION
 function setPage(page) {
   Object.keys(PAGE_META).forEach(p => {
     document.getElementById('page-' + p)?.classList.toggle('active', p === page);
@@ -941,7 +941,7 @@ function setPage(page) {
   if (page === 'settings') renderSettings();
   if (page === 'friends') { loadFriendsActivity(); }
 }
-
+  
 // ═══════════════════════════════════════════
 //  HOME
 // ═══════════════════════════════════════════
