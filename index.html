@@ -247,45 +247,36 @@ body{font-family:var(--ff);background:var(--bg);color:var(--ink);min-height:100v
   <div id="tt-en"></div>
 </div>
 
- <div id="auth-screen">
+<!-- AUTH SCREEN -->
+<div id="auth-screen">
   <div class="auth-card">
     <div class="auth-logo">日</div>
-    <div class="auth-title">Learn With Me — JP!</div>
+    <div class="auth-title">Learn With Me — JP! ??</div>
     <div class="auth-sub">Your Japanese learning companion — N5 to N1</div>
-    
     <div class="auth-tabs">
       <button class="auth-tab active" id="tab-login" onclick="switchAuthTab('login')">Sign in</button>
       <button class="auth-tab" id="tab-signup" onclick="switchAuthTab('signup')">Create account</button>
     </div>
-
     <div id="panel-login">
-      <div class="auth-field">
-        <label>Username</label>
-        <input type="text" id="login-username" placeholder="your username">
-      </div>
-      <div class="auth-field">
-        <label>Password</label>
-        <input type="password" id="login-password" placeholder="...">
-      </div>
+      <div class="auth-field"><label>Username</label><input type="text" id="login-username" placeholder="your username" onkeydown="if(event.key==='Enter')doLogin()"></div>
+      <div class="auth-field"><label>Password</label><input type="password" id="login-password" placeholder="..." onkeydown="if(event.key==='Enter')doLogin()"></div>
       <div class="auth-err" id="login-err"></div>
       <button class="auth-btn" id="login-btn" onclick="doLogin()">Sign in</button>
     </div>
 
     <div id="panel-signup" class="hidden">
-      <div class="auth-field">
-        <label>Username</label>
-        <input type="text" id="su-username" placeholder="e.g. sakura_learner">
-      </div>
-      <div class="auth-field">
-        <label>Password</label>
-        <input type="password" id="su-password" placeholder="min. 6 characters">
-      </div>
+      <div class="auth-field"><label>Username</label><input type="text" id="su-username" placeholder="e.g. sakura_learner"></div>
+      <div class="auth-field"><label>Password</label><input type="password" id="su-password" placeholder="choose a password (min. 6 chars)"></div>
+      <div id="su-msg" class="auth-err"></div>
+      <button class="auth-btn" id="su-btn" onclick="doSignup()">Create account</button>
+    </div>
+      <div class="auth-field"><label>Password</label><input type="password" id="su-password" placeholder="min. 6 characters"></div>
       <div id="su-msg" class="auth-err"></div>
       <button class="auth-btn" id="su-btn" onclick="doSignup()">Create account</button>
     </div>
   </div>
 </div>
-  
+
 <!-- MAIN APP (hidden until authed) -->
 <div class="app hidden" id="main-app">
 
@@ -586,7 +577,98 @@ let VOCAB_P = {};      // vocab progress: index -> {correct,wrong,ease,interval_
 let ACTIVE_CHAR = 'cyrene';
 let RT_CHANNEL = null; // realtime channel
 
-
+// ═══════════════════════════════════════════
+//  CHARACTERS
+// ═══════════════════════════════════════════
+const CHARS = {
+  cyrene: {
+    id: 'cyrene',
+    name: 'Cyrene',
+    emoji: '??',
+    color: 'linear-gradient(135deg,#c084fc,#f472b6)',
+    nameColor: '#9333ea',
+    portrait: null, // set to image URL once uploaded
+    greetings: [
+      "おはよう… I've been keeping a little hope warm for your return. Ready to study together? ??",
+      "Every word you learn is a small lantern lit. Let's light a few more today. 頑張って！",
+      "I'm glad you're here. Even quiet steps forward are still steps. 良い調子！",
+      "Something gentle told me you'd come back today. Let's make it count. ✨",
+    ],
+    correct: [
+      "Yes — 正解！ That felt right, didn't it? You're growing. ??",
+      "That's exactly it. I knew you had it in you. ✨",
+      "完璧！ Perfect. Small victories are still victories worth keeping.",
+      "正解！ You're doing beautifully. I'm proud of you.",
+    ],
+    wrong: [
+      "Oh… that one slipped past you. But that's okay — let's hold onto it gently and try again.",
+      "Not quite — but every mistake is a memory being made. You'll know this one next time.",
+      "Don't be too hard on yourself. Even I needed time. がんばって！",
+      "Almost — let's sit with this one a little longer and it'll stick. ??",
+    ],
+    quizGood: "最高！ That score is something to be cherished. You've worked so hard for this. ??",
+    quizOk: "A kind effort, and kind efforts grow into something beautiful with time. ??",
+    quizPoor: "It's alright. Every attempt is a seed. Let's water it together and try again. ??",
+  },
+  aventurine: {
+    id: 'aventurine',
+    name: 'Aventurine',
+    emoji: '??',
+    color: 'linear-gradient(135deg,#fbbf24,#f59e0b)',
+    nameColor: '#d97706',
+    portrait: null,
+    greetings: [
+      "Well, well — you're back. I had a *feeling* today's odds were in your favour. Shall we place a bet on how much you learn? ??",
+      "Ah, the student returns. I've been… keeping your seat warm. Don't read into it. Let's go.",
+      "You know, most people fold when it gets hard. You didn't. Interesting. 今日も頑張ろう！",
+      "I don't do encouragement. I do *calculated confidence*. And mine in you? Currently very high. ??",
+    ],
+    correct: [
+      "Ha! Called it. 正解！ The odds were always in your favour — you just had to believe that.",
+      "Well played. 完璧！ I almost doubted you. Almost.",
+      "正解！ See? A little risk, a big reward. That's the game.",
+      "Now *that's* what I'm talking about. You've got good instincts. ✨",
+    ],
+    wrong: [
+      "Hmm. The house wins one. Don't let it rattle you — even I've taken a loss or two. Recalibrate.",
+      "Wrong bet this time. But the next hand's already being dealt. Stay in the game.",
+      "Everyone's luck dips. The smart ones don't walk away — they double down on studying. ??",
+      "Not ideal. But I didn't get where I am by quitting after a setback. Neither will you.",
+    ],
+    quizGood: "...I'll admit, that impressed me. 最高！ Not many pull off a score like that. Well played. ??",
+    quizOk: "Decent. Not spectacular, but decent has potential. Sharpen up and go again.",
+    quizPoor: "Rough round. But the best gamblers lose gracefully and come back smarter. So — again?",
+  },
+  itto: {
+    id: 'itto',
+    name: 'Itto',
+    emoji: '??',
+    color: 'linear-gradient(135deg,#ef4444,#dc2626)',
+    nameColor: '#dc2626',
+    portrait: null,
+    greetings: [
+      "YO!! You showed up!! The ARATAKI GANG is PUMPED!! 今日も頑張ろう, let's DO THIS!! ????",
+      "HEYYY!! I was WAITING for you!! Nobody studies harder than US!! LET'S GOOO!!",
+      "OH YEAH!! Another day, another chance to be ABSOLUTELY UNSTOPPABLE at Japanese!! READY?! ??",
+      "The GREAT and POWERFUL Arataki Itto has been warming up!! NOW YOU'RE HERE!! LET'S SMASH IT!!",
+    ],
+    correct: [
+      "YOOOOO!! 正解!! That's INCREDIBLE!! You're a LEGEND!! ????",
+      "YEAH YEAH YEAH!! 完璧!! The gang is going WILD right now!! SO PROUD!!",
+      "THAT'S MY STUDENT!! 正解!! We are UNSTOPPABLE!!",
+      "WHOOOOO!! You're on FIRE!! Keep going, KEEP GOING!! ⚡",
+    ],
+    wrong: [
+      "Aw MAN!! But hey — even Itto gets knocked down sometimes!! The real L is STAYING down!! GET UP!!",
+      "OKAY OKAY that one was sneaky!! But we don't QUIT!! Try again and CRUSH IT!! ??",
+      "Hmph!! That answer tried to beat us!! But we're TOUGHER!! がんばって!!",
+      "Not today, wrong answer!! We're gonna MEMORIZE THIS and come back SWINGING!! ??",
+    ],
+    quizGood: "OHHHHH!! THAT SCORE!! 最高!! THE ARATAKI GANG IS GOING ABSOLUTELY NUTS RIGHT NOW!! ????????",
+    quizOk: "HEY that's SOLID!! Not bad at ALL!! More practice and we'll be LEGENDARY!! ??",
+    quizPoor: "Okay LISTEN!! We just needed a WARM UP ROUND!! Now we're WARMED UP!! GO AGAIN!! ??",
+  }
+};
 
 function getChar() { return CHARS[ACTIVE_CHAR] || CHARS.cyrene; }
 function charSay(key) {
@@ -666,7 +748,7 @@ const GRAMMAR=[
   {p:'〜に行きます',e:'Go to [place]',l:'N5',rule:'に marks destination with movement verbs 行く/来る.',ex:[{j:'がっこうにいきます。',r:'Gakkou ni ikimasu.',e:'I go to school.'},{j:'うちにかえります。',r:'Uchi ni kaerimasu.',e:'I return home.'}]},
   {p:'〜で〜ます',e:'Do [verb] at/by [place/means]',l:'N5',rule:'で marks where an action happens, or the means used.',ex:[{j:'としょかんでよみます。',r:'Toshokan de yomimasu.',e:'I read at the library.'},{j:'バスでいきます。',r:'Basu de ikimasu.',e:'I go by bus.'}]},
   {p:'〜も',e:'Also / too',l:'N5',rule:'も replaces は or が to mean "also" or "too".',ex:[{j:'わたしもがくせいです。',r:'Watashi mo gakusei desu.',e:'I am also a student.'}]},
-  {p:'〜ません',e:'Do not [verb]',l:'N5',rule:'Replace ます with ません for polite negative.',ex:[{j:'わかりません。',r:'Wakarimasen.',e:'I dont understand.'},{j:'たべません。',r:'Tabemasen.',e:'I dont eat.'}]},
+  {p:'〜ません',e:'Do not [verb]',l:'N5',rule:'Replace ます with ません for polite negative.',ex:[{j:'わかりません。',r:'Wakarimasen.',e:'I don't understand.'},{j:'たべません。',r:'Tabemasen.',e:'I don't eat.'}]},
   {p:'〜たい',e:'Want to [verb]',l:'N5',rule:'Attach たい to verb stem to express desire.',ex:[{j:'にほんごをはなしたいです。',r:'Nihongo wo hanashitai desu.',e:'I want to speak Japanese.'}]},
   {p:'〜てください',e:'Please do [verb]',l:'N5',rule:'て-form + ください = polite request.',ex:[{j:'みてください。',r:'Mite kudasai.',e:'Please look.'},{j:'まってください。',r:'Matte kudasai.',e:'Please wait.'}]},
   {p:'〜ています',e:'Is doing / in a state of',l:'N5',rule:'て-form + います = ongoing action or resulting state.',ex:[{j:'いまたべています。',r:'Ima tabete imasu.',e:'I am eating now.'}]},
@@ -806,17 +888,31 @@ function doLogout() {
   switchAuthTab('login');
 }
 
+async function bootApp() {
+  // Persist session
+  try { localStorage.setItem('lwm_session', JSON.stringify({ id: USER.id, username: USER.username, ts: Date.now() })); } catch(e) {}
+  document.getElementById('auth-screen').classList.add('hidden');
+  document.getElementById('main-app').classList.remove('hidden');
+  setPage('home');
+  await loadUserData();
+  setTimeout(() => openCompanionModal(), 400);
+}
+
+// Restore session on page load
+(function restoreSession() {
+  try {
+    const saved = localStorage.getItem('lwm_session');
+    if (!saved) return;
+    const { id, username, ts } = JSON.parse(saved);
+    if (Date.now() - ts > 7 * 86400000) { localStorage.removeItem('lwm_session'); return; }
+    USER = { id, username };
+    bootApp();
+  } catch(e) { try { localStorage.removeItem('lwm_session'); } catch(e2) {} }
+})();
+
 // ═══════════════════════════════════════════
 //  DATA LOADING
 // ═══════════════════════════════════════════
-
-function setSyncStatus(msg, spinning) {
-  const el = document.getElementById('sync-status');
-  if (!el) return;
-  el.textContent = msg;
-  el.className = spinning ? 'spinning' : '';
-}
-  
 async function loadUserData() {
   setSyncStatus('⟳', false);
 
@@ -928,28 +1024,6 @@ function setPage(page) {
   if (page === 'settings') renderSettings();
   if (page === 'friends') { loadFriendsActivity(); }
 }
-
-  async function bootApp() {
-  // Persist session
-  try { localStorage.setItem('lwm_session', JSON.stringify({ id: USER.id, username: USER.username, ts: Date.now() })); } catch(e) {}
-  document.getElementById('auth-screen').classList.add('hidden');
-  document.getElementById('main-app').classList.remove('hidden');
-  setPage('home');
-  await loadUserData();
-  setTimeout(() => openCompanionModal(), 400);
-}
-
-// Restore session on page load
-(function restoreSession() {
-  try {
-    const saved = localStorage.getItem('lwm_session');
-    if (!saved) return;
-    const { id, username, ts } = JSON.parse(saved);
-    if (Date.now() - ts > 7 * 86400000) { localStorage.removeItem('lwm_session'); return; }
-    USER = { id, username };
-    bootApp();
-  } catch(e) { try { localStorage.removeItem('lwm_session'); } catch(e2) {} }
-})();
 
 // ═══════════════════════════════════════════
 //  HOME
