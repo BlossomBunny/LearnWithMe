@@ -247,17 +247,43 @@ body{font-family:var(--ff);background:var(--bg);color:var(--ink);min-height:100v
   <div id="tt-en"></div>
 </div>
 
-  <div id="panel-signup" class="hidden">
-  <div class="auth-field">
-    <label>Username</label>
-    <input type="text" id="su-username" placeholder="e.g. sakura_learner">
+ <div id="auth-screen">
+  <div class="auth-card">
+    <div class="auth-logo">日</div>
+    <div class="auth-title">Learn With Me — JP!</div>
+    <div class="auth-sub">Your Japanese learning companion — N5 to N1</div>
+    
+    <div class="auth-tabs">
+      <button class="auth-tab active" id="tab-login" onclick="switchAuthTab('login')">Sign in</button>
+      <button class="auth-tab" id="tab-signup" onclick="switchAuthTab('signup')">Create account</button>
+    </div>
+
+    <div id="panel-login">
+      <div class="auth-field">
+        <label>Username</label>
+        <input type="text" id="login-username" placeholder="your username">
+      </div>
+      <div class="auth-field">
+        <label>Password</label>
+        <input type="password" id="login-password" placeholder="...">
+      </div>
+      <div class="auth-err" id="login-err"></div>
+      <button class="auth-btn" id="login-btn" onclick="doLogin()">Sign in</button>
+    </div>
+
+    <div id="panel-signup" class="hidden">
+      <div class="auth-field">
+        <label>Username</label>
+        <input type="text" id="su-username" placeholder="e.g. sakura_learner">
+      </div>
+      <div class="auth-field">
+        <label>Password</label>
+        <input type="password" id="su-password" placeholder="min. 6 characters">
+      </div>
+      <div id="su-msg" class="auth-err"></div>
+      <button class="auth-btn" id="su-btn" onclick="doSignup()">Create account</button>
+    </div>
   </div>
-  <div class="auth-field">
-    <label>Password</label>
-    <input type="password" id="su-password" placeholder="min. 6 characters">
-  </div>
-  <div id="su-msg" class="auth-err"></div>
-  <button class="auth-btn" id="su-btn" onclick="doSignup()">Create account</button>
 </div>
   
 <!-- MAIN APP (hidden until authed) -->
@@ -318,7 +344,7 @@ body{font-family:var(--ff);background:var(--bg);color:var(--ink);min-height:100v
     </div>
     <div style="display:flex;gap:8px;align-items:center">
       <span id="sync-dot" style="font-size:11px;color:var(--ink3)"></span>
-      <div class="pill pill-gold">?? <span id="streak-disp">0</span>d</div>
+      <div class="pill pill-gold">🔥 <span id="streak-disp">0</span>d</div>
       <div class="pill pill-plum">⚡ <span id="xp-disp">0</span></div>
       <button class="icon-btn" onclick="doLogout()" title="Sign out">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
@@ -338,18 +364,18 @@ body{font-family:var(--ff);background:var(--bg);color:var(--ink);min-height:100v
         </div>
       </div>
       <div class="grid-4">
-        <div class="stat-card"><div class="stat-icon">??</div><div class="stat-num" id="s-reviewed">0</div><div class="stat-label">Reviewed Today</div></div>
+        <div class="stat-card"><div class="stat-icon">📚</div><div class="stat-num" id="s-reviewed">0</div><div class="stat-label">Reviewed Today</div></div>
         <div class="stat-card"><div class="stat-icon">✅</div><div class="stat-num" id="s-accuracy">0%</div><div class="stat-label">Accuracy</div></div>
-        <div class="stat-card"><div class="stat-icon">??</div><div class="stat-num" id="s-due">0</div><div class="stat-label">Due for Review</div></div>
+        <div class="stat-card"><div class="stat-icon">🎯</div><div class="stat-num" id="s-due">0</div><div class="stat-label">Due for Review</div></div>
         <div class="stat-card"><div class="stat-icon">⭐</div><div class="stat-num" id="s-mastered">0</div><div class="stat-label">Mastered</div></div>
       </div>
       <div class="grid-3">
-        <div class="mode-card" onclick="setPage('kana')"><div class="mode-icon" style="background:#ede9fe">??</div><div class="mode-title">Kana Mastery</div><div class="mode-desc">Hiragana & katakana with spaced repetition</div><div class="mode-badge" id="mc-kana">Loading...</div></div>
-        <div class="mode-card" onclick="setPage('vocab')"><div class="mode-icon" style="background:#fce7f3">??</div><div class="mode-title">Vocabulary</div><div class="mode-desc">N5 core vocab SRS flashcards</div><div class="mode-badge">800 words</div></div>
+        <div class="mode-card" onclick="setPage('kana')"><div class="mode-icon" style="background:#ede9fe">🔤</div><div class="mode-title">Kana Mastery</div><div class="mode-desc">Hiragana & katakana with spaced repetition</div><div class="mode-badge" id="mc-kana">Loading...</div></div>
+        <div class="mode-card" onclick="setPage('vocab')"><div class="mode-icon" style="background:#fce7f3">📖</div><div class="mode-title">Vocabulary</div><div class="mode-desc">N5 core vocab SRS flashcards</div><div class="mode-badge">800 words</div></div>
         <div class="mode-card" onclick="setPage('grammar')"><div class="mode-icon" style="background:#ccfbf1">✍️</div><div class="mode-title">Grammar</div><div class="mode-desc">Essential N5 grammar patterns</div><div class="mode-badge">15 patterns</div></div>
-        <div class="mode-card" onclick="setPage('reading')"><div class="mode-icon" style="background:#fef3c7">??</div><div class="mode-title">Reading</div><div class="mode-desc">N5 passages with interactive tooltips</div><div class="mode-badge">3 passages</div></div>
-        <div class="mode-card" onclick="setPage('quiz')"><div class="mode-icon" style="background:#fee2e2">??</div><div class="mode-title">JLPT Quiz</div><div class="mode-desc">Practice tests in the real JLPT format</div><div class="mode-badge">3 quiz types</div></div>
-        <div class="mode-card" onclick="setPage('friends')"><div class="mode-icon" style="background:#f0fdf4">??</div><div class="mode-title">Friends</div><div class="mode-desc">Study together & send encouragement</div><div class="mode-badge" id="mc-friends">Add friends</div></div>
+        <div class="mode-card" onclick="setPage('reading')"><div class="mode-icon" style="background:#fef3c7">📰</div><div class="mode-title">Reading</div><div class="mode-desc">N5 passages with interactive tooltips</div><div class="mode-badge">3 passages</div></div>
+        <div class="mode-card" onclick="setPage('quiz')"><div class="mode-icon" style="background:#fee2e2">🎮</div><div class="mode-title">JLPT Quiz</div><div class="mode-desc">Practice tests in the real JLPT format</div><div class="mode-badge">3 quiz types</div></div>
+        <div class="mode-card" onclick="setPage('friends')"><div class="mode-icon" style="background:#f0fdf4">👥</div><div class="mode-title">Friends</div><div class="mode-desc">Study together & send encouragement</div><div class="mode-badge" id="mc-friends">Add friends</div></div>
       </div>
       <div class="section-head"><div class="section-title">Kana Progress</div></div>
       <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--r2);padding:18px;box-shadow:var(--shadow);margin-bottom:24px">
@@ -417,7 +443,7 @@ body{font-family:var(--ff);background:var(--bg);color:var(--ink);min-height:100v
             </div>
           </div>
           <div id="fc-done" class="hidden" style="text-align:center;padding:36px">
-            <div style="font-size:44px;margin-bottom:10px">??</div>
+            <div style="font-size:44px;margin-bottom:10px">🎉</div>
             <div style="font-size:19px;font-weight:600;margin-bottom:6px">Session complete!</div>
             <div style="font-size:13px;color:var(--ink3);margin-bottom:20px">All cards reviewed.</div>
             <button class="btn btn-primary" onclick="initVocabFC()">Study More</button>
@@ -466,9 +492,9 @@ body{font-family:var(--ff);background:var(--bg);color:var(--ink);min-height:100v
           <div><div class="companion-name" style="color:var(--plum)" id="quiz-char-name">Cyrene</div><div class="companion-msg">Ready for a challenge? 頑張って！</div></div>
         </div>
         <div class="grid-3">
-          <div class="mode-card" onclick="startQuiz('vocab')"><div class="mode-icon" style="background:#ede9fe">??</div><div class="mode-title">Vocabulary MCQ</div><div class="mode-desc">Choose the correct meaning for each word</div><div class="mode-badge">10 questions</div></div>
-          <div class="mode-card" onclick="startQuiz('grammar')"><div class="mode-icon" style="background:#ccfbf1">??</div><div class="mode-title">Grammar Fill-in</div><div class="mode-desc">Pick the right grammar pattern</div><div class="mode-badge">10 questions</div></div>
-          <div class="mode-card" onclick="startQuiz('kana')"><div class="mode-icon" style="background:#fce7f3">??</div><div class="mode-title">Kana Speed</div><div class="mode-desc">Rapid-fire kana recognition</div><div class="mode-badge">20 questions</div></div>
+          <div class="mode-card" onclick="startQuiz('vocab')"><div class="mode-icon" style="background:#ede9fe">📝</div><div class="mode-title">Vocabulary MCQ</div><div class="mode-desc">Choose the correct meaning for each word</div><div class="mode-badge">10 questions</div></div>
+          <div class="mode-card" onclick="startQuiz('grammar')"><div class="mode-icon" style="background:#ccfbf1">🔧</div><div class="mode-title">Grammar Fill-in</div><div class="mode-desc">Pick the right grammar pattern</div><div class="mode-badge">10 questions</div></div>
+          <div class="mode-card" onclick="startQuiz('kana')"><div class="mode-icon" style="background:#fce7f3">🔤</div><div class="mode-title">Kana Speed</div><div class="mode-desc">Rapid-fire kana recognition</div><div class="mode-badge">20 questions</div></div>
         </div>
       </div>
       <div id="quiz-active" class="hidden">
@@ -494,7 +520,7 @@ body{font-family:var(--ff);background:var(--bg);color:var(--ink);min-height:100v
         </div>
       </div>
       <div id="quiz-result" class="hidden" style="text-align:center;padding:40px;max-width:380px;margin:0 auto">
-        <div style="font-size:52px;margin-bottom:10px" id="qr-emoji">??</div>
+        <div style="font-size:52px;margin-bottom:10px" id="qr-emoji">🎉</div>
         <div style="font-size:22px;font-weight:600;margin-bottom:5px">Quiz Complete!</div>
         <div style="font-size:15px;color:var(--ink3);margin-bottom:22px"><span id="qr-score">0</span>/<span id="qr-tot">10</span> correct</div>
         <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--r2);padding:18px;margin-bottom:20px"><div id="qr-msg" style="font-size:13.5px;color:var(--ink2)"></div></div>
@@ -560,100 +586,8 @@ let VOCAB_P = {};      // vocab progress: index -> {correct,wrong,ease,interval_
 let ACTIVE_CHAR = 'cyrene';
 let RT_CHANNEL = null; // realtime channel
 
-// ═══════════════════════════════════════════
-//  CHARACTERS
-// ═══════════════════════════════════════════
-const CHARS = {
-  cyrene: {
-    id: 'cyrene',
-    name: 'Cyrene',
-    emoji: '??',
-    color: 'linear-gradient(135deg,#c084fc,#f472b6)',
-    nameColor: '#9333ea',
-    portrait: null, // set to image URL once uploaded
-    greetings: [
-      "おはよう… I've been keeping a little hope warm for your return. Ready to study together? ??",
-      "Every word you learn is a small lantern lit. Let's light a few more today. 頑張って！",
-      "I'm glad you're here. Even quiet steps forward are still steps. 良い調子！",
-      "Something gentle told me you'd come back today. Let's make it count. ✨",
-    ],
-    correct: [
-      "Yes — 正解！ That felt right, didn't it? You're growing. ??",
-      "That's exactly it. I knew you had it in you. ✨",
-      "完璧！ Perfect. Small victories are still victories worth keeping.",
-      "正解！ You're doing beautifully. I'm proud of you.",
-    ],
-    wrong: [
-      "Oh… that one slipped past you. But that's okay — let's hold onto it gently and try again.",
-      "Not quite — but every mistake is a memory being made. You'll know this one next time.",
-      "dont be too hard on yourself. Even I needed time. がんばって！",
-      "Almost — let's sit with this one a little longer and it'll stick. ??",
-    ],
-    quizGood: "最高！ That score is something to be cherished. You've worked so hard for this. ??",
-    quizOk: "A kind effort, and kind efforts grow into something beautiful with time. ??",
-    quizPoor: "It's alright. Every attempt is a seed. Let's water it together and try again. ??",
-  },
-  aventurine: {
-    id: 'aventurine',
-    name: 'Aventurine',
-    emoji: '??',
-    color: 'linear-gradient(135deg,#fbbf24,#f59e0b)',
-    nameColor: '#d97706',
-    portrait: null,
-    greetings: [
-      "Well, well — you're back. I had a *feeling* today's odds were in your favour. Shall we place a bet on how much you learn? ??",
-      "Ah, the student returns. I've been… keeping your seat warm. dont read into it. Let's go.",
-      "You know, most people fold when it gets hard. You didn't. Interesting. 今日も頑張ろう！",
-      "I dont do encouragement. I do *calculated confidence*. And mine in you? Currently very high. ??",
-    ],
-    correct: [
-      "Ha! Called it. 正解！ The odds were always in your favour — you just had to believe that.",
-      "Well played. 完璧！ I almost doubted you. Almost.",
-      "正解！ See? A little risk, a big reward. That's the game.",
-      "Now *that's* what I'm talking about. You've got good instincts. ✨",
-    ],
-    wrong: [
-      "Hmm. The house wins one. dont let it rattle you — even I've taken a loss or two. Recalibrate.",
-      "Wrong bet this time. But the next hand's already being dealt. Stay in the game.",
-      "Everyone's luck dips. The smart ones dont walk away — they double down on studying. ??",
-      "Not ideal. But I didn't get where I am by quitting after a setback. Neither will you.",
-    ],
-    quizGood: "...I'll admit, that impressed me. 最高！ Not many pull off a score like that. Well played. ??",
-    quizOk: "Decent. Not spectacular, but decent has potential. Sharpen up and go again.",
-    quizPoor: "Rough round. But the best gamblers lose gracefully and come back smarter. So — again?",
-  },
-  itto: {
-    id: 'itto',
-    name: 'Itto',
-    emoji: '??',
-    color: 'linear-gradient(135deg,#ef4444,#dc2626)',
-    nameColor: '#dc2626',
-    portrait: null,
-    greetings: [
-      "YO!! You showed up!! The ARATAKI GANG is PUMPED!! 今日も頑張ろう, let's DO THIS!! ????",
-      "HEYYY!! I was WAITING for you!! Nobody studies harder than US!! LET'S GOOO!!",
-      "OH YEAH!! Another day, another chance to be ABSOLUTELY UNSTOPPABLE at Japanese!! READY?! ??",
-      "The GREAT and POWERFUL Arataki Itto has been warming up!! NOW YOU'RE HERE!! LET'S SMASH IT!!",
-    ],
-    correct: [
-      "YOOOOO!! 正解!! That's INCREDIBLE!! You're a LEGEND!! ????",
-      "YEAH YEAH YEAH!! 完璧!! The gang is going WILD right now!! SO PROUD!!",
-      "THAT'S MY STUDENT!! 正解!! We are UNSTOPPABLE!!",
-      "WHOOOOO!! You're on FIRE!! Keep going, KEEP GOING!! ⚡",
-    ],
-    wrong: [
-      "Aw MAN!! But hey — even Itto gets knocked down sometimes!! The real L is STAYING down!! GET UP!!",
-      "OKAY OKAY that one was sneaky!! But we dont QUIT!! Try again and CRUSH IT!! ??",
-      "Hmph!! That answer tried to beat us!! But we're TOUGHER!! がんばって!!",
-      "Not today, wrong answer!! We're gonna MEMORIZE THIS and come back SWINGING!! ??",
-    ],
-    quizGood: "OHHHHH!! THAT SCORE!! 最高!! THE ARATAKI GANG IS GOING ABSOLUTELY NUTS RIGHT NOW!! ????????",
-    quizOk: "HEY that's SOLID!! Not bad at ALL!! More practice and we'll be LEGENDARY!! ??",
-    quizPoor: "Okay LISTEN!! We just needed a WARM UP ROUND!! Now we're WARMED UP!! GO AGAIN!! ??",
-  }
-};
 
-function getChar() { return CHARS[ACTIVE_CHAR] || CHARS.cyrene; }
+  function getChar() { return CHARS[ACTIVE_CHAR] || CHARS.cyrene; }
 function charSay(key) {
   const c = getChar();
   const v = c[key];
@@ -850,7 +784,7 @@ async function doSignup() {
     btn.disabled = false; btn.textContent = 'Create account'; return;
   }
   await withTimeout(
-    SB.from('profiles').insert({ id, username, display_name: username, avatar_emoji: '??', active_character: 'cyrene' })
+    SB.from('profiles').insert({ id, username, display_name: username, avatar_emoji: '🌸', active_character: 'cyrene' })
   );
 
   USER = { id, username };
@@ -1038,7 +972,7 @@ function renderHome() {
   document.getElementById('kp-bar').style.width = Math.round(kM / 46 * 100) + '%';
 
   const kanaDue = [...HG, ...KT].filter(k => { const p = KANA_P[k.r]; return !p || p.correct < 3; }).length;
-  document.getElementById('mc-kana').textContent = kanaDue > 0 ? kanaDue + ' to review' : 'All mastered! ??';
+  document.getElementById('mc-kana').textContent = kanaDue > 0 ? kanaDue + ' to review' : 'All mastered! 🎉';
 
   checkStreak();
   loadFriendsActivity(true); // true = home feed only
@@ -1094,7 +1028,7 @@ function startKanaQuiz() {
 
 function renderKQ() {
   if (kQIdx >= kQSet.length) {
-    document.getElementById('kq-char').textContent = '??';
+    document.getElementById('kq-char').textContent = '🎉';
     document.getElementById('kq-prompt').textContent = 'Done! Score: ' + kQScore + '/' + kQSet.length;
     document.getElementById('kq-opts').innerHTML = '<button class="btn btn-primary" style="grid-column:span 4" onclick="startKanaQuiz()">Play Again</button>';
     document.getElementById('kq-score').textContent = '';
@@ -1110,28 +1044,39 @@ function renderKQ() {
   ).join('');
 }
 
-async function checkKQ(el, chosen, correct, kana) {
-  document.querySelectorAll('.kana-opt').forEach(o => { o.classList.add('disabled'); o.style.pointerEvents = 'none'; });
+function checkKQ(el, chosen, correct, kana) {
+  // Lock options immediately — synchronous, never blocks
+  document.querySelectorAll('.kana-opt').forEach(o => {
+    o.classList.add('disabled');
+    o.style.pointerEvents = 'none';
+  });
   const prog = KANA_P[correct] || { correct: 0, wrong: 0 };
   const fb = document.getElementById('kq-fb');
   if (chosen === correct) {
     el.classList.add('correct');
     prog.correct = (prog.correct || 0) + 1;
     kQScore++;
-    fb.style.display = 'block'; fb.style.background = 'var(--green3)'; fb.style.color = 'var(--green)'; fb.style.padding = '10px 14px'; fb.style.borderRadius = 'var(--r)';
+    fb.style.cssText = 'display:block;background:var(--green3);color:var(--green);padding:10px 14px;border-radius:var(--r)';
     fb.textContent = charSay('correct') + ' ✓ ' + kana + ' = ' + correct;
-    await addXP(5);
+    addXP(5).catch(() => {}); // fire-and-forget
     if (prog.correct === 3) logActivity('kana_mastered', { kana, script: HG.some(h => h.r === correct) ? 'hiragana' : 'katakana' });
   } else {
+    document.querySelectorAll('.kana-opt').forEach(o => {
+      if (o.textContent.trim() === correct) o.classList.add('correct');
+    });
     el.classList.add('wrong');
-    document.querySelectorAll('.kana-opt').forEach(o => { if (o.textContent.trim() === correct) o.classList.add('correct'); });
     prog.wrong = (prog.wrong || 0) + 1;
-    fb.style.display = 'block'; fb.style.background = 'var(--red3)'; fb.style.color = 'var(--red)'; fb.style.padding = '10px 14px'; fb.style.borderRadius = 'var(--r)';
+    fb.style.cssText = 'display:block;background:var(--red3);color:var(--red);padding:10px 14px;border-radius:var(--r)';
     fb.textContent = charSay('wrong') + ' — ' + kana + ' is "' + correct + '"';
   }
   KANA_P[correct] = prog;
-  if (USER) await SB.from('progress_kana').upsert({ user_id: USER.id, kana_key: correct, correct: prog.correct, wrong: prog.wrong, next_review: new Date().toISOString(), updated_at: new Date().toISOString() }, { onConflict: 'user_id,kana_key' });
-  setTimeout(() => { kQIdx++; renderKQ(); }, 1400);
+  // Next question fires immediately — DB save happens in background
+  setTimeout(() => { kQIdx++; renderKQ(); }, 1800);
+  if (USER) withTimeout(SB.from('progress_kana').upsert(
+    { user_id: USER.id, kana_key: correct, correct: prog.correct, wrong: prog.wrong,
+      next_review: new Date().toISOString(), updated_at: new Date().toISOString() },
+    { onConflict: 'user_id,kana_key' }
+  )).catch(() => {});
 }
 
 // ═══════════════════════════════════════════
@@ -1266,7 +1211,7 @@ function toggleG(i) { document.getElementById('gc-b-' + i).classList.toggle('ope
 function renderPassageList() {
   document.getElementById('passage-cards').innerHTML = PASSAGES.map(p =>
     `<div class="mode-card" onclick="openPassage('${p.id}')">
-      <div class="mode-icon" style="background:var(--gold3)">??</div>
+      <div class="mode-icon" style="background:var(--gold3)">📖</div>
       <div class="mode-title">${p.title}</div>
       <div class="mode-desc">Click any word for instant translation.</div>
       <div class="mode-badge">${p.qs.length} questions</div>
@@ -1384,7 +1329,7 @@ async function showQZResult() {
   document.getElementById('quiz-active').classList.add('hidden');
   document.getElementById('quiz-result').classList.remove('hidden');
   const pct = qzScore / qzQs.length;
-  document.getElementById('qr-emoji').textContent = pct >= 0.8 ? '??' : pct >= 0.6 ? '??' : '??';
+  document.getElementById('qr-emoji').textContent = pct >= 0.8 ? '🏆' : pct >= 0.6 ? '😊' : '💪';
   document.getElementById('qr-score').textContent = qzScore;
   document.getElementById('qr-tot').textContent = qzQs.length;
   document.getElementById('qr-msg').textContent = pct >= 0.8 ? charSay('quizGood') : pct >= 0.5 ? charSay('quizOk') : charSay('quizPoor');
@@ -1416,11 +1361,11 @@ function timeAgo(iso) {
 
 function actLabel(a) {
   const t = a.type, p = a.payload || {};
-  if (t === 'streak') return 'hit a <strong>' + p.days + '-day streak</strong> ??';
+  if (t === 'streak') return 'hit a <strong>' + p.days + '-day streak</strong> 🔥';
   if (t === 'level_up') return 'reached <strong>Level ' + p.level + '</strong> ⭐';
   if (t === 'kana_mastered') return 'mastered <strong>' + p.kana + '</strong> in ' + (p.script || 'kana') + '!';
-  if (t === 'quiz_complete') return 'scored <strong>' + p.score + '/' + p.total + '</strong> on a quiz ??';
-  if (t === 'vocab_milestone') return 'learned their <strong>' + p.count + 'th word</strong> ??';
+  if (t === 'quiz_complete') return 'scored <strong>' + p.score + '/' + p.total + '</strong> on a quiz 🎯';
+  if (t === 'vocab_milestone') return 'learned their <strong>' + p.count + 'th word</strong> 📖';
   return 'studied Japanese';
 }
 
@@ -1431,7 +1376,7 @@ async function loadFriendsActivity(homeOnly = false) {
 
   if (!fIds.length) {
     const el = document.getElementById('ft-activity');
-    if (el && !homeOnly) el.innerHTML = '<div style="text-align:center;padding:40px;color:var(--ink3)"><div style="font-size:30px;margin-bottom:10px">??</div>Add friends to see their activity here.</div>';
+    if (el && !homeOnly) el.innerHTML = '<div style="text-align:center;padding:40px;color:var(--ink3)"><div style="font-size:30px;margin-bottom:10px">👥</div>Add friends to see their activity here.</div>';
     document.getElementById('home-feed-section')?.classList.add('hidden');
     return;
   }
@@ -1454,18 +1399,18 @@ async function loadFriendsActivity(homeOnly = false) {
 function feedItem(a) {
   const prof = a.profiles || {};
   return `<div class="feed-item">
-    <div class="feed-avatar">${prof.avatar_emoji || '??'}</div>
+    <div class="feed-avatar">${prof.avatar_emoji || '🌸'}</div>
     <div class="feed-text"><strong>${prof.username || 'Friend'}</strong> ${actLabel(a)}<div class="feed-time">${timeAgo(a.created_at)}</div></div>
-    <button class="enc-btn" id="enc-${a.id}" onclick="sendEnc('${a.id}',this)">?? Cheer</button>
+    <button class="enc-btn" id="enc-${a.id}" onclick="sendEnc('${a.id}',this)">🌸 Cheer</button>
   </div>`;
 }
 
 async function sendEnc(id, btn) {
   if (btn.classList.contains('sent')) return;
-  btn.classList.add('sent'); btn.textContent = '?? Sent!';
+  btn.classList.add('sent'); btn.textContent = '🌸 Sent!';
   const { data: act } = await SB.from('activity').select('encouragements').eq('id', id).single();
   const encs = act?.encouragements || [];
-  encs.push({ from_id: USER.id, emoji: '??', at: new Date().toISOString() });
+  encs.push({ from_id: USER.id, emoji: '🌸', at: new Date().toISOString() });
   await SB.from('activity').update({ encouragements: encs }).eq('id', id);
 }
 
@@ -1476,8 +1421,8 @@ async function loadFriendsList() {
   const { data: r2 } = await SB.from('friends').select('user_id,profiles!friends_user_id_fkey(username,avatar_emoji,xp,streak)').eq('friend_id', USER.id).eq('status', 'accepted');
   const all = [...(r1 || []).map(r => r.profiles), ...(r2 || []).map(r => r.profiles)].filter(Boolean);
   el.innerHTML = all.length ? all.map(f =>
-    `<div class="friend-card"><div class="friend-av">${f.avatar_emoji || '??'}</div>
-     <div><div style="font-size:14px;font-weight:600">${f.username}</div><div style="font-size:11px;color:var(--ink3)">⚡ ${f.xp || 0} XP &nbsp;?? ${f.streak || 0}d streak</div></div></div>`
+    `<div class="friend-card"><div class="friend-av">${f.avatar_emoji || '🌸'}</div>
+     <div><div style="font-size:14px;font-weight:600">${f.username}</div><div style="font-size:11px;color:var(--ink3)">⚡ ${f.xp || 0} XP &nbsp;🔥 ${f.streak || 0}d streak</div></div></div>`
   ).join('') : '<div style="padding:24px;color:var(--ink3)">No friends yet. Use Add Friend!</div>';
 }
 
@@ -1486,7 +1431,7 @@ async function loadFriendRequests() {
   if (!el || !USER) return;
   const { data: reqs } = await SB.from('friends').select('id,profiles!friends_user_id_fkey(username,avatar_emoji)').eq('friend_id', USER.id).eq('status', 'pending');
   el.innerHTML = (reqs || []).length ? reqs.map(r =>
-    `<div class="friend-card"><div class="friend-av">${r.profiles?.avatar_emoji || '??'}</div>
+    `<div class="friend-card"><div class="friend-av">${r.profiles?.avatar_emoji || '🌸'}</div>
      <div style="flex:1"><div style="font-size:14px;font-weight:600">${r.profiles?.username}</div><div style="font-size:11px;color:var(--ink3)">Wants to study with you!</div></div>
      <button class="btn btn-primary btn-sm" onclick="acceptFriend('${r.id}')">Accept</button></div>`
   ).join('') : '<div style="font-size:13px;color:var(--ink3)">No pending requests.</div>';
@@ -1503,7 +1448,7 @@ async function searchFriend() {
   if (!un) return;
   const { data } = await SB.from('profiles').select('id,username,avatar_emoji,xp,streak').eq('username', un).neq('id', USER.id).single();
   if (!data) { res.innerHTML = '<div style="font-size:13px;color:var(--ink3)">No user found.</div>'; return; }
-  res.innerHTML = `<div class="friend-card"><div class="friend-av">${data.avatar_emoji || '??'}</div>
+  res.innerHTML = `<div class="friend-card"><div class="friend-av">${data.avatar_emoji || '🌸'}</div>
     <div style="flex:1"><div style="font-size:14px;font-weight:600">${data.username}</div><div style="font-size:11px;color:var(--ink3)">⚡ ${data.xp || 0} XP</div></div>
     <button class="btn btn-primary btn-sm" onclick="sendFriendReq('${data.id}',this)">+ Add</button></div>`;
 }
