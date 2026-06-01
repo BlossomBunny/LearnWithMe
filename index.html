@@ -832,6 +832,17 @@ function doLogout() {
   switchAuthTab('login');
 }
 
+function openCompanionModal() {
+  // Placeholder for now - you can expand this later
+  console.log("Companion modal opened");
+  
+  // If you want the companion bar to show something on home
+  const homePortrait = document.getElementById('home-portrait');
+  if (homePortrait) {
+    renderPortrait(homePortrait, ACTIVE_CHAR);
+  }
+}
+  
 async function bootApp() {
   // Persist session
   try { localStorage.setItem('lwm_session', JSON.stringify({ id: USER.id, username: USER.username, ts: Date.now() })); } catch(e) {}
