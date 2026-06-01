@@ -586,7 +586,7 @@ const CHARS = {
     wrong: [
       "Oh… that one slipped past you. But that's okay — let's hold onto it gently and try again.",
       "Not quite — but every mistake is a memory being made. You'll know this one next time.",
-      "Don't be too hard on yourself. Even I needed time. がんばって！",
+      "dont be too hard on yourself. Even I needed time. がんばって！",
       "Almost — let's sit with this one a little longer and it'll stick. ??",
     ],
     quizGood: "最高！ That score is something to be cherished. You've worked so hard for this. ??",
@@ -602,9 +602,9 @@ const CHARS = {
     portrait: null,
     greetings: [
       "Well, well — you're back. I had a *feeling* today's odds were in your favour. Shall we place a bet on how much you learn? ??",
-      "Ah, the student returns. I've been… keeping your seat warm. Don't read into it. Let's go.",
+      "Ah, the student returns. I've been… keeping your seat warm. dont read into it. Let's go.",
       "You know, most people fold when it gets hard. You didn't. Interesting. 今日も頑張ろう！",
-      "I don't do encouragement. I do *calculated confidence*. And mine in you? Currently very high. ??",
+      "I dont do encouragement. I do *calculated confidence*. And mine in you? Currently very high. ??",
     ],
     correct: [
       "Ha! Called it. 正解！ The odds were always in your favour — you just had to believe that.",
@@ -613,9 +613,9 @@ const CHARS = {
       "Now *that's* what I'm talking about. You've got good instincts. ✨",
     ],
     wrong: [
-      "Hmm. The house wins one. Don't let it rattle you — even I've taken a loss or two. Recalibrate.",
+      "Hmm. The house wins one. dont let it rattle you — even I've taken a loss or two. Recalibrate.",
       "Wrong bet this time. But the next hand's already being dealt. Stay in the game.",
-      "Everyone's luck dips. The smart ones don't walk away — they double down on studying. ??",
+      "Everyone's luck dips. The smart ones dont walk away — they double down on studying. ??",
       "Not ideal. But I didn't get where I am by quitting after a setback. Neither will you.",
     ],
     quizGood: "...I'll admit, that impressed me. 最高！ Not many pull off a score like that. Well played. ??",
@@ -643,7 +643,7 @@ const CHARS = {
     ],
     wrong: [
       "Aw MAN!! But hey — even Itto gets knocked down sometimes!! The real L is STAYING down!! GET UP!!",
-      "OKAY OKAY that one was sneaky!! But we don't QUIT!! Try again and CRUSH IT!! ??",
+      "OKAY OKAY that one was sneaky!! But we dont QUIT!! Try again and CRUSH IT!! ??",
       "Hmph!! That answer tried to beat us!! But we're TOUGHER!! がんばって!!",
       "Not today, wrong answer!! We're gonna MEMORIZE THIS and come back SWINGING!! ??",
     ],
@@ -731,7 +731,7 @@ const GRAMMAR=[
   {p:'〜に行きます',e:'Go to [place]',l:'N5',rule:'に marks destination with movement verbs 行く/来る.',ex:[{j:'がっこうにいきます。',r:'Gakkou ni ikimasu.',e:'I go to school.'},{j:'うちにかえります。',r:'Uchi ni kaerimasu.',e:'I return home.'}]},
   {p:'〜で〜ます',e:'Do [verb] at/by [place/means]',l:'N5',rule:'で marks where an action happens, or the means used.',ex:[{j:'としょかんでよみます。',r:'Toshokan de yomimasu.',e:'I read at the library.'},{j:'バスでいきます。',r:'Basu de ikimasu.',e:'I go by bus.'}]},
   {p:'〜も',e:'Also / too',l:'N5',rule:'も replaces は or が to mean "also" or "too".',ex:[{j:'わたしもがくせいです。',r:'Watashi mo gakusei desu.',e:'I am also a student.'}]},
-  {p:'〜ません',e:'Do not [verb]',l:'N5',rule:'Replace ます with ません for polite negative.',ex:[{j:'わかりません。',r:'Wakarimasen.',e:'I don't understand.'},{j:'たべません。',r:'Tabemasen.',e:'I don't eat.'}]},
+  {p:'〜ません',e:'Do not [verb]',l:'N5',rule:'Replace ます with ません for polite negative.',ex:[{j:'わかりません。',r:'Wakarimasen.',e:'I dont understand.'},{j:'たべません。',r:'Tabemasen.',e:'I dont eat.'}]},
   {p:'〜たい',e:'Want to [verb]',l:'N5',rule:'Attach たい to verb stem to express desire.',ex:[{j:'にほんごをはなしたいです。',r:'Nihongo wo hanashitai desu.',e:'I want to speak Japanese.'}]},
   {p:'〜てください',e:'Please do [verb]',l:'N5',rule:'て-form + ください = polite request.',ex:[{j:'みてください。',r:'Mite kudasai.',e:'Please look.'},{j:'まってください。',r:'Matte kudasai.',e:'Please wait.'}]},
   {p:'〜ています',e:'Is doing / in a state of',l:'N5',rule:'て-form + います = ongoing action or resulting state.',ex:[{j:'いまたべています。',r:'Ima tabete imasu.',e:'I am eating now.'}]},
