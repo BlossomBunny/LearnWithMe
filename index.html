@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Learn With Me — JP!</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="characters.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&family=Shippori+Mincho:wght@400;600&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
@@ -566,8 +567,6 @@ body{font-family:var(--ff);background:var(--bg);color:var(--ink);min-height:100v
 
   </main>
 </div>
-
-  <script src="characters.js"></script>
   
 <script>
 // ═══════════════════════════════════════════
@@ -709,6 +708,21 @@ const PASSAGES=[
 //  AUTH — simple username + password, no Supabase auth
 // ═══════════════════════════════════════════
 
+// Add this somewhere near the top of your script (after global variables)
+function setSyncStatus(text, isError = false) {
+  const el = document.getElementById('sync-dot');
+  if (el) {
+    el.textContent = text;
+    el.style.color = isError ? 'var(--red)' : 'var(--ink3)';
+  }
+}
+
+function closeCompanionModal() {
+  // If you have a companion modal, close it here
+  // For now, a safe empty function:
+  console.log('Companion modal closed (placeholder)');
+}
+  
 function switchAuthTab(tab) {
   document.getElementById('tab-login').classList.toggle('active',  tab === 'login');
   document.getElementById('tab-signup').classList.toggle('active', tab === 'signup');
@@ -1504,6 +1518,8 @@ function setupRealtime() {
 // ═══════════════════════════════════════════
 function shuffle(arr) { const a = [...arr]; for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
 
+
+  
 </script>
 </body>
 </html>
