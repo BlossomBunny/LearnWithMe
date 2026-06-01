@@ -806,28 +806,6 @@ function doLogout() {
   switchAuthTab('login');
 }
 
-async function bootApp() {
-  // Persist session
-  try { localStorage.setItem('lwm_session', JSON.stringify({ id: USER.id, username: USER.username, ts: Date.now() })); } catch(e) {}
-  document.getElementById('auth-screen').classList.add('hidden');
-  document.getElementById('main-app').classList.remove('hidden');
-  setPage('home');
-  await loadUserData();
-  setTimeout(() => openCompanionModal(), 400);
-}
-
-// Restore session on page load
-(function restoreSession() {
-  try {
-    const saved = localStorage.getItem('lwm_session');
-    if (!saved) return;
-    const { id, username, ts } = JSON.parse(saved);
-    if (Date.now() - ts > 7 * 86400000) { localStorage.removeItem('lwm_session'); return; }
-    USER = { id, username };
-    bootApp();
-  } catch(e) { try { localStorage.removeItem('lwm_session'); } catch(e2) {} }
-})();
-
 // ═══════════════════════════════════════════
 //  DATA LOADING
 // ═══════════════════════════════════════════
@@ -942,6 +920,28 @@ function setPage(page) {
   if (page === 'settings') renderSettings();
   if (page === 'friends') { loadFriendsActivity(); }
 }
+
+  async function bootApp() {
+  // Persist session
+  try { localStorage.setItem('lwm_session', JSON.stringify({ id: USER.id, username: USER.username, ts: Date.now() })); } catch(e) {}
+  document.getElementById('auth-screen').classList.add('hidden');
+  document.getElementById('main-app').classList.remove('hidden');
+  setPage('home');
+  await loadUserData();
+  setTimeout(() => openCompanionModal(), 400);
+}
+
+// Restore session on page load
+(function restoreSession() {
+  try {
+    const saved = localStorage.getItem('lwm_session');
+    if (!saved) return;
+    const { id, username, ts } = JSON.parse(saved);
+    if (Date.now() - ts > 7 * 86400000) { localStorage.removeItem('lwm_session'); return; }
+    USER = { id, username };
+    bootApp();
+  } catch(e) { try { localStorage.removeItem('lwm_session'); } catch(e2) {} }
+})();
 
 // ═══════════════════════════════════════════
 //  HOME
