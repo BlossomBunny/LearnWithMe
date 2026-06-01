@@ -809,6 +809,14 @@ function doLogout() {
 // ═══════════════════════════════════════════
 //  DATA LOADING
 // ═══════════════════════════════════════════
+
+function setSyncStatus(msg, spinning) {
+  const el = document.getElementById('sync-status');
+  if (!el) return;
+  el.textContent = msg;
+  el.className = spinning ? 'spinning' : '';
+}
+  
 async function loadUserData() {
   setSyncStatus('⟳', false);
 
