@@ -309,7 +309,7 @@ body{font-family:var(--ff);background:var(--bg);color:var(--ink);min-height:100v
     <div class="cm-body">
       <div class="cm-name" id="cm-name" style="color:var(--plum)">Cyrene</div>
       <div class="cm-message" id="cm-message"></div>
-      <button class="cm-close" onclick="closeCompanionModal()">Let's continue ✨</button>
+      <button class="cm-close" onclick="closeCompanionModal()">Lets continue ✨</button>
     </div>
   </div>
 </div>
@@ -752,7 +752,7 @@ const VOCAB=[
   {j:'じゃあ、また',r:'jaa, mata',e:'See you later',c:'greeting',x:'じゃあ、またね！'},
   {j:'ただいま',r:'tadaima',e:"I'm home",c:'greeting',x:'ただいま！おなかがすいた。'},
   {j:'おかえりなさい',r:'okaeri nasai',e:'Welcome home',c:'greeting',x:'おかえりなさい！おつかれさまでした。'},
-  {j:'いただきます',r:'itadakimasu',e:"Let's eat (before meals)",c:'greeting',x:'いただきます！おいしそう！'},
+  {j:'いただきます',r:'itadakimasu',e:"Lets eat (before meals)",c:'greeting',x:'いただきます！おいしそう！'},
   {j:'ごちそうさまでした',r:'gochisousama deshita',e:'Thank you for the meal',c:'greeting',x:'ごちそうさまでした。とてもおいしかったです。'},
   {j:'どうぞ',r:'douzo',e:'Please / Go ahead / Here you are',c:'greeting',x:'どうぞ、おはいりください。'},
   {j:'おねがいします',r:'onegai shimasu',e:'Please (making a request)',c:'greeting',x:'みずをおねがいします。'},
@@ -1053,7 +1053,7 @@ const GRAMMAR=[
   {p:'〜てください',e:'Please do [verb]',l:'N5',rule:'て-form + ください = polite request. て-form rules: Group 1 (〜く→いて, 〜ぐ→いで, 〜す→して etc.)',ex:[{j:'みてください。',r:'Mite kudasai.',e:'Please look.'},{j:'ゆっくりはなしてください。',r:'Yukkuri hanashite kudasai.',e:'Please speak slowly.'}]},
   {p:'〜ています',e:'Is doing / in a state of',l:'N5',rule:'て-form + います = (1) ongoing action "is doing", or (2) resulting state "has done and is still so".',ex:[{j:'いまたべています。',r:'Ima tabete imasu.',e:'I am eating now.'},{j:'にほんごをべんきょうしています。',r:'Nihongo wo benkyou shite imasu.',e:'I am studying Japanese.'}]},
   {p:'〜から〜まで',e:'From [X] to [Y]',l:'N5',rule:'から = from/since, まで = until/to. Used for both time and distance.',ex:[{j:'くじからごじまではたらきます。',r:'Ku-ji kara go-ji made hatarakimasu.',e:'I work from 9 to 5.'},{j:'えきからここまでちかいです。',r:'Eki kara koko made chikai desu.',e:"It's close from the station to here."}]},
-  {p:'〜ましょう / 〜ましょうか',e:"Let's ~ / Shall we ~?",l:'N5',rule:'〜ましょう = let's do. 〜ましょうか = shall we? (offering / suggesting)',ex:[{j:'たべましょう！',r:'Tabemashou!',e:"Let's eat!"},{j:'てつだいましょうか？',r:'Tetsudaimashou ka?',e:'Shall I help you?'}]},
+  {p:'〜ましょう / 〜ましょうか',e:"Lets ~ / Shall we ~?",l:'N5',rule:'〜ましょう = lets do. 〜ましょうか = shall we? (offering / suggesting)',ex:[{j:'たべましょう！',r:'Tabemashou!',e:"Lets eat!"},{j:'てつだいましょうか？',r:'Tetsudaimashou ka?',e:'Shall I help you?'}]},
   {p:'〜より〜のほうが',e:'[B] is more ~ than [A]',l:'N5',rule:'A より B のほうが = B is more (adj) than A. より = than. のほうが = is more.',ex:[{j:'なつよりふゆのほうがすきです。',r:'Natsu yori fuyu no hou ga suki desu.',e:'I like winter more than summer.'},{j:'このほうがやすいです。',r:'Kono hou ga yasui desu.',e:'This one is cheaper.'}]},
 ];
 
