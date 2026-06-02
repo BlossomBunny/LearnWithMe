@@ -1,8 +1,1067 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Learn With Me — JP!</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="characters.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&family=Shippori+Mincho:wght@400;600&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --ink:#1c1624;--ink2:#4a3f5c;--ink3:#8f84a8;
+  --bg:#f5f2ee;--card:#ffffff;--surface:#faf8f6;
+  --border:rgba(100,80,140,0.12);--border2:rgba(100,80,140,0.22);
+  --plum:#7c3aed;--plum2:#a78bfa;--plum3:#ede9fe;
+  --rose:#e11d74;--rose3:#fce7f3;
+  --gold:#b45309;--gold2:#fbbf24;--gold3:#fef3c7;
+  --teal2:#2dd4bf;--teal3:#ccfbf1;
+  --green:#16a34a;--green3:#dcfce7;
+  --red:#dc2626;--red3:#fee2e2;
+  --ff:'DM Sans',sans-serif;--ffj:'Noto Sans JP',sans-serif;--ffs:'Shippori Mincho',serif;
+  --r:12px;--r2:18px;--shadow:0 2px 12px rgba(100,80,140,0.10);
+}
+body{font-family:var(--ff);background:var(--bg);color:var(--ink);min-height:100vh;overflow-x:hidden}
+.hidden{display:none!important}
+
+/* ── AUTH ── */
+#auth-screen{position:fixed;inset:0;background:var(--bg);z-index:500;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:20px}
+.auth-card{background:var(--card);border:1px solid var(--border2);border-radius:24px;padding:44px 40px;width:420px;max-width:95vw;box-shadow:0 8px 40px rgba(100,80,140,0.14)}
+.auth-logo{font-family:var(--ffj);font-size:52px;text-align:center;margin-bottom:6px}
+.auth-title{font-size:22px;font-weight:600;text-align:center;margin-bottom:4px}
+.auth-sub{font-size:13px;color:var(--ink3);text-align:center;margin-bottom:28px}
+.auth-tabs{display:flex;gap:4px;background:var(--surface);padding:4px;border-radius:10px;margin-bottom:24px;border:1px solid var(--border)}
+.auth-tab{flex:1;padding:8px;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;border:none;background:transparent;color:var(--ink3);font-family:var(--ff);transition:all .15s}
+.auth-tab.active{background:var(--card);color:var(--plum);box-shadow:0 1px 4px rgba(0,0,0,0.08)}
+.auth-field{margin-bottom:14px}
+.auth-field label{font-size:12px;font-weight:600;color:var(--ink3);text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:6px}
+.auth-field input{width:100%;padding:11px 14px;border:1.5px solid var(--border2);border-radius:var(--r);font-family:var(--ff);font-size:14px;outline:none;background:var(--card);transition:border-color .15s}
+.auth-field input:focus{border-color:var(--plum)}
+.auth-err{font-size:13px;color:var(--red);min-height:18px;margin-bottom:10px}
+.auth-ok{font-size:13px;color:var(--green);min-height:18px;margin-bottom:10px}
+.auth-btn{width:100%;padding:13px;background:var(--plum);color:#fff;border:none;border-radius:var(--r);font-family:var(--ff);font-size:15px;font-weight:600;cursor:pointer;transition:background .15s;margin-top:4px}
+.auth-btn:hover{background:#6d28d9}
+.auth-btn:disabled{opacity:.6;cursor:not-allowed}
+
+/* ── APP LAYOUT ── */
+.app{display:grid;grid-template-columns:72px 1fr;grid-template-rows:56px 1fr;min-height:100vh}
+.sidebar{grid-row:1/3;background:var(--ink);display:flex;flex-direction:column;align-items:center;padding:18px 0;gap:4px;position:sticky;top:0;height:100vh;z-index:10}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:0 24px;background:var(--card);border-bottom:1px solid var(--border);grid-column:2;height:56px}
+.main{grid-column:2;padding:24px 28px;overflow-y:auto;height:calc(100vh - 56px)}
+
+/* ── SIDEBAR ── */
+.nav-logo{width:36px;height:36px;background:var(--plum);border-radius:10px;display:flex;align-items:center;justify-content:center;font-family:var(--ffj);font-size:17px;color:#fff;font-weight:700;margin-bottom:12px;cursor:pointer;flex-shrink:0}
+.nav-btn{width:46px;height:46px;border-radius:10px;border:none;background:transparent;color:rgba(255,255,255,0.4);cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;transition:all .15s;flex-shrink:0}
+.nav-btn:hover,.nav-btn.active{background:rgba(255,255,255,0.08);color:#fff}
+.nav-btn.active{background:var(--plum)}
+.nav-btn svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.nav-label{font-size:8.5px;font-weight:500;letter-spacing:.3px;text-transform:uppercase;line-height:1}
+.nav-sep{width:30px;height:1px;background:rgba(255,255,255,0.07);margin:6px 0;flex-shrink:0}
+.sidebar-bottom{margin-top:auto;display:flex;flex-direction:column;align-items:center;gap:8px;padding-bottom:6px}
+.xp-ring{width:36px;height:36px;position:relative;cursor:default}
+.xp-ring svg{transform:rotate(-90deg)}
+.xp-ring .level{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:#fff}
+
+/* ── TOPBAR ── */
+.page-title{font-size:17px;font-weight:600;color:var(--ink)}
+.page-sub{font-size:12px;color:var(--ink3)}
+.pill{display:flex;align-items:center;gap:4px;border-radius:20px;padding:4px 10px;font-size:12px;font-weight:500}
+.pill-gold{background:var(--gold3);border:1px solid var(--gold2);color:var(--gold)}
+.pill-plum{background:var(--plum3);border:1px solid var(--plum2);color:var(--plum)}
+.icon-btn{background:transparent;border:none;cursor:pointer;color:var(--ink3);padding:6px;border-radius:8px;display:flex;align-items:center;transition:all .15s}
+.icon-btn:hover{color:var(--ink);background:var(--surface)}
+
+/* ── PAGE ── */
+.page{display:none;animation:fadeIn .18s ease}
+.page.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── COMPANION BAR ── */
+.companion-bar{display:flex;align-items:center;gap:14px;background:var(--card);border:1px solid var(--border);border-radius:var(--r2);padding:14px 18px;margin-bottom:22px;box-shadow:var(--shadow)}
+.companion-portrait{width:52px;height:52px;border-radius:50%;flex-shrink:0;object-fit:cover;background:linear-gradient(135deg,#7c3aed,#e11d74);display:flex;align-items:center;justify-content:center;font-size:24px;overflow:hidden}
+.companion-portrait img{width:100%;height:100%;object-fit:cover;border-radius:50%}
+.companion-name{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.8px;margin-bottom:3px}
+.companion-msg{font-size:13.5px;color:var(--ink2);line-height:1.5}
+
+/* ── GRIDS ── */
+.grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px}
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:24px}
+.grid-2{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-bottom:24px}
+
+/* ── STAT CARD ── */
+.stat-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r2);padding:16px 18px;box-shadow:var(--shadow)}
+.stat-icon{font-size:20px;margin-bottom:6px}
+.stat-num{font-size:26px;font-weight:600;margin-bottom:2px}
+.stat-label{font-size:11px;color:var(--ink3);font-weight:500;text-transform:uppercase;letter-spacing:.5px}
+
+/* ── MODE CARD ── */
+.mode-card{background:var(--card);border:1.5px solid var(--border);border-radius:var(--r2);padding:20px;cursor:pointer;transition:all .15s;display:flex;flex-direction:column;gap:8px;box-shadow:var(--shadow)}
+.mode-card:hover{border-color:var(--plum2);transform:translateY(-2px);box-shadow:0 6px 20px rgba(124,58,237,0.12)}
+.mode-icon{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.mode-title{font-size:14px;font-weight:600}
+.mode-desc{font-size:12px;color:var(--ink3);line-height:1.5}
+.mode-badge{font-size:10px;font-weight:600;color:var(--plum);background:var(--plum3);padding:2px 8px;border-radius:20px;display:inline-block;width:fit-content}
+
+/* ── BUTTONS ── */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:9px 18px;border-radius:var(--r);font-family:var(--ff);font-size:13px;font-weight:500;cursor:pointer;transition:all .14s;border:1.5px solid transparent}
+.btn-primary{background:var(--plum);color:#fff;border-color:var(--plum)}
+.btn-primary:hover{background:#6d28d9}
+.btn-secondary{background:var(--card);color:var(--ink);border-color:var(--border2)}
+.btn-secondary:hover{border-color:var(--plum2);color:var(--plum)}
+.btn-ghost{background:transparent;border-color:transparent;color:var(--ink3)}
+.btn-ghost:hover{color:var(--ink);background:var(--surface)}
+.btn-sm{padding:5px 12px;font-size:12px;border-radius:8px}
+.btn-lg{padding:12px 26px;font-size:15px}
+
+/* ── PROGRESS ── */
+.progress-track{height:7px;background:var(--border);border-radius:4px;overflow:hidden}
+.progress-fill{height:100%;border-radius:4px;transition:width .4s ease;background:var(--plum)}
+.progress-fill.teal{background:var(--teal2)}
+
+/* ── TABS ── */
+.tabs{display:flex;gap:3px;background:var(--surface);padding:4px;border-radius:10px;margin-bottom:22px;border:1px solid var(--border)}
+.tab{flex:1;padding:7px 12px;border-radius:8px;font-size:12.5px;font-weight:500;cursor:pointer;transition:all .14s;text-align:center;border:none;background:transparent;color:var(--ink3);font-family:var(--ff)}
+.tab.active{background:var(--card);color:var(--plum);box-shadow:0 1px 4px rgba(0,0,0,0.07)}
+
+/* ── FLASHCARD ── */
+.fc-wrap{display:flex;flex-direction:column;align-items:center;gap:20px;max-width:560px;margin:0 auto}
+.flashcard{width:100%;min-height:200px;background:var(--card);border:1.5px solid var(--border);border-radius:22px;padding:36px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;cursor:pointer;transition:all .2s;box-shadow:var(--shadow);position:relative;text-align:center;user-select:none}
+.flashcard:hover{box-shadow:0 8px 24px rgba(124,58,237,0.14);border-color:var(--plum2)}
+.flashcard.revealed{background:var(--plum3);border-color:var(--plum)}
+.card-badge{position:absolute;top:12px;right:12px;font-size:10px;font-weight:600;text-transform:uppercase;padding:2px 8px;border-radius:20px;background:var(--plum3);color:var(--plum)}
+.card-main{font-family:var(--ffj);font-size:64px;color:var(--ink);line-height:1.1}
+.card-main.sm{font-size:28px}
+.card-reading{font-family:var(--ffj);font-size:20px;color:var(--plum)}
+.card-meaning{font-size:22px;font-weight:600;color:var(--ink)}
+.card-example{font-size:12px;color:var(--ink3);font-family:var(--ffj);line-height:1.6;margin-top:4px}
+.srs-row{display:flex;gap:8px;width:100%}
+.srs-btn{flex:1;padding:12px 6px;border-radius:var(--r);border:1.5px solid;font-family:var(--ff);font-size:12px;font-weight:600;cursor:pointer;transition:all .14s;display:flex;flex-direction:column;align-items:center;gap:3px}
+.srs-btn:hover{transform:translateY(-1px);box-shadow:0 3px 10px rgba(0,0,0,0.10)}
+.srs-next{font-size:10px;opacity:.7}
+.srs-again{background:var(--red3);border-color:#fca5a5;color:var(--red)}
+.srs-hard{background:#fff7ed;border-color:#fdba74;color:#c2410c}
+.srs-good{background:var(--green3);border-color:#86efac;color:var(--green)}
+.srs-easy{background:var(--plum3);border-color:var(--plum2);color:var(--plum)}
+.fc-progress-row{width:100%;display:flex;align-items:center;gap:10px;font-size:12px;color:var(--ink3)}
+
+/* ── QUIZ ── */
+.quiz-q-card{background:var(--card);border:1.5px solid var(--border);border-radius:20px;padding:32px;text-align:center;box-shadow:var(--shadow)}
+.quiz-q-main{font-family:var(--ffj);font-size:48px;color:var(--ink);margin:8px 0}
+.quiz-q-label{font-size:12px;color:var(--ink3)}
+.mcq-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.mcq-opt{background:var(--card);border:1.5px solid var(--border2);border-radius:var(--r);padding:13px 16px;cursor:pointer;font-size:14px;font-weight:500;transition:all .14s;text-align:left;font-family:var(--ff)}
+.mcq-opt:hover:not(.disabled){border-color:var(--plum);background:var(--plum3);color:var(--plum)}
+.mcq-opt.correct{background:var(--green3);border-color:#86efac;color:var(--green)}
+.mcq-opt.wrong{background:var(--red3);border-color:#fca5a5;color:var(--red)}
+.mcq-opt.disabled{cursor:default}
+.quiz-fb{background:var(--card);border:1.5px solid var(--border);border-radius:var(--r2);padding:16px 20px;display:none}
+.quiz-fb.show{display:block}
+.quiz-fb.ok{border-color:#86efac;background:var(--green3)}
+.quiz-fb.bad{border-color:#fca5a5;background:var(--red3)}
+
+/* ── GRAMMAR ── */
+.grammar-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r2);overflow:hidden;margin-bottom:13px;box-shadow:var(--shadow)}
+.gc-head{padding:16px 20px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:10px;transition:background .14s}
+.gc-head:hover{background:var(--surface)}
+.gc-pattern{font-family:var(--ffj);font-size:16px;font-weight:500;color:var(--plum)}
+.gc-eng{font-size:12px;color:var(--ink3);margin-top:2px}
+.gc-lvl{font-size:10px;font-weight:600;background:var(--gold3);color:var(--gold);padding:2px 7px;border-radius:20px}
+.gc-body{padding:0 20px 16px;border-top:1px solid var(--border);display:none}
+.gc-body.open{display:block}
+.gc-rule{font-size:13px;color:var(--ink2);line-height:1.7;margin:12px 0 10px}
+.gc-ex{background:var(--surface);border-radius:var(--r);padding:11px 13px;border-left:3px solid var(--plum);margin-bottom:7px}
+.gc-ex-jp{font-family:var(--ffj);font-size:14px;color:var(--ink);margin-bottom:2px}
+.gc-ex-read{font-size:11px;color:var(--plum);font-family:var(--ffj);margin-bottom:2px}
+.gc-ex-en{font-size:12px;color:var(--ink3)}
+.gc-chevron{transition:transform .18s;color:var(--ink3);flex-shrink:0}
+.gc-chevron.open{transform:rotate(180deg)}
+
+/* ── READING ── */
+.rp-text{font-family:var(--ffj);font-size:18px;line-height:2.4;color:var(--ink)}
+.vocab-word{cursor:pointer;border-bottom:2px dotted var(--plum2);color:var(--plum);transition:background .12s;border-radius:2px}
+.vocab-word:hover{background:var(--plum3)}
+#tooltip{position:fixed;background:var(--ink);color:#fff;border-radius:10px;padding:9px 13px;font-size:12.5px;pointer-events:none;z-index:999;max-width:180px;line-height:1.5;display:none}
+
+/* ── KANA GRID ── */
+.kana-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:7px;margin-bottom:20px}
+.kana-cell{background:var(--card);border:1.5px solid var(--border);border-radius:var(--r);padding:11px 5px;text-align:center;cursor:pointer;transition:all .14s}
+.kana-cell:hover{border-color:var(--plum2);background:var(--plum3)}
+.kana-cell.mastered{background:var(--green3);border-color:#86efac}
+.kana-cell.learning{background:var(--gold3);border-color:var(--gold2)}
+.kana-char{font-family:var(--ffj);font-size:24px;color:var(--ink);line-height:1.2}
+.kana-rom{font-size:10px;color:var(--ink3);margin-top:2px;font-weight:500}
+.kana-opt{padding:10px;background:var(--surface);border:1.5px solid var(--border2);border-radius:var(--r);cursor:pointer;font-size:13px;font-weight:500;transition:all .14s;text-align:center}
+.kana-opt:hover:not(.disabled){border-color:var(--plum);background:var(--plum3);color:var(--plum)}
+.kana-opt.correct{background:var(--green3);border-color:#86efac;color:var(--green)}
+.kana-opt.wrong{background:var(--red3);border-color:#fca5a5;color:var(--red)}
+
+/* ── FRIENDS ── */
+.feed-item{background:var(--card);border:1px solid var(--border);border-radius:var(--r2);padding:13px 16px;display:flex;align-items:center;gap:12px;margin-bottom:9px;box-shadow:var(--shadow)}
+.feed-avatar{width:38px;height:38px;border-radius:50%;background:var(--plum3);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.feed-text{flex:1;font-size:13.5px;color:var(--ink2);line-height:1.4}
+.feed-text strong{color:var(--ink);font-weight:600}
+.feed-time{font-size:10px;color:var(--ink3);margin-top:2px}
+.enc-btn{background:var(--rose3);border:1px solid #f9a8d4;border-radius:20px;padding:4px 11px;font-size:12px;cursor:pointer;color:var(--rose);font-family:var(--ff);transition:all .14s}
+.enc-btn:hover{transform:scale(1.05)}
+.enc-btn.sent{background:var(--green3);border-color:#86efac;color:var(--green);cursor:default}
+.friend-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r2);padding:14px 16px;display:flex;align-items:center;gap:12px;margin-bottom:9px}
+.friend-av{width:42px;height:42px;border-radius:50%;background:var(--plum3);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+
+/* ── SETTINGS ── */
+.char-select-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:24px}
+.char-select-card{background:var(--card);border:2px solid var(--border);border-radius:var(--r2);padding:16px;text-align:center;cursor:pointer;transition:all .15s}
+.char-select-card:hover{border-color:var(--plum2)}
+.char-select-card.active{border-color:var(--plum);background:var(--plum3)}
+.char-portrait{width:72px;height:72px;border-radius:50%;margin:0 auto 10px;object-fit:cover;background:var(--plum3);display:flex;align-items:center;justify-content:center;font-size:32px;overflow:hidden}
+.char-portrait img{width:100%;height:100%;object-fit:cover;border-radius:50%}
+.char-name-label{font-size:14px;font-weight:600;margin-bottom:3px}
+.char-style-label{font-size:11px;color:var(--ink3)}
+
+/* ── SETTINGS FIELDS ── */
+.settings-section{background:var(--card);border:1px solid var(--border);border-radius:var(--r2);padding:20px;margin-bottom:18px;box-shadow:var(--shadow)}
+.settings-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border)}
+.settings-row:last-child{border-bottom:none}
+.settings-label{font-size:14px;font-weight:500}
+.settings-hint{font-size:11px;color:var(--ink3);margin-top:2px}
+.field-input{padding:7px 11px;border:1.5px solid var(--border2);border-radius:8px;font-family:var(--ff);font-size:13px;background:var(--card);outline:none;cursor:pointer}
+
+/* ── SPINNER ── */
+.spinner{display:inline-block;width:14px;height:14px;border:2px solid var(--border2);border-top-color:var(--plum);border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ── SECTION HEAD ── */
+.section-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.section-title{font-size:14px;font-weight:600;color:var(--ink)}
+
+
+/* ── COMPANION MODAL ── */
+.companion-modal-overlay{position:fixed;inset:0;background:rgba(10,5,20,0.7);z-index:200;display:flex;align-items:center;justify-content:center;padding:20px;animation:fadeIn .2s ease;backdrop-filter:blur(4px)}
+.companion-modal{background:var(--card);border-radius:28px;padding:0;width:340px;max-width:95vw;box-shadow:0 24px 60px rgba(0,0,0,0.3);overflow:hidden;animation:slideUp .22s ease}
+@keyframes slideUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+.cm-portrait-wrap{width:100%;height:260px;position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center}
+.cm-portrait-gradient{position:absolute;bottom:0;left:0;right:0;height:50%;background:linear-gradient(transparent,var(--card))}
+.cm-body{padding:20px 24px 24px}
+.cm-name{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px}
+.cm-message{font-size:15px;line-height:1.65;color:var(--ink2);font-style:italic}
+.cm-close{width:100%;margin-top:18px;padding:11px;background:var(--plum);color:#fff;border:none;border-radius:var(--r);font-family:var(--ff);font-size:14px;font-weight:600;cursor:pointer;transition:background .15s}
+.cm-close:hover{background:#6d28d9}
+/* ── COMPANION BUBBLE ── */
+.companion-bubble{display:none;align-items:flex-start;gap:12px;margin-top:14px;animation:bubbleIn .2s ease}
+.companion-bubble.show{display:flex}
+@keyframes bubbleIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.cb-portrait{width:52px;height:52px;border-radius:50%;flex-shrink:0;overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:24px;box-shadow:0 2px 8px rgba(0,0,0,0.15)}
+.cb-portrait img{width:100%;height:100%;object-fit:cover;object-position:top}
+.cb-speech{position:relative;background:var(--card);border:1.5px solid var(--border2);border-radius:16px;border-bottom-left-radius:4px;padding:11px 14px;flex:1;font-size:13px;line-height:1.55;color:var(--ink2);box-shadow:var(--shadow)}
+.cb-speech::before{content:'';position:absolute;left:-9px;bottom:14px;border:5px solid transparent;border-right-color:var(--border2)}
+.cb-speech::after{content:'';position:absolute;left:-7px;bottom:14px;border:5px solid transparent;border-right-color:var(--card)}
+.cb-speech.correct{border-color:#86efac;background:var(--green3)}
+.cb-speech.correct::after{border-right-color:var(--green3)}
+.cb-speech.wrong{border-color:#fca5a5;background:var(--red3)}
+.cb-speech.wrong::after{border-right-color:var(--red3)}
+/* ── KANA CELL STATES ── */
+.kana-cell.seen-kana{background:var(--plum3);border-color:var(--plum2)}
+.kana-cell.new-kana{background:var(--surface);border-color:var(--border);opacity:0.7;cursor:pointer}
+.kana-cell.new-kana:hover{opacity:1;border-color:var(--plum2);background:var(--plum3)}
+
+
+
+/* ── CATEGORY PILLS ── */
+.cat-pill{padding:5px 12px;border-radius:20px;border:1.5px solid var(--border2);background:var(--card);font-family:var(--ff);font-size:12px;font-weight:500;cursor:pointer;color:var(--ink3);transition:all .13s}
+.cat-pill:hover{border-color:var(--plum2);color:var(--plum)}
+.cat-pill.active{background:var(--plum);border-color:var(--plum);color:#fff}
+
+/* ── ACTION CARDS ── */
+.action-cards{display:grid;grid-template-columns:repeat(4,1fr);gap:11px;margin-bottom:22px}
+.ac{background:var(--card);border:1.5px solid var(--border);border-radius:var(--r2);padding:16px 17px;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:6px;position:relative;overflow:hidden;transition:all .14s;cursor:default}
+.ac.clickable{cursor:pointer}
+.ac.clickable:hover{border-color:var(--plum2);transform:translateY(-2px);box-shadow:0 6px 18px rgba(124,58,237,0.11)}
+.ac-label{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.6px;color:var(--ink3)}
+.ac-value{font-size:26px;font-weight:700;color:var(--ink);line-height:1.1}
+.ac-sub{font-size:11.5px;color:var(--ink3);line-height:1.4}
+.ac-cta{font-size:11px;font-weight:600;color:var(--plum);display:flex;align-items:center;gap:3px;margin-top:2px}
+.ac-bar{height:4px;background:var(--border);border-radius:2px;overflow:hidden;margin-top:4px}
+.ac-bar-fill{height:100%;border-radius:2px;background:var(--plum);transition:width .4s ease}
+@media(max-width:900px){.action-cards{grid-template-columns:repeat(2,1fr)}}
+
+@media(max-width:900px){
+  .grid-4{grid-template-columns:repeat(2,1fr)}
+  .grid-3{grid-template-columns:1fr 1fr}
+  .char-select-grid{grid-template-columns:repeat(3,1fr)}
+}
+</style>
+</head>
+<body>
+
+<div id="tooltip">
+  <div id="tt-jp" style="font-family:var(--ffj);font-size:14px;font-weight:500;margin-bottom:2px"></div>
+  <div id="tt-read" style="font-size:10px;color:var(--plum2);margin-bottom:2px"></div>
+  <div id="tt-en"></div>
+</div>
+
+<!-- COMPANION MODAL -->
+<div id="companion-modal" class="companion-modal-overlay hidden" onclick="if(event.target===this)closeCompanionModal()">
+  <div class="companion-modal">
+    <div class="cm-portrait-wrap" id="cm-portrait-wrap">
+      <div id="cm-portrait-img" style="width:100%;height:100%;display:flex;align-items:center;justify-content:center"></div>
+      <div class="cm-portrait-gradient"></div>
+    </div>
+    <div class="cm-body">
+      <div class="cm-name" id="cm-name" style="color:var(--plum)">Cyrene</div>
+      <div class="cm-message" id="cm-message"></div>
+      <button class="cm-close" onclick="closeCompanionModal()">Let's continue ✨</button>
+    </div>
+  </div>
+</div>
+<!-- KANA STUDY OVERLAY -->
+<div id="kana-study-overlay" class="hidden" style="position:fixed;inset:0;background:rgba(10,5,20,0.75);z-index:300;display:flex;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(4px)" onclick="if(event.target===this)closeKanaStudy()">
+  <div style="background:var(--card);border-radius:24px;width:320px;max-width:95vw;padding:36px 28px;text-align:center;box-shadow:0 24px 60px rgba(0,0,0,0.3)">
+    <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--ink3);margin-bottom:16px" id="ks-script">Hiragana</div>
+    <div style="font-family:var(--ffj);font-size:96px;line-height:1;color:var(--ink);margin-bottom:8px" id="ks-char">あ</div>
+    <div style="font-size:28px;font-weight:600;color:var(--plum);margin-bottom:12px" id="ks-romaji">a</div>
+    <div style="font-size:13px;color:var(--ink3);line-height:1.6;margin-bottom:24px;min-height:40px" id="ks-tip"></div>
+    <button class="btn btn-primary" style="width:100%;margin-bottom:10px" onclick="markKanaSeen()">Got it! 覚えた →</button>
+    <button class="btn btn-ghost btn-sm" style="width:100%" onclick="closeKanaStudy()">Skip for now</button>
+  </div>
+</div>
+
+<div id="auth-screen">
+  <div class="auth-card">
+    <div class="auth-logo">日</div>
+    <div class="auth-title">Learn With Me — JP!</div>
+    <div class="auth-sub">Your Japanese learning companion — N5 to N1</div>
+    
+    <div class="auth-tabs">
+      <button class="auth-tab active" id="tab-login" onclick="switchAuthTab('login')">Sign in</button>
+      <button class="auth-tab" id="tab-signup" onclick="switchAuthTab('signup')">Create account</button>
+    </div>
+
+    <div id="panel-login">
+      <div class="auth-field">
+        <label>Username</label>
+        <input type="text" id="login-username" placeholder="your username">
+      </div>
+      <div class="auth-field">
+        <label>Password</label>
+        <input type="password" id="login-password" placeholder="...">
+      </div>
+      <div class="auth-err" id="login-err"></div>
+      <button class="auth-btn" id="login-btn" onclick="doLogin()">Sign in</button>
+    </div>
+
+    <div id="panel-signup" class="hidden">
+      <div class="auth-field">
+        <label>Username</label>
+        <input type="text" id="su-username" placeholder="e.g. sakura_learner">
+      </div>
+      <div class="auth-field">
+        <label>Password</label>
+        <input type="password" id="su-password" placeholder="min. 6 characters">
+      </div>
+      <div id="su-msg" class="auth-err"></div>
+      <button class="auth-btn" id="su-btn" onclick="doSignup()">Create account</button>
+    </div>
+  </div>
+</div>
+  
+<!-- MAIN APP (hidden until authed) -->
+<div class="app hidden" id="main-app">
+
+  <!-- SIDEBAR -->
+  <nav class="sidebar">
+    <div class="nav-logo" onclick="setPage('home')">日</div>
+    <button class="nav-btn active" id="nb-home" onclick="setPage('home')">
+      <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      <span class="nav-label">Home</span>
+    </button>
+    <button class="nav-btn" id="nb-kana" onclick="setPage('kana')">
+      <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M8 12h8M12 8v8"/></svg>
+      <span class="nav-label">Kana</span>
+    </button>
+    <button class="nav-btn" id="nb-vocab" onclick="setPage('vocab')">
+      <svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+      <span class="nav-label">Vocab</span>
+    </button>
+    <button class="nav-btn" id="nb-grammar" onclick="setPage('grammar')">
+      <svg viewBox="0 0 24 24"><polyline points="4 7 4 4 20 4 20 7"/><line x1="9" y1="20" x2="15" y2="20"/><line x1="12" y1="4" x2="12" y2="20"/></svg>
+      <span class="nav-label">Grammar</span>
+    </button>
+    <button class="nav-btn" id="nb-reading" onclick="setPage('reading')">
+      <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+      <span class="nav-label">Read</span>
+    </button>
+    <button class="nav-btn" id="nb-quiz" onclick="setPage('quiz')">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      <span class="nav-label">Quiz</span>
+    </button>
+    <button class="nav-btn" id="nb-friends" onclick="setPage('friends')">
+      <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      <span class="nav-label">Friends</span>
+    </button>
+    <div class="nav-sep"></div>
+    <button class="nav-btn" id="nb-settings" onclick="setPage('settings')">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      <span class="nav-label">Settings</span>
+    </button>
+    <div class="sidebar-bottom">
+      <div class="xp-ring" id="xp-ring">
+        <svg width="36" height="36" viewBox="0 0 36 36">
+          <circle cx="18" cy="18" r="15" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="3"/>
+          <circle cx="18" cy="18" r="15" fill="none" stroke="#a78bfa" stroke-width="3" stroke-dasharray="94.2" id="xp-arc" stroke-dashoffset="94" stroke-linecap="round"/>
+        </svg>
+        <div class="level" id="level-disp">1</div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- TOPBAR -->
+  <header class="topbar">
+    <div>
+      <div class="page-title" id="topbar-title">おはよう！</div>
+      <div class="page-sub" id="topbar-sub">N5 • Beginner</div>
+    </div>
+    <div style="display:flex;gap:8px;align-items:center">
+      <span id="sync-dot" style="font-size:11px;color:var(--ink3)"></span>
+      <div class="pill pill-gold">🔥 <span id="streak-disp">0</span>d</div>
+      <div class="pill pill-plum">⚡ <span id="xp-disp">0</span></div>
+      <button class="icon-btn" onclick="doLogout()" title="Sign out">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <main class="main">
+
+    <!-- HOME -->
+    <div class="page active" id="page-home">
+      <div class="companion-bar" onclick="openCompanionModal()" style="cursor:pointer" title="Click to chat with your companion">
+        <div class="companion-portrait" id="home-portrait"></div>
+        <div style="flex:1">
+          <div class="companion-name" id="home-char-name" style="color:var(--plum)">Cyrene</div>
+          <div class="companion-msg" id="companion-msg">Loading...</div>
+        </div>
+        <div style="font-size:11px;color:var(--ink3);padding:4px 8px;background:var(--plum3);border-radius:20px;white-space:nowrap">tap to chat</div>
+      </div>
+      <div class="action-cards" id="action-cards"></div>
+      <div class="grid-3">
+        <div class="mode-card" onclick="setPage('kana')"><div class="mode-icon" style="background:#ede9fe">🔤</div><div class="mode-title">Kana Mastery</div><div class="mode-desc">Hiragana & katakana with spaced repetition</div><div class="mode-badge" id="mc-kana">Loading...</div></div>
+        <div class="mode-card" onclick="setPage('vocab')"><div class="mode-icon" style="background:#fce7f3">📖</div><div class="mode-title">Vocabulary</div><div class="mode-desc">N5 core vocab SRS flashcards</div><div class="mode-badge">230+ words</div></div>
+        <div class="mode-card" onclick="setPage('grammar')"><div class="mode-icon" style="background:#ccfbf1">✍️</div><div class="mode-title">Grammar</div><div class="mode-desc">Essential N5 grammar patterns</div><div class="mode-badge">28 patterns</div></div>
+        <div class="mode-card" onclick="setPage('reading')"><div class="mode-icon" style="background:#fef3c7">📰</div><div class="mode-title">Reading</div><div class="mode-desc">N5 passages with interactive tooltips</div><div class="mode-badge">6 passages</div></div>
+        <div class="mode-card" onclick="setPage('quiz')"><div class="mode-icon" style="background:#fee2e2">🎮</div><div class="mode-title">JLPT Quiz</div><div class="mode-desc">Practice tests in the real JLPT format</div><div class="mode-badge">3 quiz types</div></div>
+        <div class="mode-card" onclick="setPage('friends')"><div class="mode-icon" style="background:#f0fdf4">👥</div><div class="mode-title">Friends</div><div class="mode-desc">Study together & send encouragement</div><div class="mode-badge" id="mc-friends">Add friends</div></div>
+      </div>
+      <div class="section-head"><div class="section-title">Kana Progress</div></div>
+      <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--r2);padding:18px;box-shadow:var(--shadow);margin-bottom:24px">
+        <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--ink3);margin-bottom:6px"><span>Hiragana</span><span id="hp-lbl">0/46</span></div>
+        <div class="progress-track" style="margin-bottom:12px"><div class="progress-fill" id="hp-bar" style="width:0%"></div></div>
+        <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--ink3);margin-bottom:6px"><span>Katakana</span><span id="kp-lbl">0/46</span></div>
+        <div class="progress-track"><div class="progress-fill teal" id="kp-bar" style="width:0%"></div></div>
+      </div>
+      <div id="home-feed-section" class="hidden">
+        <div class="section-head"><div class="section-title">Friends Activity</div></div>
+        <div id="home-feed"></div>
+      </div>
+    </div>
+
+    <!-- KANA -->
+    <div class="page" id="page-kana">
+      <div class="tabs">
+        <button class="tab active" id="ktab-h"     onclick="kanaTab('h',this)">Hiragana</button>
+        <button class="tab"        id="ktab-k"     onclick="kanaTab('k',this)">Katakana</button>
+        <button class="tab"        id="ktab-hq"    onclick="kanaTab('hq',this)">Hiragana Quiz</button>
+        <button class="tab"        id="ktab-kq"    onclick="kanaTab('kq',this)">Katakana Quiz</button>
+        <button class="tab"        id="ktab-mixed" onclick="kanaTab('mixed',this)">Mixed</button>
+      </div>
+      <div id="kt-h"></div>
+      <div id="kt-k" class="hidden"></div>
+      <div id="kt-q" class="hidden">
+        <div style="background:var(--card);border:1.5px solid var(--border);border-radius:18px;padding:28px;text-align:center;margin-bottom:14px;box-shadow:var(--shadow)">
+          <div style="font-size:11px;color:var(--ink3);margin-bottom:4px;font-weight:500;text-transform:uppercase;letter-spacing:.5px" id="kq-set-label">Hiragana Quiz</div>
+          <div style="font-size:13px;color:var(--ink3);margin-bottom:8px" id="kq-prompt">What is the romaji reading?</div>
+          <div style="font-family:var(--ffj);font-size:72px;line-height:1;margin-bottom:10px;color:var(--ink)" id="kq-char">あ</div>
+          <div style="font-size:12px;color:var(--ink3)" id="kq-score">1 / 15</div>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:14px" id="kq-opts"></div>
+        <div class="companion-bubble" id="kq-bubble">
+          <div class="cb-portrait" id="kq-bubble-portrait"></div>
+          <div class="cb-speech" id="kq-bubble-speech"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- VOCAB -->
+    <div class="page" id="page-vocab">
+      <div class="tabs">
+        <button class="tab active" onclick="vocabTab('fc',this)">Flashcards</button>
+        <button class="tab" onclick="vocabTab('browse',this)">Browse</button>
+      </div>
+      <div id="vt-fc">
+        <!-- Category filter -->
+        <div id="fc-cat-filter" style="margin-bottom:16px">
+          <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--ink3);margin-bottom:8px">Study by category</div>
+          <div style="display:flex;gap:6px;flex-wrap:wrap" id="fc-cat-btns">
+            <button class="cat-pill active" onclick="setVocabCat('',this)">All</button>
+            <button class="cat-pill" onclick="setVocabCat('greeting',this)">👋 Expressions</button>
+            <button class="cat-pill" onclick="setVocabCat('number',this)">🔢 Numbers</button>
+            <button class="cat-pill" onclick="setVocabCat('time',this)">🕐 Time</button>
+            <button class="cat-pill" onclick="setVocabCat('family',this)">👨‍👩‍👧 Family</button>
+            <button class="cat-pill" onclick="setVocabCat('place',this)">🏠 Places</button>
+            <button class="cat-pill" onclick="setVocabCat('food',this)">🍱 Food</button>
+            <button class="cat-pill" onclick="setVocabCat('color',this)">🎨 Colors</button>
+            <button class="cat-pill" onclick="setVocabCat('body',this)">🫀 Body</button>
+            <button class="cat-pill" onclick="setVocabCat('noun',this)">🏷️ Nouns</button>
+            <button class="cat-pill" onclick="setVocabCat('verb',this)">⚡ Verbs</button>
+            <button class="cat-pill" onclick="setVocabCat('adj',this)">💬 Adjectives</button>
+          </div>
+          <div id="fc-cat-info" style="font-size:11.5px;color:var(--ink3);margin-top:8px"></div>
+        </div>
+        <div class="fc-wrap">
+          <!-- How it works hint -->
+          <div id="fc-hint" style="width:100%;background:var(--plum3);border:1px solid var(--plum2);border-radius:var(--r);padding:11px 14px;font-size:12.5px;color:var(--plum);line-height:1.6;display:flex;gap:10px;align-items:flex-start">
+            <span style="font-size:16px;flex-shrink:0">💡</span>
+            <span>Look at the word and try to recall its meaning. Tap the card to reveal, then tell us how it went — the app will show it again at the right time to help it stick.</span>
+          </div>
+          <div class="fc-progress-row">
+            <span style="font-size:11px;color:var(--ink3)">Card <span id="fc-cur">1</span> of <span id="fc-tot">0</span></span>
+            <div class="progress-track" style="flex:1"><div class="progress-fill" id="fc-bar" style="width:0%"></div></div>
+            <span id="fc-left" style="font-size:11px;color:var(--ink3)">0 left</span>
+          </div>
+          <div class="flashcard" id="flashcard" onclick="revealCard()">
+            <div class="card-badge" id="fc-badge">NEW</div>
+            <div class="card-main" id="fc-front">—</div>
+            <div style="font-size:11px;color:var(--ink3)" id="fc-cat"></div>
+            <div style="font-size:12px;color:var(--ink3);margin-top:14px;display:flex;align-items:center;gap:5px;opacity:.7">
+              <span>👆</span> tap to reveal
+            </div>
+          </div>
+          <div id="fc-back" class="hidden" style="width:100%;display:flex;flex-direction:column;align-items:center;gap:14px">
+            <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--r2);padding:20px 24px;width:100%;text-align:center;box-shadow:var(--shadow)">
+              <div class="card-reading" id="fc-reading"></div>
+              <div class="card-meaning" id="fc-meaning"></div>
+              <div class="card-example" id="fc-ex"></div>
+            </div>
+            <div style="width:100%;font-size:11.5px;font-weight:600;color:var(--ink3);text-align:center;text-transform:uppercase;letter-spacing:.5px">How well did you remember it?</div>
+            <div class="srs-row">
+              <button class="srs-btn srs-again" onclick="rateCard(0)">
+                <span style="font-size:15px">😵</span>
+                <span>Didn't know</span>
+                <span class="srs-next">show again soon</span>
+              </button>
+              <button class="srs-btn srs-hard" onclick="rateCard(1)">
+                <span style="font-size:15px">😅</span>
+                <span>Almost</span>
+                <span class="srs-next">show again later</span>
+              </button>
+              <button class="srs-btn srs-good" onclick="rateCard(2)">
+                <span style="font-size:15px">😊</span>
+                <span>Got it</span>
+                <span class="srs-next">see tomorrow</span>
+              </button>
+              <button class="srs-btn srs-easy" onclick="rateCard(3)">
+                <span style="font-size:15px">🌟</span>
+                <span>Easy!</span>
+                <span class="srs-next">see in 4 days</span>
+              </button>
+            </div>
+          </div>
+          <div class="companion-bubble" id="fc-bubble">
+            <div class="cb-portrait" id="fc-bubble-portrait"></div>
+            <div class="cb-speech" id="fc-bubble-speech"></div>
+          </div>
+          <div id="fc-done" class="hidden" style="text-align:center;padding:36px"></div>
+        </div>
+      </div>
+      <div id="vt-browse" class="hidden">
+        <div style="display:flex;gap:9px;margin-bottom:16px">
+          <input type="text" id="vs-search" placeholder="Search..." oninput="renderVocabBrowse()" style="flex:1;padding:8px 12px;border:1.5px solid var(--border2);border-radius:var(--r);font-family:var(--ff);font-size:13px;outline:none;background:var(--card)">
+          <select id="vs-cat" onchange="renderVocabBrowse()" style="padding:8px 12px;border:1.5px solid var(--border2);border-radius:var(--r);font-family:var(--ff);font-size:13px;background:var(--card)">
+            <option value="">All categories</option><option value="greeting">Expressions</option><option value="number">Numbers</option><option value="time">Time</option><option value="family">Family</option><option value="place">Places</option><option value="food">Food &amp; Drink</option><option value="color">Colors</option><option value="body">Body</option><option value="noun">Nouns</option><option value="verb">Verbs</option><option value="adj">Adjectives</option>
+          </select>
+        </div>
+        <div id="vocab-list"></div>
+      </div>
+    </div>
+
+    <!-- GRAMMAR -->
+    <div class="page" id="page-grammar">
+      <div style="margin-bottom:18px;font-size:13px;color:var(--ink3)">Essential N5 patterns — click to expand.</div>
+      <div id="grammar-list"></div>
+    </div>
+
+    <!-- READING -->
+    <div class="page" id="page-reading">
+      <div id="reading-menu">
+        <div style="margin-bottom:18px;font-size:13px;color:var(--ink3)">Click any word for instant translation.</div>
+        <div class="grid-2" id="passage-cards"></div>
+      </div>
+      <div id="reading-active" class="hidden">
+        <button class="btn btn-ghost btn-sm" onclick="backToPassages()" style="margin-bottom:16px">← Back</button>
+        <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--r2);padding:24px;margin-bottom:18px;box-shadow:var(--shadow)">
+          <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.6px;color:var(--plum);margin-bottom:10px" id="ra-title"></div>
+          <div class="rp-text" id="ra-text"></div>
+        </div>
+        <div style="font-size:14px;font-weight:600;margin-bottom:12px">Comprehension Questions</div>
+        <div id="ra-qs"></div>
+      </div>
+    </div>
+
+    <!-- QUIZ -->
+    <div class="page" id="page-quiz">
+      <div id="quiz-menu">
+        <div class="companion-bar" style="margin-bottom:22px">
+          <div class="companion-portrait" id="quiz-portrait"></div>
+          <div><div class="companion-name" style="color:var(--plum)" id="quiz-char-name">Cyrene</div><div class="companion-msg">Ready for a challenge? 頑張って！</div></div>
+        </div>
+        <div class="grid-3">
+          <div class="mode-card" onclick="startQuiz('vocab')"><div class="mode-icon" style="background:#ede9fe">📝</div><div class="mode-title">Vocabulary MCQ</div><div class="mode-desc">Choose the correct meaning for each word</div><div class="mode-badge">10 questions</div></div>
+          <div class="mode-card" onclick="startQuiz('grammar')"><div class="mode-icon" style="background:#ccfbf1">🔧</div><div class="mode-title">Grammar Fill-in</div><div class="mode-desc">Pick the right grammar pattern</div><div class="mode-badge">10 questions</div></div>
+          <div class="mode-card" onclick="startQuiz('kana')"><div class="mode-icon" style="background:#fce7f3">🔤</div><div class="mode-title">Kana Speed</div><div class="mode-desc">Rapid-fire kana recognition</div><div class="mode-badge">20 questions</div></div>
+        </div>
+      </div>
+      <div id="quiz-active" class="hidden">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px">
+          <button class="btn btn-ghost btn-sm" onclick="endQuiz()">✕ End</button>
+          <div style="font-size:12px;color:var(--ink3)">Q<span id="qz-num">1</span>/<span id="qz-tot">10</span></div>
+          <div style="font-size:13px;font-weight:600;color:var(--plum)">Score: <span id="qz-score">0</span></div>
+        </div>
+        <div class="progress-track" style="margin-bottom:22px"><div class="progress-fill" id="qz-progress" style="width:0%"></div></div>
+        <div style="max-width:520px;margin:0 auto;display:flex;flex-direction:column;gap:18px">
+          <div class="quiz-q-card">
+            <div class="quiz-q-label" id="qz-instr"></div>
+            <div class="quiz-q-main" id="qz-q">—</div>
+            <div style="font-size:13px;color:var(--ink3);font-family:var(--ffj)" id="qz-sub"></div>
+          </div>
+          <div class="mcq-grid" id="qz-opts"></div>
+          <div class="quiz-fb" id="qz-fb">
+            <div style="font-size:14px;font-weight:600;margin-bottom:4px" id="qz-fb-title"></div>
+            <div style="font-size:12px;color:var(--ink2)" id="qz-fb-body"></div>
+            <div style="font-family:var(--ffj);font-size:12px;color:var(--ink2);margin-top:5px" id="qz-fb-ex"></div>
+            <button class="btn btn-primary btn-sm" style="margin-top:10px" onclick="nextQz()">Next →</button>
+          </div>
+        </div>
+      </div>
+      <div id="quiz-result" class="hidden" style="text-align:center;padding:40px;max-width:380px;margin:0 auto">
+        <div style="font-size:52px;margin-bottom:10px" id="qr-emoji">🎉</div>
+        <div style="font-size:22px;font-weight:600;margin-bottom:5px">Quiz Complete!</div>
+        <div style="font-size:15px;color:var(--ink3);margin-bottom:22px"><span id="qr-score">0</span>/<span id="qr-tot">10</span> correct</div>
+        <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--r2);padding:18px;margin-bottom:20px"><div id="qr-msg" style="font-size:13.5px;color:var(--ink2)"></div></div>
+        <button class="btn btn-primary" onclick="endQuiz()">Try Another</button>
+      </div>
+    </div>
+
+    <!-- FRIENDS -->
+    <div class="page" id="page-friends">
+      <div class="tabs">
+        <button class="tab active" onclick="friendsTab('activity',this)">Activity</button>
+        <button class="tab" onclick="friendsTab('list',this)">Friends</button>
+        <button class="tab" onclick="friendsTab('add',this)">Add Friend</button>
+      </div>
+      <div id="ft-activity"><div style="text-align:center;padding:40px;color:var(--ink3)"><div class="spinner"></div></div></div>
+      <div id="ft-list" class="hidden"><div id="friends-list"></div></div>
+      <div id="ft-add" class="hidden">
+        <div class="settings-section">
+          <div style="font-size:14px;font-weight:600;margin-bottom:14px">Find by username</div>
+          <div style="display:flex;gap:9px">
+            <input type="text" id="fr-search-in" placeholder="e.g. sakura_learner" style="flex:1;padding:9px 12px;border:1.5px solid var(--border2);border-radius:var(--r);font-family:var(--ff);font-size:13px;outline:none;background:var(--card)">
+            <button class="btn btn-primary" onclick="searchFriend()">Search</button>
+          </div>
+          <div id="fr-result" style="margin-top:14px"></div>
+        </div>
+        <div style="margin-top:20px">
+          <div style="font-size:14px;font-weight:600;margin-bottom:12px">Pending requests</div>
+          <div id="fr-requests"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SETTINGS -->
+    <div class="page" id="page-settings">
+      <div style="font-size:14px;font-weight:600;margin-bottom:14px">Choose your companion</div>
+      <div class="char-select-grid" id="char-grid"></div>
+      <div class="settings-section">
+        <div style="font-size:14px;font-weight:600;margin-bottom:2px">Account</div>
+        <div style="font-size:12px;color:var(--ink3);margin-bottom:14px" id="acct-info"></div>
+        <button class="btn btn-secondary btn-sm" onclick="doLogout()">Sign out</button>
+      </div>
+    </div>
+
+  </main>
+</div>
+  
+<script>
+// ═══════════════════════════════════════════
+// SUPABASE
+// ═══════════════════════════════════════════
+const SB = supabase.createClient(
+  'https://bnvsljdopxccnncihsvw.supabase.co',
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJudnNsamRvcHhjY25uY2loc3Z3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkyNzk1NDAsImV4cCI6MjA5NDg1NTU0MH0.jZ3O6ufE5ohmkMvgySYfMyJVKDTYWkudGA2XE-vQ-MM'
+);
+
+// Fire-and-forget DB write — calls .then() directly on the Supabase
+// query builder, which is the only reliable way to trigger it without await.
+function dbSave(q) {
+  q.then(({ error }) => { if (error) console.warn('DB save error:', error.message); });
+}
+
+// ═══════════════════════════════════════════
+// GLOBAL STATE
+// ═══════════════════════════════════════════
+let USER = null;
+let PROFILE = null;
+let KANA_P = {};
+let VOCAB_P = {};
+let ACTIVE_CHAR = 'cyrene';
+let RT_CHANNEL = null;
+
+// PAGE_META — MOVED TO TOP TO FIX TEMPORAL DEAD ZONE
+const PAGE_META = {
+  home: { title: 'おはよう！', sub: 'N5 · Beginner' },
+  kana: { title: 'Kana Mastery', sub: 'Hiragana & Katakana' },
+  vocab: { title: 'Vocabulary', sub: 'N5 Core Vocab' },
+  grammar: { title: 'Grammar', sub: 'N5 Patterns' },
+  reading: { title: 'Reading', sub: 'N5 Passages' },
+  quiz: { title: 'JLPT Quiz', sub: 'Practice Tests' },
+  friends: { title: 'Friends', sub: 'Study Together' },
+  settings: { title: 'Settings', sub: 'Preferences' },
+};
+
+// charSay, getChar, renderPortrait — defined in characters.js
+
+// ═══════════════════════════════════════════
+//  KANA & VOCAB DATA
+// ═══════════════════════════════════════════
+const HG=[{k:'あ',r:'a'},{k:'い',r:'i'},{k:'う',r:'u'},{k:'え',r:'e'},{k:'お',r:'o'},{k:'か',r:'ka'},{k:'き',r:'ki'},{k:'く',r:'ku'},{k:'け',r:'ke'},{k:'こ',r:'ko'},{k:'さ',r:'sa'},{k:'し',r:'shi'},{k:'す',r:'su'},{k:'せ',r:'se'},{k:'そ',r:'so'},{k:'た',r:'ta'},{k:'ち',r:'chi'},{k:'つ',r:'tsu'},{k:'て',r:'te'},{k:'と',r:'to'},{k:'な',r:'na'},{k:'に',r:'ni'},{k:'ぬ',r:'nu'},{k:'ね',r:'ne'},{k:'の',r:'no'},{k:'は',r:'ha'},{k:'ひ',r:'hi'},{k:'ふ',r:'fu'},{k:'へ',r:'he'},{k:'ほ',r:'ho'},{k:'ま',r:'ma'},{k:'み',r:'mi'},{k:'む',r:'mu'},{k:'め',r:'me'},{k:'も',r:'mo'},{k:'や',r:'ya'},{k:'ゆ',r:'yu'},{k:'よ',r:'yo'},{k:'ら',r:'ra'},{k:'り',r:'ri'},{k:'る',r:'ru'},{k:'れ',r:'re'},{k:'ろ',r:'ro'},{k:'わ',r:'wa'},{k:'を',r:'wo'},{k:'ん',r:'n'}];
+const KT=[{k:'ア',r:'a'},{k:'イ',r:'i'},{k:'ウ',r:'u'},{k:'エ',r:'e'},{k:'オ',r:'o'},{k:'カ',r:'ka'},{k:'キ',r:'ki'},{k:'ク',r:'ku'},{k:'ケ',r:'ke'},{k:'コ',r:'ko'},{k:'サ',r:'sa'},{k:'シ',r:'shi'},{k:'ス',r:'su'},{k:'セ',r:'se'},{k:'ソ',r:'so'},{k:'タ',r:'ta'},{k:'チ',r:'chi'},{k:'ツ',r:'tsu'},{k:'テ',r:'te'},{k:'ト',r:'to'},{k:'ナ',r:'na'},{k:'ニ',r:'ni'},{k:'ヌ',r:'nu'},{k:'ネ',r:'ne'},{k:'ノ',r:'no'},{k:'ハ',r:'ha'},{k:'ヒ',r:'hi'},{k:'フ',r:'fu'},{k:'ヘ',r:'he'},{k:'ホ',r:'ho'},{k:'マ',r:'ma'},{k:'ミ',r:'mi'},{k:'ム',r:'mu'},{k:'メ',r:'me'},{k:'モ',r:'mo'},{k:'ヤ',r:'ya'},{k:'ユ',r:'yu'},{k:'ヨ',r:'yo'},{k:'ラ',r:'ra'},{k:'リ',r:'ri'},{k:'ル',r:'ru'},{k:'レ',r:'re'},{k:'ロ',r:'ro'},{k:'ワ',r:'wa'},{k:'ヲ',r:'wo'},{k:'ン',r:'n'}];
+const ALL_ROM=[...new Set([...HG,...KT].map(x=>x.r))];
+
+const VOCAB=[
+  // GREETINGS & EXPRESSIONS
+  {j:'おはようございます',r:'ohayou gozaimasu',e:'Good morning (polite)',c:'greeting',x:'おはようございます！いいてんきですね。'},
+  {j:'おはよう',r:'ohayou',e:'Good morning (casual)',c:'greeting',x:'おはよう！きょうもがんばろう。'},
+  {j:'こんにちは',r:'konnichiwa',e:'Hello / Good afternoon',c:'greeting',x:'こんにちは！おげんきですか？'},
+  {j:'こんばんは',r:'konbanwa',e:'Good evening',c:'greeting',x:'こんばんは。きょうもおつかれさまでした。'},
+  {j:'おやすみなさい',r:'oyasumi nasai',e:'Good night',c:'greeting',x:'おやすみなさい！またあした。'},
+  {j:'ありがとうございます',r:'arigatou gozaimasu',e:'Thank you (polite)',c:'greeting',x:'ありがとうございます！たすかりました。'},
+  {j:'どういたしまして',r:'dou itashimashite',e:"You're welcome",c:'greeting',x:'どういたしまして。またどうぞ。'},
+  {j:'すみません',r:'sumimasen',e:'Excuse me / Sorry',c:'greeting',x:'すみません、ちょっといいですか？'},
+  {j:'ごめんなさい',r:'gomen nasai',e:'I am sorry',c:'greeting',x:'ごめんなさい、おくれました。'},
+  {j:'はい',r:'hai',e:'Yes',c:'greeting',x:'はい、そうです。'},
+  {j:'いいえ',r:'iie',e:'No',c:'greeting',x:'いいえ、ちがいます。'},
+  {j:'さようなら',r:'sayounara',e:'Goodbye',c:'greeting',x:'さようなら、またあした！'},
+  {j:'じゃあ、また',r:'jaa, mata',e:'See you later',c:'greeting',x:'じゃあ、またね！'},
+  {j:'ただいま',r:'tadaima',e:"I'm home",c:'greeting',x:'ただいま！おなかがすいた。'},
+  {j:'おかえりなさい',r:'okaeri nasai',e:'Welcome home',c:'greeting',x:'おかえりなさい！おつかれさまでした。'},
+  {j:'いただきます',r:'itadakimasu',e:"Let's eat (before meals)",c:'greeting',x:'いただきます！おいしそう！'},
+  {j:'ごちそうさまでした',r:'gochisousama deshita',e:'Thank you for the meal',c:'greeting',x:'ごちそうさまでした。とてもおいしかったです。'},
+  {j:'どうぞ',r:'douzo',e:'Please / Go ahead / Here you are',c:'greeting',x:'どうぞ、おはいりください。'},
+  {j:'おねがいします',r:'onegai shimasu',e:'Please (making a request)',c:'greeting',x:'みずをおねがいします。'},
+  {j:'はじめまして',r:'hajimemashite',e:'Nice to meet you',c:'greeting',x:'はじめまして、たなかです。'},
+  {j:'よろしくおねがいします',r:'yoroshiku onegai shimasu',e:'Pleased to meet you',c:'greeting',x:'よろしくおねがいします！'},
+  {j:'おめでとうございます',r:'omedetou gozaimasu',e:'Congratulations',c:'greeting',x:'おたんじょうびおめでとうございます！'},
+  {j:'がんばってください',r:'ganbatte kudasai',e:'Please do your best',c:'greeting',x:'しけん、がんばってください！'},
+  // NUMBERS
+  {j:'ゼロ',r:'zero',e:'Zero (0)',c:'number',x:'ゼロからはじめましょう。'},
+  {j:'いち',r:'ichi',e:'One (1)',c:'number',x:'いちにちいちかい。'},
+  {j:'に',r:'ni',e:'Two (2)',c:'number',x:'にまいください。'},
+  {j:'さん',r:'san',e:'Three (3)',c:'number',x:'さんにんいます。'},
+  {j:'よん/し',r:'yon / shi',e:'Four (4)',c:'number',x:'よんじかんまちました。'},
+  {j:'ご',r:'go',e:'Five (5)',c:'number',x:'ごふんまってください。'},
+  {j:'ろく',r:'roku',e:'Six (6)',c:'number',x:'ろくじにあいましょう。'},
+  {j:'なな/しち',r:'nana / shichi',e:'Seven (7)',c:'number',x:'ななにんいます。'},
+  {j:'はち',r:'hachi',e:'Eight (8)',c:'number',x:'はちじにおきます。'},
+  {j:'きゅう/く',r:'kyuu / ku',e:'Nine (9)',c:'number',x:'きゅうがつです。'},
+  {j:'じゅう',r:'juu',e:'Ten (10)',c:'number',x:'じゅっぷんまちました。'},
+  {j:'ひゃく',r:'hyaku',e:'One hundred (100)',c:'number',x:'ひゃくえんです。'},
+  {j:'せん',r:'sen',e:'One thousand (1,000)',c:'number',x:'せんえんください。'},
+  {j:'まん',r:'man',e:'Ten thousand (10,000)',c:'number',x:'いちまんえんです。'},
+  {j:'ひとつ',r:'hitotsu',e:'One thing',c:'number',x:'りんごをひとつください。'},
+  {j:'ふたつ',r:'futatsu',e:'Two things',c:'number',x:'ふたつあります。'},
+  {j:'みっつ',r:'mittsu',e:'Three things',c:'number',x:'みっつたべました。'},
+  {j:'いくつ',r:'ikutsu',e:'How many?',c:'number',x:'いくつありますか？'},
+  // TIME
+  {j:'いま',r:'ima',e:'Now',c:'time',x:'いまなんじですか？'},
+  {j:'きょう',r:'kyou',e:'Today',c:'time',x:'きょうはなんようびですか？'},
+  {j:'あした',r:'ashita',e:'Tomorrow',c:'time',x:'あしたあいましょう。'},
+  {j:'きのう',r:'kinou',e:'Yesterday',c:'time',x:'きのうえいがをみました。'},
+  {j:'おととい',r:'ototoi',e:'Day before yesterday',c:'time',x:'おとといゆきがふりました。'},
+  {j:'あさって',r:'asatte',e:'Day after tomorrow',c:'time',x:'あさってひっこします。'},
+  {j:'まいにち',r:'mainichi',e:'Every day',c:'time',x:'まいにちべんきょうします。'},
+  {j:'まいあさ',r:'maiasa',e:'Every morning',c:'time',x:'まいあさろくじにおきます。'},
+  {j:'ことし',r:'kotoshi',e:'This year',c:'time',x:'ことしにほんにいきます。'},
+  {j:'きょねん',r:'kyonen',e:'Last year',c:'time',x:'きょねんにほんごをはじめました。'},
+  {j:'らいねん',r:'rainen',e:'Next year',c:'time',x:'らいねんにほんにいきたいです。'},
+  {j:'せんしゅう',r:'senshuu',e:'Last week',c:'time',x:'せんしゅうかいました。'},
+  {j:'らいしゅう',r:'raishuu',e:'Next week',c:'time',x:'らいしゅうあいましょう。'},
+  {j:'ごぜん',r:'gozen',e:'Morning / AM',c:'time',x:'ごぜんじゅうじにきます。'},
+  {j:'ごご',r:'gogo',e:'Afternoon / PM',c:'time',x:'ごごさんじからです。'},
+  {j:'よる',r:'yoru',e:'Night / Evening',c:'time',x:'よるははやくねます。'},
+  {j:'はる',r:'haru',e:'Spring',c:'time',x:'はるはさくらがきれいです。'},
+  {j:'なつ',r:'natsu',e:'Summer',c:'time',x:'なつはあついです。'},
+  {j:'あき',r:'aki',e:'Autumn / Fall',c:'time',x:'あきはすずしいです。'},
+  {j:'ふゆ',r:'fuyu',e:'Winter',c:'time',x:'ふゆはゆきがふります。'},
+  {j:'げつようび',r:'getsuyoubi',e:'Monday',c:'time',x:'げつようびはいそがしいです。'},
+  {j:'かようび',r:'kayoubi',e:'Tuesday',c:'time',x:'かようびにあいましょう。'},
+  {j:'すいようび',r:'suiyoubi',e:'Wednesday',c:'time',x:'すいようびはやすみです。'},
+  {j:'もくようび',r:'mokuyoubi',e:'Thursday',c:'time',x:'もくようびにじゅぎょうがあります。'},
+  {j:'きんようび',r:'kinyoubi',e:'Friday',c:'time',x:'きんようびはたのしいです。'},
+  {j:'どようび',r:'doyoubi',e:'Saturday',c:'time',x:'どようびにあそびましょう。'},
+  {j:'にちようび',r:'nichiyoubi',e:'Sunday',c:'time',x:'にちようびはやすみです。'},
+  {j:'いつも',r:'itsumo',e:'Always',c:'time',x:'いつもありがとう。'},
+  {j:'ときどき',r:'tokidoki',e:'Sometimes',c:'time',x:'ときどきえいがをみます。'},
+  {j:'じかん',r:'jikan',e:'Time / Hour',c:'time',x:'じかんがありません。'},
+  // FAMILY
+  {j:'かぞく',r:'kazoku',e:'Family',c:'family',x:'わたしのかぞくはよにんです。'},
+  {j:'ちち',r:'chichi',e:'My father',c:'family',x:'ちちはしゃちょうです。'},
+  {j:'はは',r:'haha',e:'My mother',c:'family',x:'はははせんせいです。'},
+  {j:'おとうさん',r:'otousan',e:'Father (honorific)',c:'family',x:'おとうさんはどこですか？'},
+  {j:'おかあさん',r:'okaasan',e:'Mother (honorific)',c:'family',x:'おかあさんにでんわします。'},
+  {j:'あに',r:'ani',e:'My older brother',c:'family',x:'aniはだいがくせいです。'},
+  {j:'あね',r:'ane',e:'My older sister',c:'family',x:'あねはけっこんしています。'},
+  {j:'おにいさん',r:'oniisan',e:'Older brother (honorific)',c:'family',x:'おにいさんはなんさいですか？'},
+  {j:'おねえさん',r:'oneesan',e:'Older sister (honorific)',c:'family',x:'おねえさんはきれいです。'},
+  {j:'おとうと',r:'otouto',e:'Younger brother',c:'family',x:'おとうとはちゅうがくせいです。'},
+  {j:'いもうと',r:'imouto',e:'Younger sister',c:'family',x:'いもうとはかわいいです。'},
+  {j:'おじいさん',r:'ojiisan',e:'Grandfather',c:'family',x:'おじいさんはながいきです。'},
+  {j:'おばあさん',r:'obaasan',e:'Grandmother',c:'family',x:'おばあさんのりょうりはおいしい。'},
+  {j:'きょうだい',r:'kyoudai',e:'Siblings',c:'family',x:'きょうだいはふたりいます。'},
+  {j:'こども',r:'kodomo',e:'Child / Children',c:'family',x:'こどもがふたりいます。'},
+  // PLACES
+  {j:'うち',r:'uchi',e:'Home / My house',c:'place',x:'うちにかえります。'},
+  {j:'いえ',r:'ie',e:'House / Home',c:'place',x:'あのいえはおおきいです。'},
+  {j:'へや',r:'heya',e:'Room',c:'place',x:'わたしのへやはせまいです。'},
+  {j:'がっこう',r:'gakkou',e:'School',c:'place',x:'まいにちがっこうへいきます。'},
+  {j:'としょかん',r:'toshokan',e:'Library',c:'place',x:'としょかんでほんをかります。'},
+  {j:'びょういん',r:'byouin',e:'Hospital',c:'place',x:'びょういんにいきました。'},
+  {j:'ゆうびんきょく',r:'yuubinkyoku',e:'Post office',c:'place',x:'ゆうびんきょくはどこですか？'},
+  {j:'ぎんこう',r:'ginkou',e:'Bank',c:'place',x:'ぎんこうでおかねをおろします。'},
+  {j:'スーパー',r:'suupaa',e:'Supermarket',c:'place',x:'スーパーでかいものをします。'},
+  {j:'デパート',r:'depaato',e:'Department store',c:'place',x:'デパートであたらしいふくをかいました。'},
+  {j:'こうえん',r:'kouen',e:'Park',c:'place',x:'こうえんでさんぽをします。'},
+  {j:'えき',r:'eki',e:'Train station',c:'place',x:'えきのちかくにすんでいます。'},
+  {j:'くうこう',r:'kuukou',e:'Airport',c:'place',x:'くうこうまでタクシーでいきます。'},
+  {j:'かいしゃ',r:'kaisha',e:'Company / Office',c:'place',x:'まいにちかいしゃにいきます。'},
+  {j:'レストラン',r:'resutoran',e:'Restaurant',c:'place',x:'レストランでばんごはんをたべます。'},
+  {j:'きっさてん',r:'kissaten',e:'Café / Coffee shop',c:'place',x:'きっさてんでコーヒーをのみます。'},
+  {j:'コンビニ',r:'konbini',e:'Convenience store',c:'place',x:'コンビニはべんりです。'},
+  // FOOD & DRINK
+  {j:'ごはん',r:'gohan',e:'Cooked rice / Meal',c:'food',x:'ごはんをたべます。'},
+  {j:'パン',r:'pan',e:'Bread',c:'food',x:'あさごはんにパンをたべます。'},
+  {j:'たまご',r:'tamago',e:'Egg',c:'food',x:'たまごをふたつかいました。'},
+  {j:'にく',r:'niku',e:'Meat',c:'food',x:'このにくはおいしいです。'},
+  {j:'さかな',r:'sakana',e:'Fish',c:'food',x:'さかなをたべるのがすきです。'},
+  {j:'やさい',r:'yasai',e:'Vegetables',c:'food',x:'やさいはからだにいいです。'},
+  {j:'くだもの',r:'kudamono',e:'Fruit',c:'food',x:'まいにちくだものをたべます。'},
+  {j:'りんご',r:'ringo',e:'Apple',c:'food',x:'りんごがすきです。'},
+  {j:'バナナ',r:'banana',e:'Banana',c:'food',x:'バナナをひとつください。'},
+  {j:'みかん',r:'mikan',e:'Mandarin / Orange',c:'food',x:'みかんをみっつかいました。'},
+  {j:'みず',r:'mizu',e:'Water',c:'food',x:'みずをいっぱいのみます。'},
+  {j:'おちゃ',r:'ocha',e:'Green tea',c:'food',x:'おちゃをいっぱいどうぞ。'},
+  {j:'コーヒー',r:'koohii',e:'Coffee',c:'food',x:'まいあさコーヒーをのみます。'},
+  {j:'ジュース',r:'juusu',e:'Juice',c:'food',x:'オレンジジュースをください。'},
+  {j:'ぎゅうにゅう',r:'gyuunyuu',e:'Milk',c:'food',x:'ぎゅうにゅうはからだにいいです。'},
+  {j:'すし',r:'sushi',e:'Sushi',c:'food',x:'すしがだいすきです。'},
+  {j:'ラーメン',r:'raamen',e:'Ramen',c:'food',x:'さむいひはラーメンがたべたいです。'},
+  {j:'そば',r:'soba',e:'Soba noodles',c:'food',x:'としこしそばをたべます。'},
+  {j:'うどん',r:'udon',e:'Udon noodles',c:'food',x:'うどんとそばとどちらがすきですか？'},
+  {j:'おにぎり',r:'onigiri',e:'Rice ball',c:'food',x:'コンビニでおにぎりをかいました。'},
+  {j:'あさごはん',r:'asagohan',e:'Breakfast',c:'food',x:'まいあさあさごはんをたべます。'},
+  {j:'ひるごはん',r:'hirugohan',e:'Lunch',c:'food',x:'ひるごはんはどこでたべますか？'},
+  {j:'ばんごはん',r:'bangohan',e:'Dinner',c:'food',x:'ばんごはんをいっしょにたべましょう。'},
+  {j:'おかし',r:'okashi',e:'Sweets / Snacks',c:'food',x:'このおかしはあまくておいしい。'},
+  // COLORS
+  {j:'あかい',r:'akai',e:'Red',c:'color',x:'あかいくるまがすきです。'},
+  {j:'あおい',r:'aoi',e:'Blue',c:'color',x:'そらはあおいです。'},
+  {j:'しろい',r:'shiroi',e:'White',c:'color',x:'しろいねこがいます。'},
+  {j:'くろい',r:'kuroi',e:'Black',c:'color',x:'くろいかばんをかいました。'},
+  {j:'きいろい',r:'kiiroi',e:'Yellow',c:'color',x:'きいろいはなです。'},
+  {j:'みどり',r:'midori',e:'Green',c:'color',x:'みどりのきがたくさんあります。'},
+  {j:'ちゃいろい',r:'chairoi',e:'Brown',c:'color',x:'ちゃいろいいぬです。'},
+  {j:'ピンク',r:'pinku',e:'Pink',c:'color',x:'ピンクのさくらがきれいです。'},
+  {j:'むらさき',r:'murasaki',e:'Purple',c:'color',x:'むらさきのはながさきました。'},
+  {j:'オレンジ',r:'orenji',e:'Orange',c:'color',x:'オレンジのセーターをきています。'},
+  // BODY PARTS
+  {j:'あたま',r:'atama',e:'Head',c:'body',x:'あたまがいたいです。'},
+  {j:'かお',r:'kao',e:'Face',c:'body',x:'かおをあらいます。'},
+  {j:'め',r:'me',e:'Eye(s)',c:'body',x:'めがおおきいです。'},
+  {j:'みみ',r:'mimi',e:'Ear(s)',c:'body',x:'ねこのみみはちいさいです。'},
+  {j:'はな',r:'hana',e:'Nose',c:'body',x:'はながながいです。'},
+  {j:'くち',r:'kuchi',e:'Mouth',c:'body',x:'くちをひらいてください。'},
+  {j:'は',r:'ha',e:'Tooth / Teeth',c:'body',x:'はをみがきます。'},
+  {j:'て',r:'te',e:'Hand(s)',c:'body',x:'てをあらいます。'},
+  {j:'あし',r:'ashi',e:'Leg / Foot',c:'body',x:'あしがいたいです。'},
+  {j:'からだ',r:'karada',e:'Body',c:'body',x:'からだにきをつけてください。'},
+  {j:'おなか',r:'onaka',e:'Stomach / Belly',c:'body',x:'おなかがすきました。'},
+  {j:'かみ',r:'kami',e:'Hair',c:'body',x:'かみをきりました。'},
+  // NOUNS
+  {j:'わたし',r:'watashi',e:'I / Me',c:'noun',x:'わたしはにほんごをべんきょうしています。'},
+  {j:'あなた',r:'anata',e:'You',c:'noun',x:'あなたのなまえはなんですか？'},
+  {j:'ひと',r:'hito',e:'Person / People',c:'noun',x:'あのひとはだれですか？'},
+  {j:'おとこのひと',r:'otoko no hito',e:'Man',c:'noun',x:'あのおとこのひとはせんせいです。'},
+  {j:'おんなのひと',r:'onna no hito',e:'Woman',c:'noun',x:'あのおんなのひとはだれですか？'},
+  {j:'ともだち',r:'tomodachi',e:'Friend',c:'noun',x:'ともだちとえいがをみます。'},
+  {j:'せんせい',r:'sensei',e:'Teacher',c:'noun',x:'せんせいにしつもんします。'},
+  {j:'がくせい',r:'gakusei',e:'Student',c:'noun',x:'わたしはだいがくせいです。'},
+  {j:'にほんご',r:'nihongo',e:'Japanese language',c:'noun',x:'にほんごをまいにちべんきょうします。'},
+  {j:'えいご',r:'eigo',e:'English language',c:'noun',x:'えいごをはなすことができます。'},
+  {j:'ほん',r:'hon',e:'Book',c:'noun',x:'ほんをよむのがすきです。'},
+  {j:'ざっし',r:'zasshi',e:'Magazine',c:'noun',x:'ざっしをかいました。'},
+  {j:'しんぶん',r:'shinbun',e:'Newspaper',c:'noun',x:'まいあさしんぶんをよみます。'},
+  {j:'てがみ',r:'tegami',e:'Letter',c:'noun',x:'ともだちにてがみをかきます。'},
+  {j:'でんわ',r:'denwa',e:'Phone / Telephone',c:'noun',x:'でんわをかけます。'},
+  {j:'テレビ',r:'terebi',e:'Television',c:'noun',x:'テレビをみます。'},
+  {j:'くるま',r:'kuruma',e:'Car',c:'noun',x:'くるまでいきます。'},
+  {j:'じてんしゃ',r:'jitensha',e:'Bicycle',c:'noun',x:'じてんしゃにのります。'},
+  {j:'でんしゃ',r:'densha',e:'Train',c:'noun',x:'でんしゃでかいしゃにいきます。'},
+  {j:'バス',r:'basu',e:'Bus',c:'noun',x:'バスにのります。'},
+  {j:'タクシー',r:'takushii',e:'Taxi',c:'noun',x:'タクシーをよびます。'},
+  {j:'おかね',r:'okane',e:'Money',c:'noun',x:'おかねがたりません。'},
+  {j:'しごと',r:'shigoto',e:'Work / Job',c:'noun',x:'しごとはたのしいです。'},
+  {j:'やすみ',r:'yasumi',e:'Holiday / Rest',c:'noun',x:'やすみはなにをしますか？'},
+  {j:'てんき',r:'tenki',e:'Weather',c:'noun',x:'きょうはいいてんきです。'},
+  {j:'あめ',r:'ame',e:'Rain',c:'noun',x:'あめがふっています。'},
+  {j:'ゆき',r:'yuki',e:'Snow',c:'noun',x:'ゆきがつもりました。'},
+  {j:'かぜ',r:'kaze',e:'Wind',c:'noun',x:'つよいかぜがふいています。'},
+  {j:'そら',r:'sora',e:'Sky',c:'noun',x:'そらがあおいです。'},
+  {j:'うみ',r:'umi',e:'Sea / Ocean',c:'noun',x:'なつはうみにいきます。'},
+  {j:'やま',r:'yama',e:'Mountain',c:'noun',x:'ふじさんはたかいやまです。'},
+  {j:'かわ',r:'kawa',e:'River',c:'noun',x:'かわのそばをさんぽします。'},
+  {j:'はな',r:'hana',e:'Flower',c:'noun',x:'はながきれいにさいています。'},
+  {j:'き',r:'ki',e:'Tree',c:'noun',x:'こうえんにおおきなきがあります。'},
+  {j:'いぬ',r:'inu',e:'Dog',c:'noun',x:'いぬをかっています。'},
+  {j:'ねこ',r:'neko',e:'Cat',c:'noun',x:'ねこはかわいいです。'},
+  {j:'とり',r:'tori',e:'Bird',c:'noun',x:'とりがうたっています。'},
+  // VERBS
+  {j:'たべる',r:'taberu',e:'To eat',c:'verb',x:'ひるごはんをたべます。'},
+  {j:'のむ',r:'nomu',e:'To drink',c:'verb',x:'コーヒーをのみます。'},
+  {j:'みる',r:'miru',e:'To see / watch',c:'verb',x:'えいがをみます。'},
+  {j:'よむ',r:'yomu',e:'To read',c:'verb',x:'まいばんほんをよみます。'},
+  {j:'かく',r:'kaku',e:'To write',c:'verb',x:'てがみをかきます。'},
+  {j:'はなす',r:'hanasu',e:'To speak / talk',c:'verb',x:'にほんごをはなします。'},
+  {j:'きく',r:'kiku',e:'To listen / ask',c:'verb',x:'おんがくをきます。'},
+  {j:'いく',r:'iku',e:'To go',c:'verb',x:'がっこうへいきます。'},
+  {j:'くる',r:'kuru',e:'To come',c:'verb',x:'ともだちがきます。'},
+  {j:'かえる',r:'kaeru',e:'To return home',c:'verb',x:'はやくいえにかえります。'},
+  {j:'わかる',r:'wakaru',e:'To understand',c:'verb',x:'にほんごがわかります。'},
+  {j:'ある',r:'aru',e:'To exist (things)',c:'verb',x:'つくえのうえにほんがあります。'},
+  {j:'いる',r:'iru',e:'To exist (living things)',c:'verb',x:'へやにねこがいます。'},
+  {j:'する',r:'suru',e:'To do',c:'verb',x:'べんきょうをします。'},
+  {j:'おきる',r:'okiru',e:'To wake up / get up',c:'verb',x:'まいあさろくじにおきます。'},
+  {j:'ねる',r:'neru',e:'To sleep',c:'verb',x:'じゅうじにねます。'},
+  {j:'たつ',r:'tatsu',e:'To stand up',c:'verb',x:'たってください。'},
+  {j:'すわる',r:'suwaru',e:'To sit down',c:'verb',x:'すわってください。'},
+  {j:'あるく',r:'aruku',e:'To walk',c:'verb',x:'まいにちがっこうまであるきます。'},
+  {j:'はしる',r:'hashiru',e:'To run',c:'verb',x:'まいあさこうえんをはしります。'},
+  {j:'のる',r:'noru',e:'To ride / board',c:'verb',x:'でんしゃにのります。'},
+  {j:'かう',r:'kau',e:'To buy',c:'verb',x:'スーパーでやさいをかいます。'},
+  {j:'うる',r:'uru',e:'To sell',c:'verb',x:'あのみせはやさいをうっています。'},
+  {j:'もらう',r:'morau',e:'To receive',c:'verb',x:'たんじょうびにプレゼントをもらいました。'},
+  {j:'あげる',r:'ageru',e:'To give',c:'verb',x:'ともだちにほんをあげます。'},
+  {j:'つくる',r:'tsukuru',e:'To make / create',c:'verb',x:'りょうりをつくります。'},
+  {j:'はじまる',r:'hajimaru',e:'To begin / start',c:'verb',x:'じゅぎょうがはじまります。'},
+  {j:'おわる',r:'owaru',e:'To finish / end',c:'verb',x:'しごとがおわりました。'},
+  {j:'おしえる',r:'oshieru',e:'To teach / tell',c:'verb',x:'えいごをおしえています。'},
+  {j:'おぼえる',r:'oboeru',e:'To remember / memorize',c:'verb',x:'かんじをおぼえます。'},
+  {j:'わすれる',r:'wasureru',e:'To forget',c:'verb',x:'かさをわすれました。'},
+  {j:'しる',r:'shiru',e:'To know',c:'verb',x:'あのひとをしっています。'},
+  {j:'まつ',r:'matsu',e:'To wait',c:'verb',x:'えきでともだちをまちます。'},
+  {j:'あう',r:'au',e:'To meet',c:'verb',x:'ともだちとあいます。'},
+  {j:'あそぶ',r:'asobu',e:'To play',c:'verb',x:'こどもたちがこうえんであそんでいます。'},
+  {j:'うたう',r:'utau',e:'To sing',c:'verb',x:'カラオケでうたいます。'},
+  {j:'はたらく',r:'hataraku',e:'To work',c:'verb',x:'まいにちはたらいています。'},
+  {j:'やすむ',r:'yasumu',e:'To rest / take a day off',c:'verb',x:'きょうはやすみます。'},
+  {j:'でかける',r:'dekakeru',e:'To go out',c:'verb',x:'かいものにでかけます。'},
+  {j:'はいる',r:'hairu',e:'To enter',c:'verb',x:'へやにはいります。'},
+  {j:'でる',r:'deru',e:'To exit / leave',c:'verb',x:'うちをでます。'},
+  {j:'つかう',r:'tsukau',e:'To use',c:'verb',x:'パソコンをつかいます。'},
+  {j:'あらう',r:'arau',e:'To wash',c:'verb',x:'てをあらいます。'},
+  {j:'あびる',r:'abiru',e:'To take a shower',c:'verb',x:'まいあさシャワーをあびます。'},
+  {j:'きる',r:'kiru',e:'To wear / put on (clothes)',c:'verb',x:'セーターをきます。'},
+  {j:'ならう',r:'narau',e:'To learn',c:'verb',x:'にほんごをならっています。'},
+  // ADJECTIVES
+  {j:'おおきい',r:'ookii',e:'Big / Large',c:'adj',x:'このいえはとてもおおきいです。'},
+  {j:'ちいさい',r:'chiisai',e:'Small',c:'adj',x:'ちいさいいぬがかわいいです。'},
+  {j:'たかい',r:'takai',e:'Tall / Expensive',c:'adj',x:'このかばんはたかいです。'},
+  {j:'やすい',r:'yasui',e:'Cheap / Inexpensive',c:'adj',x:'このみせはやすいです。'},
+  {j:'ながい',r:'nagai',e:'Long',c:'adj',x:'かみがながいです。'},
+  {j:'みじかい',r:'mijikai',e:'Short (length)',c:'adj',x:'このえんぴつはみじかいです。'},
+  {j:'はやい',r:'hayai',e:'Fast / Early',c:'adj',x:'はやくおきます。'},
+  {j:'おそい',r:'osoi',e:'Slow / Late',c:'adj',x:'バスがおそいです。'},
+  {j:'あたらしい',r:'atarashii',e:'New',c:'adj',x:'あたらしいほんをかいました。'},
+  {j:'ふるい',r:'furui',e:'Old',c:'adj',x:'このくるまはふるいです。'},
+  {j:'いい',r:'ii',e:'Good',c:'adj',x:'きょうはいいてんきです。'},
+  {j:'わるい',r:'warui',e:'Bad',c:'adj',x:'てんきがわるいです。'},
+  {j:'おいしい',r:'oishii',e:'Delicious',c:'adj',x:'このりょうりはおいしいです。'},
+  {j:'まずい',r:'mazui',e:'Terrible (taste)',c:'adj',x:'このやさいはまずいです。'},
+  {j:'あつい',r:'atsui',e:'Hot',c:'adj',x:'なつはとてもあついです。'},
+  {j:'さむい',r:'samui',e:'Cold (weather)',c:'adj',x:'ふゆはさむいです。'},
+  {j:'つめたい',r:'tsumetai',e:'Cold (to touch/drink)',c:'adj',x:'つめたいみずをのみたいです。'},
+  {j:'あたたかい',r:'atatakai',e:'Warm',c:'adj',x:'はるはあたたかいです。'},
+  {j:'かわいい',r:'kawaii',e:'Cute',c:'adj',x:'このねこはかわいいです。'},
+  {j:'きれいな',r:'kirei na',e:'Beautiful / Clean',c:'adj',x:'きれいなはながさきました。'},
+  {j:'たのしい',r:'tanoshii',e:'Fun / Enjoyable',c:'adj',x:'にほんごはたのしいです。'},
+  {j:'むずかしい',r:'muzukashii',e:'Difficult',c:'adj',x:'かんじはむずかしいです。'},
+  {j:'やさしい',r:'yasashii',e:'Kind / Easy',c:'adj',x:'せんせいはやさしいです。'},
+  {j:'いそがしい',r:'isogashii',e:'Busy',c:'adj',x:'まいにちいそがしいです。'},
+  {j:'つまらない',r:'tsumaranai',e:'Boring',c:'adj',x:'このえいがはつまらないです。'},
+  {j:'おもしろい',r:'omoshiroi',e:'Interesting / Funny',c:'adj',x:'このほんはおもしろいです。'},
+  {j:'こわい',r:'kowai',e:'Scary / Frightening',c:'adj',x:'このえいがはこわいです。'},
+  {j:'うれしい',r:'ureshii',e:'Happy / Glad',c:'adj',x:'プレゼントをもらってうれしいです。'},
+  {j:'かなしい',r:'kanashii',e:'Sad',c:'adj',x:'かなしいはなしです。'},
+  {j:'いたい',r:'itai',e:'Painful / It hurts',c:'adj',x:'あたまがいたいです。'},
+  {j:'げんきな',r:'genki na',e:'Healthy / Energetic',c:'adj',x:'まいにちげんきです。'},
+  {j:'しずかな',r:'shizuka na',e:'Quiet',c:'adj',x:'としょかんはしずかです。'},
+  {j:'にぎやかな',r:'nigiyaka na',e:'Lively / Bustling',c:'adj',x:'えきのちかくはにぎやかです。'},
+  {j:'べんりな',r:'benri na',e:'Convenient',c:'adj',x:'コンビニはとてもべんりです。'},
+  {j:'じょうずな',r:'jouzu na',e:'Skillful / Good at',c:'adj',x:'えをかくのがじょうずです。'},
+  {j:'へたな',r:'heta na',e:'Poor at / Unskillful',c:'adj',x:'うたはへたです。'},
+  {j:'ゆうめいな',r:'yuumei na',e:'Famous',c:'adj',x:'あのひとはゆうめいです。'},
+  {j:'たいせつな',r:'taisetsu na',e:'Important / Precious',c:'adj',x:'たいせつなものです。'},
+];
+
+const GRAMMAR=[
+  // CORE SENTENCE STRUCTURE
+  {p:'〜は〜です',e:'[Topic] is [noun]',l:'N5',rule:'は (wa) marks the topic. です (desu) is "is/am/are". This is the most fundamental sentence pattern in Japanese.',ex:[{j:'わたしはがくせいです。',r:'Watashi wa gakusei desu.',e:'I am a student.'},{j:'これはほんです。',r:'Kore wa hon desu.',e:'This is a book.'}]},
+  {p:'〜は〜じゃないです',e:'[Topic] is not [noun]',l:'N5',rule:'じゃないです (ja nai desu) is the casual negative. More formal: ではありません (de wa arimasen).',ex:[{j:'わたしはせんせいじゃないです。',r:'Watashi wa sensei ja nai desu.',e:'I am not a teacher.'},{j:'これはほんじゃないです。',r:'Kore wa hon ja nai desu.',e:'This is not a book.'}]},
+  {p:'〜は〜でした',e:'[Topic] was [noun]',l:'N5',rule:'でした (deshita) is the past tense of です. Used for past states.',ex:[{j:'きのうはやすみでした。',r:'Kinou wa yasumi deshita.',e:'Yesterday was a holiday.'},{j:'むかしはがくせいでした。',r:'Mukashi wa gakusei deshita.',e:'I was a student in the past.'}]},
+  {p:'〜ですか',e:'Is it ~? / Are you ~?',l:'N5',rule:'Add か (ka) at the end of any sentence to turn it into a yes/no question. Voice rises at the end.',ex:[{j:'たなかさんですか？',r:'Tanaka-san desu ka?',e:'Are you Mr. Tanaka?'},{j:'にほんごがすきですか？',r:'Nihongo ga suki desu ka?',e:'Do you like Japanese?'}]},
+  // PARTICLES
+  {p:'〜が〜',e:'Subject marker が',l:'N5',rule:'が marks the grammatical subject, especially with verbs of existence, ability, and desire.',ex:[{j:'あそこにねこがいます。',r:'Asoko ni neko ga imasu.',e:'There is a cat over there.'},{j:'にほんごがわかります。',r:'Nihongo ga wakarimasu.',e:'I understand Japanese.'}]},
+  {p:'〜を〜',e:'Object marker を',l:'N5',rule:'を (wo) marks the direct object — the thing being acted on.',ex:[{j:'ほんをよみます。',r:'Hon wo yomimasu.',e:'I read a book.'},{j:'みずをのみます。',r:'Mizu wo nomimasu.',e:'I drink water.'}]},
+  {p:'〜に〜',e:'Direction / time marker に',l:'N5',rule:'に marks: (1) destination of movement, (2) specific time, (3) location of existence.',ex:[{j:'がっこうにいきます。',r:'Gakkou ni ikimasu.',e:'I go to school.'},{j:'くじにおきます。',r:'Ku-ji ni okimasu.',e:'I wake up at 9.'}]},
+  {p:'〜で〜',e:'Location / means marker で',l:'N5',rule:'で marks: (1) where an action takes place, (2) the means or tool used for an action.',ex:[{j:'としょかんでべんきょうします。',r:'Toshokan de benkyou shimasu.',e:'I study at the library.'},{j:'バスでいきます。',r:'Basu de ikimasu.',e:'I go by bus.'}]},
+  {p:'〜の〜',e:'Possession / belonging の',l:'N5',rule:'の connects two nouns. The first noun modifies the second: A の B = B of A / A no B.',ex:[{j:'わたしのほんです。',r:'Watashi no hon desu.',e:'It is my book.'},{j:'にほんごのせんせい。',r:'Nihongo no sensei.',e:'A Japanese language teacher.'}]},
+  {p:'〜と〜',e:'And (listing nouns) と',l:'N5',rule:'と connects two or more nouns. Also means "with" (together with someone).',ex:[{j:'ほんとざっしをかいました。',r:'Hon to zasshi wo kaimashita.',e:'I bought a book and a magazine.'},{j:'ともだちといきます。',r:'Tomodachi to ikimasu.',e:'I go with a friend.'}]},
+  {p:'〜も',e:'Also / too も',l:'N5',rule:'も replaces は or が to mean "also" or "too". Shows something applies equally.',ex:[{j:'わたしもがくせいです。',r:'Watashi mo gakusei desu.',e:'I am also a student.'},{j:'これもおいしいです。',r:'Kore mo oishii desu.',e:'This is also delicious.'}]},
+  {p:'〜か〜か',e:'Or ~ or ~',l:'N5',rule:'か between two options means "or". Used in questions to offer choices.',ex:[{j:'コーヒーかおちゃはいかがですか？',r:'Koohii ka ocha wa ikaga desu ka?',e:'Would you like coffee or tea?'}]},
+  // DEMONSTRATIVES
+  {p:'これ/それ/あれ/どれ',e:'This / That / That (far) / Which?',l:'N5',rule:'これ = this (near speaker), それ = that (near listener), あれ = that (far from both), どれ = which one?',ex:[{j:'これはなんですか？',r:'Kore wa nan desu ka?',e:'What is this?'},{j:'あれはわたしのかばんです。',r:'Are wa watashi no kaban desu.',e:'That (over there) is my bag.'}]},
+  {p:'この/その/あの/どの〜',e:'This ~ / That ~ / That ~ / Which ~?',l:'N5',rule:'Used before a noun. この本 = this book. その人 = that person. どの = which (before noun).',ex:[{j:'このほんはおもしろいです。',r:'Kono hon wa omoshiroi desu.',e:'This book is interesting.'},{j:'どのかばんがすきですか？',r:'Dono kaban ga suki desu ka?',e:'Which bag do you like?'}]},
+  {p:'ここ/そこ/あそこ/どこ',e:'Here / There / Over there / Where?',l:'N5',rule:'Location words. ここ = here (near me), そこ = there (near you), あそこ = over there, どこ = where?',ex:[{j:'トイレはどこですか？',r:'Toire wa doko desu ka?',e:'Where is the toilet?'},{j:'ここにあります。',r:'Koko ni arimasu.',e:'It is here.'}]},
+  // EXISTENCE
+  {p:'〜があります / 〜がいます',e:'There is ~ (things vs living)',l:'N5',rule:'あります for inanimate things. います for living things (people, animals). Both mean "there is/are".',ex:[{j:'つくえのうえにほんがあります。',r:'Tsukue no ue ni hon ga arimasu.',e:'There is a book on the desk.'},{j:'こうえんにこどもたちがいます。',r:'Kouen ni kodomotachi ga imasu.',e:'There are children in the park.'}]},
+  // QUESTION WORDS
+  {p:'なに/なん',e:'What?',l:'N5',rule:'なに (nani) = what. なん (nan) before counters or desu. Used in questions to ask about things.',ex:[{j:'これはなんですか？',r:'Kore wa nan desu ka?',e:'What is this?'},{j:'なにがすきですか？',r:'Nani ga suki desu ka?',e:'What do you like?'}]},
+  {p:'だれ',e:'Who?',l:'N5',rule:'だれ (dare) = who. More polite: どなた (donata). Used to ask about people.',ex:[{j:'あのひとはだれですか？',r:'Ano hito wa dare desu ka?',e:'Who is that person?'},{j:'だれとはなしましたか？',r:'Dare to hanashimashita ka?',e:'Who did you talk to?'}]},
+  {p:'いつ',e:'When?',l:'N5',rule:'いつ (itsu) = when. Used to ask about time or dates.',ex:[{j:'たんじょうびはいつですか？',r:'Tanjoubi wa itsu desu ka?',e:'When is your birthday?'},{j:'いつにほんにきましたか？',r:'Itsu nihon ni kimashita ka?',e:'When did you come to Japan?'}]},
+  {p:'どうして/なぜ',e:'Why?',l:'N5',rule:'どうして (doushite) is casual "why?". なぜ (naze) is more formal. Used to ask for reasons.',ex:[{j:'どうしてにほんごをべんきょうしていますか？',r:'Doushite nihongo wo benkyou shite imasu ka?',e:'Why are you studying Japanese?'}]},
+  // VERB PATTERNS
+  {p:'〜が好きです',e:'I like [noun]',l:'N5',rule:'が marks the object of 好き (suki = like). Opposite: 嫌いです (kirai desu = I dislike).',ex:[{j:'すしがすきです。',r:'Sushi ga suki desu.',e:'I like sushi.'},{j:'にほんごがだいすきです。',r:'Nihongo ga daisuki desu.',e:'I love Japanese.'}]},
+  {p:'〜ません',e:'Do not [verb]',l:'N5',rule:'Replace ます with ません for polite negative. ません = "do not / does not".',ex:[{j:'わかりません。',r:'Wakarimasen.',e:"I don't understand."},{j:'たべません。',r:'Tabemasen.',e:"I don't eat it."}]},
+  {p:'〜ました / 〜ませんでした',e:'Did / Did not (past)',l:'N5',rule:'ました = polite past (did). ませんでした = polite negative past (did not).',ex:[{j:'きのうえいがをみました。',r:'Kinou eiga wo mimashita.',e:'I watched a movie yesterday.'},{j:'あさごはんをたべませんでした。',r:'Asagohan wo tabemasen deshita.',e:'I did not eat breakfast.'}]},
+  {p:'〜たい',e:'Want to [verb]',l:'N5',rule:'Attach たい to the verb stem to express desire. Conjugates like an い-adjective.',ex:[{j:'にほんにいきたいです。',r:'Nihon ni ikitai desu.',e:'I want to go to Japan.'},{j:'すしをたべたいです。',r:'Sushi wo tabetai desu.',e:'I want to eat sushi.'}]},
+  {p:'〜てください',e:'Please do [verb]',l:'N5',rule:'て-form + ください = polite request. て-form rules: Group 1 (〜く→いて, 〜ぐ→いで, 〜す→して etc.)',ex:[{j:'みてください。',r:'Mite kudasai.',e:'Please look.'},{j:'ゆっくりはなしてください。',r:'Yukkuri hanashite kudasai.',e:'Please speak slowly.'}]},
+  {p:'〜ています',e:'Is doing / in a state of',l:'N5',rule:'て-form + います = (1) ongoing action "is doing", or (2) resulting state "has done and is still so".',ex:[{j:'いまたべています。',r:'Ima tabete imasu.',e:'I am eating now.'},{j:'にほんごをべんきょうしています。',r:'Nihongo wo benkyou shite imasu.',e:'I am studying Japanese.'}]},
+  {p:'〜から〜まで',e:'From [X] to [Y]',l:'N5',rule:'から = from/since, まで = until/to. Used for both time and distance.',ex:[{j:'くじからごじまではたらきます。',r:'Ku-ji kara go-ji made hatarakimasu.',e:'I work from 9 to 5.'},{j:'えきからここまでちかいです。',r:'Eki kara koko made chikai desu.',e:"It's close from the station to here."}]},
+  {p:'〜ましょう / 〜ましょうか',e:"Let's ~ / Shall we ~?",l:'N5',rule:'〜ましょう = lets do together. 〜ましょうか = shall we? (offering / suggesting)',ex:[{j:'たべましょう！',r:'Tabemashou!',e:"Let's eat!"},{j:'てつだいましょうか？',r:'Tetsudaimashou ka?',e:'Shall I help you?'}]},
+  {p:'〜より〜のほうが',e:'[B] is more ~ than [A]',l:'N5',rule:'A より B のほうが = B is more (adj) than A. より = than. のほうが = is more.',ex:[{j:'なつよりふゆのほうがすきです。',r:'Natsu yori fuyu no hou ga suki desu.',e:'I like winter more than summer.'},{j:'このほうがやすいです。',r:'Kono hou ga yasui desu.',e:'This one is cheaper.'}]},
+];
+
 const PASSAGES=[
   {id:'intro',title:'はじめまして — Nice to Meet You',
    text:[
      {j:'わたし',r:'watashi',e:'I'},' ',{j:'は',r:'wa',e:'(topic)'},' ',{j:'たなか',r:'Tanaka',e:'Tanaka'},' ',{j:'です',r:'desu',e:'am'},'. ',
-     {j:'にほんじん',r:'Nihonjin',e:'Japanese person'},' ',{j:'です',r:'desu',e:'I am'},'. ',
+     {j:'にほんじん',r:'Nihonjin',e:'Japanese person'},' ',{j:'です',r:'desu',e:'I am'},'. ','\n',
      {j:'まいにち',r:'mainichi',e:'every day'},' ',{j:'がっこう',r:'gakkou',e:'school'},' ',{j:'で',r:'de',e:'at'},' ',
      {j:'にほんご',r:'nihongo',e:'Japanese'},' ',{j:'を',r:'wo',e:'(object)'},' ',{j:'べんきょうします',r:'benkyou shimasu',e:'I study'},'. ',
      {j:'むずかしい',r:'muzukashii',e:'difficult'},' ',{j:'ですが',r:'desu ga',e:'but'},', ',
@@ -16,8 +1075,7 @@ const PASSAGES=[
    text:[
      {j:'きょう',r:'kyou',e:'today'},' ',{j:'は',r:'wa',e:'(topic)'},' ',{j:'いい',r:'ii',e:'good'},' ',{j:'てんき',r:'tenki',e:'weather'},' ',{j:'です',r:'desu',e:'it is'},'. ',
      {j:'そと',r:'soto',e:'outside'},' ',{j:'は',r:'wa',e:'(topic)'},' ',{j:'あたたかい',r:'atatakai',e:'warm'},' ',{j:'です',r:'desu',e:'it is'},'.',
-     '
-',
+     '\n',
      {j:'こうえん',r:'kouen',e:'park'},' ',{j:'で',r:'de',e:'at'},' ',{j:'さんぽ',r:'sanpo',e:'a walk'},' ',{j:'を',r:'wo',e:'(object)'},' ',{j:'します',r:'shimasu',e:'I take'},'.',
    ],
    qs:[
@@ -27,11 +1085,9 @@ const PASSAGES=[
   {id:'food',title:'レストランで — At the Restaurant',
    text:[
      {j:'レストラン',r:'resutoran',e:'restaurant'},' ',{j:'で',r:'de',e:'at'},' ',{j:'ひるごはん',r:'hirugohan',e:'lunch'},' ',{j:'を',r:'wo',e:'(object)'},' ',{j:'たべます',r:'tabemasu',e:'I eat'},'.',
-     '
-',
+     '\n',
      {j:'すし',r:'sushi',e:'sushi'},' ',{j:'が',r:'ga',e:'(subject)'},' ',{j:'おいしそう',r:'oishisou',e:'looks delicious'},' ',{j:'です',r:'desu',e:'it does'},'.',
-     '
-',
+     '\n',
      {j:'すみません',r:'Sumimasen',e:'Excuse me'},', ',{j:'すし',r:'sushi',e:'sushi'},' ',{j:'を',r:'wo',e:'(object)'},' ',{j:'ひとつ',r:'hitotsu',e:'one'},' ',{j:'ください',r:'kudasai',e:'please'},'.',
    ],
    qs:[
@@ -40,15 +1096,13 @@ const PASSAGES=[
    ]},
   {id:'morning',title:'わたしのあさ — My Morning Routine',
    text:[
-     {j:'まいあさ',r:'maiasa',e:'every morning'},' ',{j:'ろくじ',r:'roku-ji',e:'six o'clock'},' ',{j:'に',r:'ni',e:'at'},' ',{j:'おきます',r:'okimasu',e:'I wake up'},'. ',
+     {j:'まいあさ',r:'maiasa',e:'every morning'},' ',{j:'ろくじ',r:'roku-ji',e:"six o'clock"},' ',{j:'に',r:'ni',e:'at'},' ',{j:'おきます',r:'okimasu',e:'I wake up'},'. ',
      {j:'シャワー',r:'shawaa',e:'shower'},' ',{j:'を',r:'wo',e:'(object)'},' ',{j:'あびて',r:'abite',e:'taking'},', ',
      {j:'あさごはん',r:'asagohan',e:'breakfast'},' ',{j:'を',r:'wo',e:'(object)'},' ',{j:'たべます',r:'tabemasu',e:'I eat'},'.',
-     '
-',
+     '\n',
      {j:'あさごはん',r:'asagohan',e:'breakfast'},' ',{j:'は',r:'wa',e:'(topic)'},' ',{j:'たいてい',r:'taitei',e:'usually'},' ',
      {j:'トーストと',r:'toosuto to',e:'toast and'},' ',{j:'コーヒー',r:'koohii',e:'coffee'},' ',{j:'です',r:'desu',e:'it is'},'.',
-     '
-',
+     '\n',
      {j:'しちじはん',r:'shichi-ji han',e:'seven thirty'},' ',{j:'に',r:'ni',e:'at'},' ',{j:'うちを',r:'uchi wo',e:'home'},' ',
      {j:'でて',r:'dete',e:'leaving'},', ',{j:'でんしゃ',r:'densha',e:'train'},' ',{j:'で',r:'de',e:'by'},' ',
      {j:'がっこう',r:'gakkou',e:'school'},' ',{j:'に',r:'ni',e:'to'},' ',{j:'いきます',r:'ikimasu',e:'I go'},'.',
@@ -61,15 +1115,12 @@ const PASSAGES=[
   {id:'shopping',title:'かいもの — Shopping',
    text:[
      {j:'きのう',r:'kinou',e:'yesterday'},' ',{j:'スーパー',r:'suupaa',e:'supermarket'},' ',{j:'に',r:'ni',e:'to'},' ',{j:'いきました',r:'ikimashita',e:'I went'},'.',
-     '
-',
+     '\n',
      {j:'やさい',r:'yasai',e:'vegetables'},' ',{j:'と',r:'to',e:'and'},' ',{j:'くだもの',r:'kudamono',e:'fruit'},' ',{j:'を',r:'wo',e:'(object)'},' ',{j:'かいました',r:'kaimashita',e:'I bought'},'.',
-     '
-',
+     '\n',
      {j:'りんごは',r:'ringo wa',e:'Apples'},' ',{j:'ひとつ',r:'hitotsu',e:'one'},' ',{j:'ひゃくえん',r:'hyaku-en',e:'100 yen'},' ',{j:'でした',r:'deshita',e:'were'},'.',
      ' ',{j:'すこし',r:'sukoshi',e:'a little'},' ',{j:'たかい',r:'takai',e:'expensive'},' ',{j:'です',r:'desu',e:'they are'},'. ',
-     '
-',
+     '\n',
      {j:'ぜんぶで',r:'zenbu de',e:'in total'},' ',{j:'せんごひゃくえん',r:'sengohyaku-en',e:'1,500 yen'},' ',{j:'でした',r:'deshita',e:'it was'},'.',
    ],
    qs:[
@@ -82,13 +1133,11 @@ const PASSAGES=[
      {j:'らいしゅうの',r:'raishuu no',e:"next week's"},' ',{j:'どようび',r:'doyoubi',e:'Saturday'},' ',
      {j:'に',r:'ni',e:'on'},' ',{j:'ともだちと',r:'tomodachi to',e:'with a friend'},' ',
      {j:'えいが',r:'eiga',e:'movie'},' ',{j:'を',r:'wo',e:'(object)'},' ',{j:'みるつもりです',r:'miru tsumori desu',e:'I plan to watch'},'.',
-     '
-',
+     '\n',
      {j:'えいがのあとで',r:'eiga no ato de',e:'After the movie'},', ',
      {j:'いっしょに',r:'issho ni',e:'together'},' ',{j:'ばんごはん',r:'bangohan',e:'dinner'},' ',
      {j:'を',r:'wo',e:'(object)'},' ',{j:'たべたい',r:'tabetai',e:'want to eat'},' ',{j:'です',r:'desu',e:''},'. ',
-     '
-',
+     '\n',
      {j:'イタリアりょうりと',r:'Itaria ryouri to',e:'Italian food and'},' ',
      {j:'にほんりょうり',r:'nihon ryouri',e:'Japanese food'},', ',
      {j:'どちらが',r:'dochira ga',e:'which'},' ',{j:'いいですか？',r:'ii desu ka?',e:'is better?'},
@@ -99,3 +1148,1019 @@ const PASSAGES=[
      {q:'What does the narrator want to do after the movie?',opts:['Go home','Go shopping','Eat dinner together','Go to karaoke'],ans:2,explain:'えいがのあとで、いっしょにばんごはんをたべたいです = "want to eat dinner together after the movie"'},
    ]},
 ];
+
+// ═══════════════════════════════════════════
+//  AUTH — simple username + password, no Supabase auth
+// ═══════════════════════════════════════════
+
+// Add this somewhere near the top of your script (after global variables)
+function setSyncStatus(text, isError = false) {
+  const el = document.getElementById('sync-dot');
+  if (el) {
+    el.textContent = text;
+    el.style.color = isError ? 'var(--red)' : 'var(--ink3)';
+  }
+}
+
+function closeCompanionModal() {
+  const el = document.getElementById('companion-modal');
+  if (el) el.classList.add('hidden');
+  document.body.style.overflow = '';
+}
+  
+function switchAuthTab(tab) {
+  document.getElementById('tab-login').classList.toggle('active',  tab === 'login');
+  document.getElementById('tab-signup').classList.toggle('active', tab === 'signup');
+  document.getElementById('panel-login').classList.toggle('hidden',  tab !== 'login');
+  document.getElementById('panel-signup').classList.toggle('hidden', tab !== 'signup');
+}
+
+// SHA-256 hash of password+salt using Web Crypto
+async function hashPassword(password, salt) {
+  const enc  = new TextEncoder();
+  const data = enc.encode(password + salt);
+  const buf  = await crypto.subtle.digest('SHA-256', data);
+  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
+}
+function randomSalt() {
+  return Array.from(crypto.getRandomValues(new Uint8Array(16)))
+    .map(b => b.toString(16).padStart(2,'0')).join('');
+}
+
+// Wrap any Supabase call with a timeout so nothing hangs forever
+function withTimeout(promise, ms = 8000) {
+  const t = new Promise((_, reject) =>
+    setTimeout(() => reject(new Error('Request timed out after ' + ms + 'ms')), ms)
+  );
+  return Promise.race([promise, t]).catch(e => ({ data: null, error: { message: e.message } }));
+}
+
+async function doLogin() {
+  const username = document.getElementById('login-username').value.trim().toLowerCase();
+  const password = document.getElementById('login-password').value;
+  const btn = document.getElementById('login-btn');
+  const err = document.getElementById('login-err');
+  if (!username || !password) { err.textContent = 'Please fill in all fields.'; return; }
+  err.textContent = '';
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> Signing in…';
+
+  const { data: users, error } = await withTimeout(
+    SB.from('users').select('id,username,password_hash,salt').eq('username', username).limit(1)
+  );
+  if (error || !users?.length) {
+    err.textContent = 'Username not found.';
+    btn.disabled = false; btn.textContent = 'Sign in'; return;
+  }
+  const user = users[0];
+  const hash = await hashPassword(password, user.salt);
+  if (hash !== user.password_hash) {
+    err.textContent = 'Wrong password.';
+    btn.disabled = false; btn.textContent = 'Sign in'; return;
+  }
+  USER = { id: user.id, username: user.username };
+  await bootApp();
+}
+
+async function doSignup() {
+  const username = document.getElementById('su-username').value.trim().toLowerCase();
+  const password = document.getElementById('su-password').value;
+  const btn = document.getElementById('su-btn');
+  const msg = document.getElementById('su-msg');
+  if (!username || !password)   { msg.textContent = 'Please fill in all fields.'; msg.className = 'auth-err'; return; }
+  if (username.length < 3)      { msg.textContent = 'Username must be at least 3 characters.'; msg.className = 'auth-err'; return; }
+  if (password.length < 6)      { msg.textContent = 'Password must be at least 6 characters.'; msg.className = 'auth-err'; return; }
+  if (!/^[a-z0-9_]+$/.test(username)) { msg.textContent = 'Username: letters, numbers and _ only.'; msg.className = 'auth-err'; return; }
+  msg.textContent = ''; msg.className = 'auth-err';
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> Creating account…';
+
+  // Check username not taken
+  const { data: existing } = await withTimeout(
+    SB.from('users').select('id').eq('username', username).limit(1)
+  );
+  if (existing?.length) {
+    msg.textContent = 'Username already taken — try another.';
+    btn.disabled = false; btn.textContent = 'Create account'; return;
+  }
+
+  const id   = crypto.randomUUID();
+  const salt = randomSalt();
+  const hash = await hashPassword(password, salt);
+
+  const { error: uErr } = await withTimeout(
+    SB.from('users').insert({ id, username, password_hash: hash, salt })
+  );
+  if (uErr) {
+    msg.textContent = 'Error: ' + uErr.message;
+    btn.disabled = false; btn.textContent = 'Create account'; return;
+  }
+  await withTimeout(
+    SB.from('profiles').insert({ id, username, display_name: username, avatar_emoji: '🌸', active_character: 'cyrene' })
+  );
+
+  USER = { id, username };
+  await bootApp();
+}
+
+function doLogout() {
+  closeCompanionModal();
+  USER = null; PROFILE = null; KANA_P = {}; VOCAB_P = {};
+  document.getElementById('main-app').classList.add('hidden');
+  document.getElementById('auth-screen').classList.remove('hidden');
+  document.getElementById('login-username').value = '';
+  document.getElementById('login-password').value = '';
+  document.getElementById('login-err').textContent = '';
+  const btn = document.getElementById('login-btn');
+  if (btn) { btn.disabled = false; btn.textContent = 'Sign in'; }
+  switchAuthTab('login');
+}
+
+function openCompanionModal(msgOverride) {
+  const c   = getChar();
+  const msg = msgOverride || charSay('greetings');
+  const imgEl = document.getElementById('cm-portrait-img');
+  if (imgEl) {
+    if (c.portrait) {
+      imgEl.innerHTML = `<img src="${c.portrait}" alt="${c.name}" style="width:100%;height:260px;object-fit:cover;object-position:top" onerror="this.parentElement.innerHTML='<span style=font-size:96px>${c.emoji}</span>'">`;
+      imgEl.style.background = 'transparent';
+    } else {
+      imgEl.style.background = c.color;
+      imgEl.innerHTML = `<span style="font-size:96px">${c.emoji}</span>`;
+    }
+    document.getElementById('cm-portrait-wrap').style.background = c.color;
+  }
+  const nameEl = document.getElementById('cm-name');
+  if (nameEl) { nameEl.textContent = c.name; nameEl.style.color = c.nameColor; }
+  const msgEl = document.getElementById('cm-message');
+  if (msgEl) msgEl.textContent = msg;
+  const modal = document.getElementById('companion-modal');
+  if (modal) modal.classList.remove('hidden');
+  document.body.style.overflow = 'hidden';
+}
+  
+async function bootApp() {
+  document.getElementById('auth-screen').classList.add('hidden');
+  document.getElementById('main-app').classList.remove('hidden');
+  setPage('home');
+  await loadUserData();
+  setupRealtime();
+  setTimeout(() => openCompanionModal(), 400);
+}
+
+
+// ═══════════════════════════════════════════
+//  DATA LOADING
+// ═══════════════════════════════════════════
+async function loadUserData() {
+  setSyncStatus('⟳');
+
+  // Direct await — more reliable than withTimeout for reads
+  const { data: prof } = await SB.from('profiles').select('*').eq('id', USER.id).maybeSingle();
+  if (prof) {
+    PROFILE = prof;
+    ACTIVE_CHAR = prof.active_character || 'cyrene';
+  } else {
+    // No profile yet — create one (first login or partial signup)
+    const newProf = {
+      id: USER.id, username: USER.username, display_name: USER.username,
+      avatar_emoji: '🌸', active_character: 'cyrene',
+      xp: 0, level: 1, streak: 0,
+      reviewed_today: 0, correct_today: 0, total_today: 0,
+    };
+    const { error: insErr } = await SB.from('profiles').insert(newProf);
+    if (!insErr) { PROFILE = newProf; ACTIVE_CHAR = 'cyrene'; }
+    else console.warn('Profile create error:', insErr.message);
+  }
+
+  const { data: kp } = await SB.from('progress_kana').select('*').eq('user_id', USER.id);
+  KANA_P = {};
+  (kp || []).forEach(r => {
+    KANA_P[r.kana_key] = { correct: r.correct || 0, wrong: r.wrong || 0, seen: true };
+  });
+
+  const { data: vp } = await SB.from('progress_vocab').select('*').eq('user_id', USER.id);
+  VOCAB_P = {};
+  (vp || []).forEach(r => {
+    VOCAB_P[r.vocab_index] = {
+      correct: r.correct || 0, wrong: r.wrong || 0,
+      ease: parseFloat(r.ease) || 2.5,
+      interval_ms: r.interval_ms || 0,
+      next_review: r.next_review ? new Date(r.next_review).getTime() : 0,
+    };
+  });
+
+  setSyncStatus('', false);
+  updateHUD();
+  if (document.getElementById('page-home')?.classList.contains('active')) renderHome();
+}
+
+//  XP / STREAK / HUD
+// ═══════════════════════════════════════════
+function updateHUD() {
+  if (!PROFILE) return;
+  const xp = PROFILE.xp || 0;
+  const lvl = PROFILE.level || 1;
+  const streak = PROFILE.streak || 0;
+  document.getElementById('xp-disp').textContent = xp;
+  document.getElementById('streak-disp').textContent = streak;
+  document.getElementById('level-disp').textContent = lvl;
+  const pct = (xp % 200) / 200;
+  document.getElementById('xp-arc').style.strokeDashoffset = 94.2 * (1 - pct);
+}
+
+async function addXP(amount) {
+  if (!PROFILE) return;
+  const newXp = (PROFILE.xp || 0) + amount;
+  const newLvl = Math.floor(newXp / 200) + 1;
+  const lvledUp = newLvl > (PROFILE.level || 1);
+  await SB.from('profiles').update({ xp: newXp, level: newLvl }).eq('id', USER.id);
+  PROFILE.xp = newXp; PROFILE.level = newLvl;
+  if (lvledUp) logActivity('level_up', { level: newLvl });
+  updateHUD();
+}
+
+async function checkStreak() {
+  if (!PROFILE) return;
+  const today = new Date().toDateString();
+  const last = PROFILE.last_study_date ? new Date(PROFILE.last_study_date).toDateString() : null;
+  if (last === today) return;
+  const yest = new Date(Date.now() - 86400000).toDateString();
+  const newStreak = last === yest ? (PROFILE.streak || 0) + 1 : 1;
+  await SB.from('profiles').update({ streak: newStreak, last_study_date: new Date().toISOString().split('T')[0] }).eq('id', USER.id);
+  PROFILE.streak = newStreak;
+  if (newStreak > 1 && newStreak % 7 === 0) logActivity('streak', { days: newStreak });
+  updateHUD();
+}
+
+async function logActivity(type, payload = {}) {
+  if (!USER) return;
+  await SB.from('activity').insert({ user_id: USER.id, type, payload });
+}
+
+// NAVIGATION
+function setPage(page) {
+  Object.keys(PAGE_META).forEach(p => {
+    document.getElementById('page-' + p)?.classList.toggle('active', p === page);
+    document.getElementById('nb-' + p)?.classList.toggle('active', p === page);
+  });
+  const m = PAGE_META[page] || {};
+  document.getElementById('topbar-title').textContent = m.title || page;
+  document.getElementById('topbar-sub').textContent = m.sub || '';
+  if (page === 'home') renderHome();
+  if (page === 'kana') renderKanaGrids();
+  if (page === 'vocab') initVocabFC();
+  if (page === 'grammar') renderGrammar();
+  if (page === 'reading') renderPassageList();
+  if (page === 'quiz') renderQuizMenu();
+  if (page === 'settings') renderSettings();
+  if (page === 'friends') { loadFriendsActivity(); }
+}
+  
+// ═══════════════════════════════════════════
+//  HOME
+// ═══════════════════════════════════════════
+function renderHome() {
+  // Always render companion (doesn't need PROFILE)
+  const c = getChar();
+  renderPortrait(document.getElementById('home-portrait'), ACTIVE_CHAR);
+  const nameEl = document.getElementById('home-char-name');
+  if (nameEl) { nameEl.textContent = c.name; nameEl.style.color = c.nameColor; }
+  const msgEl = document.getElementById('companion-msg');
+  if (msgEl) msgEl.textContent = charSay('greetings');
+
+  // Kana progress badge doesn't need PROFILE either
+  const kanaDue = [...HG,...KT].filter(k => { const p = KANA_P[k.r]; return !p || p.correct < 3; }).length;
+  const mcKana = document.getElementById('mc-kana');
+  if (mcKana) mcKana.textContent = kanaDue > 0 ? kanaDue + ' to review' : 'All mastered! 🎉';
+
+  if (!PROFILE) return;
+
+  const now      = Date.now();
+  const due      = VOCAB.filter((_, i) => { const p = VOCAB_P[i]; return !p || p.next_review <= now; }).length;
+  const mastered = Object.values(VOCAB_P).filter(p => p.interval_ms > 3000000).length;
+  // Build action cards
+  const kanaMastered = HG.filter(k => (KANA_P[k.r]||{}).correct >= 3).length
+                     + KT.filter(k => (KANA_P[k.r]||{}).correct >= 3).length;
+  const kanaTotal = HG.length + KT.length; // 92
+
+  const ac = document.getElementById('action-cards');
+  if (ac) ac.innerHTML = `
+    <!-- Streak -->
+    <div class="ac">
+      <div class="ac-label">Streak</div>
+      <div class="ac-value">${PROFILE.streak || 0}<span style="font-size:17px;margin-left:3px">${(PROFILE.streak||0) >= 1 ? '🔥' : '🌱'}</span></div>
+      <div class="ac-sub">${(PROFILE.streak||0) >= 1 ? 'Keep it going — study today!' : 'Study today to start your streak'}</div>
+    </div>
+    <!-- Due for review -->
+    <div class="ac clickable" onclick="setPage('vocab')" title="Go to flashcards">
+      <div class="ac-label">Ready to Study</div>
+      <div class="ac-value">${due}</div>
+      <div class="ac-sub">vocab cards due for review</div>
+      <div class="ac-cta">Open flashcards →</div>
+    </div>
+    <!-- Kana progress -->
+    <div class="ac clickable" onclick="setPage('kana')" title="Go to Kana">
+      <div class="ac-label">Kana Mastered</div>
+      <div class="ac-value">${kanaMastered}<span style="font-size:14px;color:var(--ink3);font-weight:400"> / ${kanaTotal}</span></div>
+      <div class="ac-sub">hiragana & katakana</div>
+      <div class="ac-bar"><div class="ac-bar-fill" style="width:${Math.round(kanaMastered/kanaTotal*100)}%"></div></div>
+    </div>
+    <!-- Level / XP -->
+    <div class="ac">
+      <div class="ac-label">Level</div>
+      <div class="ac-value">${PROFILE.level || 1}<span style="font-size:13px;color:var(--ink3);font-weight:400"> · ⚡${PROFILE.xp || 0} XP</span></div>
+      <div class="ac-sub">${200 - ((PROFILE.xp||0) % 200)} XP to next level</div>
+      <div class="ac-bar"><div class="ac-bar-fill" style="width:${Math.round(((PROFILE.xp||0)%200)/200*100)}%;background:var(--gold2)"></div></div>
+    </div>
+  `;
+
+
+  const hM = HG.filter(k => (KANA_P[k.r] || {}).correct >= 3).length;
+  const kM = KT.filter(k => (KANA_P[k.r] || {}).correct >= 3).length;
+  document.getElementById('hp-lbl').textContent   = hM + '/46';
+  document.getElementById('kp-lbl').textContent   = kM + '/46';
+  document.getElementById('hp-bar').style.width   = Math.round(hM / 46 * 100) + '%';
+  document.getElementById('kp-bar').style.width   = Math.round(kM / 46 * 100) + '%';
+
+  checkStreak();
+  loadFriendsActivity(true);
+}
+
+// ═══════════════════════════════════════════
+//  SRS ENGINE
+// ═══════════════════════════════════════════
+function srsNext(prog, rating) {
+  const ease = prog.ease || 2.5;
+  if (rating === 0) return { interval_ms: 60000, ease: Math.max(1.3, ease - 0.2), next_review: Date.now() + 60000 };
+  if (rating === 1) return { interval_ms: 600000, ease: Math.max(1.3, ease - 0.15), next_review: Date.now() + 600000 };
+  const iv = rating === 3 ? (prog.interval_ms || 86400000) * ease * 1.3 : (prog.interval_ms || 86400000) * ease;
+  return { interval_ms: iv, ease: Math.min(3.0, ease + (rating === 3 ? 0.15 : 0)), next_review: Date.now() + iv };
+}
+
+// ═══════════════════════════════════════════
+//  KANA
+// ═══════════════════════════════════════════
+let kQSet = [], kQIdx = 0, kQScore = 0, kQCurrentSet = 'h';
+
+function renderKanaGrids() {
+  renderKanaGrid(HG, 'kt-h');
+  renderKanaGrid(KT, 'kt-k');
+}
+
+function renderKanaGrid(set, elId) {
+  const el = document.getElementById(typeof elId === 'string' ? elId : (set === HG ? 'kt-h' : 'kt-k'));
+  if (!el) return;
+  const isH     = set === HG;
+  const quizKey = isH ? 'hq' : 'kq';
+  const tabId   = isH ? 'ktab-hq' : 'ktab-kq';
+  let html = '<div style="font-size:11px;color:var(--ink3);margin-bottom:10px;display:flex;gap:14px;flex-wrap:wrap">'
+    + '<span>🟩 Mastered</span><span>🟨 Learning</span>'
+    + '<span style="color:var(--plum)">🟪 Seen</span><span>◻ New — click to study!</span></div>'
+    + '<div class="kana-grid">';
+  set.forEach(k => {
+    const p        = KANA_P[k.r] || {};
+    const mastered = p.correct >= 3;
+    const learning = p.correct >= 1;
+    const seen     = p.seen && !learning && !mastered;
+    const isNew    = !p.seen && !learning && !mastered;
+    const cls      = mastered ? 'mastered' : learning ? 'learning' : seen ? 'seen-kana' : 'new-kana';
+    const oc       = isNew ? `onclick="openKanaStudy('${k.k}','${k.r}','${isH ? 'Hiragana' : 'Katakana'}')"` : '';
+    const title    = isNew ? `title="Click to study ${k.r}"` : '';
+    html += `<div class="kana-cell ${cls}" ${oc} ${title}><div class="kana-char">${k.k}</div><div class="kana-rom">${(p.seen || learning || mastered) ? k.r : '?'}</div></div>`;
+  });
+  const masteredCount = set.filter(k => (KANA_P[k.r] || {}).correct >= 3).length;
+  html += `</div><div style="margin-top:14px;display:flex;align-items:center;justify-content:space-between">
+    <span style="font-size:12px;color:var(--ink3)">${masteredCount} / ${set.length} mastered</span>
+    <button class="btn btn-primary btn-sm" onclick="kanaTab('${quizKey}',document.getElementById('${tabId}'))">
+      Start ${isH ? 'Hiragana' : 'Katakana'} Quiz →
+    </button></div>`;
+  el.innerHTML = html;
+}
+
+function kanaTab(t, btn) {
+  document.querySelectorAll('#page-kana .tab').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  const isQuiz = t === 'hq' || t === 'kq' || t === 'mixed';
+  document.getElementById('kt-h').classList.toggle('hidden', t !== 'h');
+  document.getElementById('kt-k').classList.toggle('hidden', t !== 'k');
+  document.getElementById('kt-q').classList.toggle('hidden', !isQuiz);
+  if (isQuiz) startKanaQuiz(t === 'hq' ? 'h' : t === 'kq' ? 'k' : 'mixed');
+}
+
+function startKanaQuiz(set) {
+  kQCurrentSet = set || 'mixed';
+  const fullPool = kQCurrentSet === 'h' ? [...HG] : kQCurrentSet === 'k' ? [...KT] : [...HG,...KT];
+  kQSet   = shuffle(fullPool).slice(0, 15);
+  kQIdx   = 0; kQScore = 0;
+  hideBubble('kq-bubble');
+  const labels = { h: 'Hiragana Quiz', k: 'Katakana Quiz', mixed: 'Mixed Quiz' };
+  const labelEl = document.getElementById('kq-set-label');
+  if (labelEl) labelEl.textContent = labels[kQCurrentSet] || 'Quiz';
+  renderKQ();
+}
+
+function renderKQ() {
+  hideBubble('kq-bubble');
+  if (kQIdx >= kQSet.length) {
+    const pct = kQSet.length > 0 ? kQScore / kQSet.length : 0;
+    document.getElementById('kq-char').textContent   = pct >= 0.8 ? '🏆' : pct >= 0.5 ? '😊' : '💪';
+    document.getElementById('kq-prompt').textContent = 'Quiz complete!';
+    document.getElementById('kq-score').textContent  = kQScore + ' / ' + kQSet.length + ' correct';
+    document.getElementById('kq-opts').innerHTML =
+      `<button class="btn btn-primary" style="grid-column:span 4" onclick="startKanaQuiz(kQCurrentSet)">Play Again →</button>`;
+    const msg = pct >= 0.8 ? charSay('quizGood') : pct >= 0.5 ? charSay('quizOk') : charSay('quizPoor');
+    setTimeout(() => openCompanionModal(msg), 400);
+    return;
+  }
+  const q = kQSet[kQIdx];
+  const showChar      = kQIdx % 2 === 0;
+  window._kqShowChar  = showChar;
+  window._kqRomaji    = q.r;
+  window._kqChar      = q.k;
+  window._kqCorrect   = showChar ? q.r : q.k;
+  document.getElementById('kq-char').textContent   = showChar ? q.k : q.r;
+  document.getElementById('kq-prompt').textContent = showChar ? 'What is the romaji reading?' : 'Which character matches this sound?';
+  document.getElementById('kq-score').textContent  = (kQIdx + 1) + ' / ' + kQSet.length;
+  const samePool = kQCurrentSet === 'h' ? HG : kQCurrentSet === 'k' ? KT : kQSet;
+  const wrongs   = shuffle(samePool.filter(x => (showChar ? x.r : x.k) !== window._kqCorrect)).slice(0, 3).map(x => showChar ? x.r : x.k);
+  const opts     = shuffle([window._kqCorrect, ...wrongs]);
+  document.getElementById('kq-opts').innerHTML = opts.map(o =>
+    `<div class="kana-opt" onclick="checkKQ(this,'${o}')">${o}</div>`
+  ).join('');
+}
+
+function checkKQ(el, chosen) {
+  document.querySelectorAll('.kana-opt').forEach(o => { o.style.pointerEvents = 'none'; o.classList.add('disabled'); });
+  const correct   = window._kqCorrect;
+  const isCorrect = chosen === correct;
+  const note      = window._kqShowChar
+    ? window._kqChar + ' = ' + window._kqRomaji
+    : window._kqRomaji + ' = ' + window._kqChar;
+  const prog = KANA_P[window._kqRomaji] || { correct: 0, wrong: 0 };
+  if (isCorrect) {
+    el.classList.add('correct');
+    prog.correct = (prog.correct || 0) + 1;
+    kQScore++;
+    showBubble('kq-bubble','kq-bubble-portrait','kq-bubble-speech', charSay('correct') + '  ✓ ' + note, 'correct');
+    if (prog.correct === 3) logActivity('kana_mastered', { kana: window._kqChar, script: HG.some(h => h.r === window._kqRomaji) ? 'hiragana' : 'katakana' }).catch(() => {});
+    addXP(5);
+  } else {
+    document.querySelectorAll('.kana-opt').forEach(o => { if (o.textContent.trim() === correct) o.classList.add('correct'); });
+    el.classList.add('wrong');
+    prog.wrong = (prog.wrong || 0) + 1;
+    showBubble('kq-bubble','kq-bubble-portrait','kq-bubble-speech', charSay('wrong') + '  ✗ ' + note, 'wrong');
+  }
+  prog.seen = true;
+  KANA_P[window._kqRomaji] = prog;
+  setTimeout(() => { kQIdx++; renderKQ(); }, 2200);
+  if (USER) dbSave(SB.from('progress_kana').upsert(
+    { user_id: USER.id, kana_key: window._kqRomaji, correct: prog.correct, wrong: prog.wrong,
+      next_review: new Date().toISOString(), updated_at: new Date().toISOString() },
+    { onConflict: 'user_id,kana_key' }
+  ));
+}
+
+// ═══════════════════════════════════════════
+//  VOCAB SRS
+// ═══════════════════════════════════════════
+let fcQueue = [], fcIdx = 0, fcRevealed = false, fcSessionCorrect = 0;
+let fcActiveCat = ''; // '' = all categories
+
+function getDueVocab() {
+  const now = Date.now();
+  const all = VOCAB.map((v, i) => ({ v, i }))
+    .filter(({ v, i }) => {
+      if (fcActiveCat && v.c !== fcActiveCat) return false;
+      const p = VOCAB_P[i];
+      return !p || p.next_review <= now;
+    });
+  // New cards first, then overdue
+  return [...all.filter(({ i }) => !VOCAB_P[i]), ...all.filter(({ i }) => !!VOCAB_P[i])].slice(0, 20);
+}
+
+function setVocabCat(cat, btn) {
+  fcActiveCat = cat;
+  // Update pill styles
+  document.querySelectorAll('.cat-pill').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  // Update info line
+  const catNames = { '':'All categories', greeting:'Expressions', number:'Numbers', time:'Time', family:'Family', place:'Places', food:'Food & Drink', color:'Colors', body:'Body', noun:'Nouns', verb:'Verbs', adj:'Adjectives' };
+  const filtered = VOCAB.filter(v => !cat || v.c === cat);
+  const now = Date.now();
+  const due = filtered.filter((v, idx) => {
+    const i = VOCAB.indexOf(v);
+    const p = VOCAB_P[i];
+    return !p || p.next_review <= now;
+  }).length;
+  const info = document.getElementById('fc-cat-info');
+  if (info) info.textContent = due > 0
+    ? `${due} of ${filtered.length} words due for review in ${catNames[cat] || cat}`
+    : `All ${filtered.length} words in ${catNames[cat] || cat} are up to date ✓`;
+  initVocabFC();
+}
+
+function initVocabFC() {
+  hideBubble('fc-bubble');
+  fcSessionCorrect = 0;
+  const due = getDueVocab();
+  fcQueue = due.map(({ v, i }) => ({ ...v, idx: i }));
+  fcIdx = 0; fcRevealed = false;
+  document.getElementById('fc-done').classList.add('hidden');
+  document.getElementById('fc-back').classList.add('hidden');
+  document.getElementById('flashcard').style.display = 'flex';
+  if (!fcQueue.length) {
+    document.getElementById('flashcard').style.display = 'none';
+    document.getElementById('fc-done').classList.remove('hidden');
+  } else {
+    updateFC();
+  }
+}
+
+function updateFC() {
+  hideBubble('fc-bubble');
+  if (fcIdx >= fcQueue.length) {
+    document.getElementById('flashcard').style.display = 'none';
+    document.getElementById('fc-back').classList.add('hidden');
+    const doneEl = document.getElementById('fc-done');
+    doneEl.classList.remove('hidden');
+    const pct   = fcQueue.length > 0 ? Math.round(fcSessionCorrect / fcQueue.length * 100) : 0;
+    const emoji = pct >= 80 ? '🏆' : pct >= 50 ? '😊' : '💪';
+    doneEl.innerHTML = `<div style="font-size:38px;margin-bottom:9px">${emoji}</div>
+      <div style="font-size:17px;font-weight:600;margin-bottom:5px">Session complete!</div>
+      <div style="font-size:13px;color:var(--ink3);margin-bottom:16px">${fcSessionCorrect} / ${fcQueue.length} correct</div>
+      <button class="btn btn-primary" style="margin-bottom:8px" onclick="initVocabFC()">Next session →</button><br>
+      <button class="btn btn-ghost btn-sm" onclick="vocabTab('browse',document.querySelectorAll('#page-vocab .tab')[1])">Browse all vocab</button>`;
+    const msg = pct >= 80 ? charSay('quizGood') : pct >= 50 ? charSay('quizOk') : charSay('quizPoor');
+    setTimeout(() => openCompanionModal(msg), 400);
+    return;
+  }
+  const card = fcQueue[fcIdx];
+  const fe = document.getElementById('fc-front');
+  fe.textContent = card.j;
+  fe.className = 'card-main' + (card.j.length > 5 ? ' sm' : '');
+  document.getElementById('fc-cat').textContent = '[' + card.c + ']';
+  // Colour-coded SRS badge + card border
+  const p = VOCAB_P[card.idx];
+  let badgeLabel, badgeBg, badgeColor, cardBorder;
+  if (!p || p.correct === 0)        { badgeLabel='NEW';      badgeBg='var(--teal3)';  badgeColor='var(--teal2)'; cardBorder='var(--teal2)'; }
+  else if (p.interval_ms > 3000000) { badgeLabel='MASTERED'; badgeBg='var(--green3)'; badgeColor='var(--green)'; cardBorder='#86efac'; }
+  else if (p.correct >= 2)          { badgeLabel='LEARNING'; badgeBg='var(--gold3)';  badgeColor='var(--gold)';  cardBorder='var(--gold2)'; }
+  else                               { badgeLabel='SEEN';     badgeBg='var(--plum3)';  badgeColor='var(--plum)';  cardBorder='var(--plum2)'; }
+  const badge = document.getElementById('fc-badge');
+  badge.textContent = badgeLabel; badge.style.background = badgeBg; badge.style.color = badgeColor;
+  document.getElementById('flashcard').style.borderColor = cardBorder;
+  document.getElementById('flashcard').classList.remove('revealed');
+  document.getElementById('fc-back').classList.add('hidden');
+  document.getElementById('flashcard').style.display = 'flex';
+  document.getElementById('fc-cur').textContent  = fcIdx + 1;
+  document.getElementById('fc-tot').textContent  = fcQueue.length;
+  document.getElementById('fc-left').textContent = (fcQueue.length - fcIdx) + ' left';
+  document.getElementById('fc-bar').style.width  = Math.round(fcIdx / fcQueue.length * 100) + '%';
+  fcRevealed = false;
+}
+
+function revealCard() {
+  if (fcRevealed) return;
+  fcRevealed = true;
+  const card = fcQueue[fcIdx];
+  document.getElementById('flashcard').classList.add('revealed');
+  document.getElementById('fc-reading').textContent = card.r;
+  document.getElementById('fc-meaning').textContent = card.e;
+  document.getElementById('fc-ex').textContent = card.x || '';
+  document.getElementById('fc-back').classList.remove('hidden');
+}
+
+function rateCard(rating) {
+  if (!fcRevealed) return;
+  // Hide the how-it-works hint after first interaction
+  const hint = document.getElementById('fc-hint'); if (hint) hint.style.display = 'none';
+  const card     = fcQueue[fcIdx];
+  const prog     = VOCAB_P[card.idx] || { correct: 0, wrong: 0, ease: 2.5, interval_ms: 0 };
+  const next     = srsNext(prog, rating);
+  const wasRight = rating >= 2;
+  const updated  = { ...prog, ...next, correct: prog.correct + (wasRight ? 1 : 0), wrong: prog.wrong + (wasRight ? 0 : 1) };
+  VOCAB_P[card.idx] = updated;
+  if (wasRight) fcSessionCorrect++;
+  showBubble('fc-bubble','fc-bubble-portrait','fc-bubble-speech', wasRight ? charSay('correct') : charSay('wrong'), wasRight ? 'correct' : 'wrong');
+  if (USER) {
+    dbSave(SB.from('progress_vocab').upsert({ user_id: USER.id, vocab_index: card.idx, correct: updated.correct, wrong: updated.wrong, ease: updated.ease, interval_ms: updated.interval_ms, next_review: new Date(updated.next_review).toISOString(), updated_at: new Date().toISOString() }, { onConflict: 'user_id,vocab_index' }));
+    if (wasRight) addXP(10);
+    if (PROFILE) {
+      PROFILE.reviewed_today = (PROFILE.reviewed_today || 0) + 1;
+      PROFILE.correct_today  = (PROFILE.correct_today  || 0) + (wasRight ? 1 : 0);
+      PROFILE.total_today    = (PROFILE.total_today    || 0) + 1;
+      dbSave(SB.from('profiles').update({ reviewed_today: PROFILE.reviewed_today, correct_today: PROFILE.correct_today, total_today: PROFILE.total_today }).eq('id', USER.id));
+    }
+  }
+  fcIdx++;
+  setTimeout(() => updateFC(), 1000);
+}
+
+function vocabTab(t, btn) {
+  document.querySelectorAll('#page-vocab .tab').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('vt-fc').classList.toggle('hidden', t !== 'fc');
+  document.getElementById('vt-browse').classList.toggle('hidden', t !== 'browse');
+  if (t === 'browse') renderVocabBrowse();
+}
+
+function renderVocabBrowse() {
+  const search = document.getElementById('vs-search').value.toLowerCase();
+  const cat = document.getElementById('vs-cat').value;
+  const items = VOCAB.filter(v => (!cat || v.c === cat) && (!search || v.j.includes(search) || v.r.includes(search) || v.e.toLowerCase().includes(search)));
+  document.getElementById('vocab-list').innerHTML = items.map(v =>
+    `<div style="background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:11px 14px;margin-bottom:7px;display:flex;justify-content:space-between;align-items:center">
+      <div><span style="font-family:var(--ffj);font-size:17px;margin-right:9px">${v.j}</span><span style="font-size:12px;color:var(--plum)">${v.r}</span><div style="font-size:11px;color:var(--ink3);margin-top:1px">${v.e}</div></div>
+      <span style="font-size:10px;font-weight:600;text-transform:uppercase;background:var(--plum3);color:var(--plum);padding:2px 7px;border-radius:20px">${v.c}</span>
+    </div>`
+  ).join('');
+}
+
+// ═══════════════════════════════════════════
+//  GRAMMAR
+// ═══════════════════════════════════════════
+function renderGrammar() {
+  document.getElementById('grammar-list').innerHTML = GRAMMAR.map((g, i) =>
+    `<div class="grammar-card">
+      <div class="gc-head" onclick="toggleG(${i})">
+        <div><div class="gc-pattern">${g.p}</div><div class="gc-eng">${g.e}</div></div>
+        <div style="display:flex;gap:7px;align-items:center"><span class="gc-lvl">${g.l}</span>
+          <svg class="gc-chevron" id="gc-cv-${i}" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+      </div>
+      <div class="gc-body" id="gc-b-${i}"><div class="gc-rule">${g.rule}</div>
+        ${g.ex.map(e => `<div class="gc-ex"><div class="gc-ex-jp">${e.j}</div><div class="gc-ex-read">${e.r}</div><div class="gc-ex-en">${e.e}</div></div>`).join('')}
+      </div>
+    </div>`
+  ).join('');
+}
+function toggleG(i) { document.getElementById('gc-b-' + i).classList.toggle('open'); document.getElementById('gc-cv-' + i).classList.toggle('open'); }
+
+// ═══════════════════════════════════════════
+//  READING
+// ═══════════════════════════════════════════
+function renderPassageList() {
+  document.getElementById('passage-cards').innerHTML = PASSAGES.map(p =>
+    `<div class="mode-card" onclick="openPassage('${p.id}')">
+      <div class="mode-icon" style="background:var(--gold3)">📖</div>
+      <div class="mode-title">${p.title}</div>
+      <div class="mode-desc">Click any word for instant translation.</div>
+      <div class="mode-badge">${p.qs.length} questions</div>
+    </div>`
+  ).join('');
+}
+
+function openPassage(id) {
+  const p = PASSAGES.find(x => x.id === id);
+  if (!p) return;
+  document.getElementById('reading-menu').classList.add('hidden');
+  document.getElementById('reading-active').classList.remove('hidden');
+  document.getElementById('ra-title').textContent = p.title;
+  let html = '';
+  p.text.forEach(part => {
+    if (typeof part === 'string') { html += part === '\
+' ? '<br>' : ' '; }
+    else html += `<span class="vocab-word" data-j="${part.j}" data-r="${part.r}" data-e="${part.e}" onmouseenter="showTip(event,this)" onmouseleave="hideTip()">${part.j}</span>`;
+  });
+  document.getElementById('ra-text').innerHTML = html;
+  document.getElementById('ra-qs').innerHTML = p.qs.map((q, qi) =>
+    `<div style="background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:14px 16px;margin-bottom:10px">
+      <div style="font-size:13px;font-weight:500;margin-bottom:10px">${qi + 1}. ${q.q}</div>
+      <div style="display:flex;flex-direction:column;gap:5px">${q.opts.map((o, oi) =>
+        `<div class="rq-opt" style="padding:8px 12px;border:1.5px solid var(--border2);border-radius:8px;cursor:pointer;font-size:12.5px;transition:all .14s" onclick="checkRQ(this,${oi},${q.ans},'${q.explain.replace(/'/g, "'")}')">
+          ${String.fromCharCode(65 + oi)}. ${o}
+        </div>`).join('')}
+      </div>
+    </div>`
+  ).join('');
+}
+
+function showTip(e, el) {
+  const t = document.getElementById('tooltip');
+  document.getElementById('tt-jp').textContent = el.dataset.j;
+  document.getElementById('tt-read').textContent = el.dataset.r;
+  document.getElementById('tt-en').textContent = el.dataset.e;
+  t.style.display = 'block';
+  t.style.left = Math.min(e.clientX + 10, window.innerWidth - 200) + 'px';
+  t.style.top = (e.clientY - 70) + 'px';
+}
+function hideTip() { document.getElementById('tooltip').style.display = 'none'; }
+async function checkRQ(el, chosen, correct, explain) {
+  el.parentElement.querySelectorAll('.rq-opt').forEach(o => o.style.pointerEvents = 'none');
+  if (chosen === correct) { el.style.background = 'var(--green3)'; el.style.borderColor = '#86efac'; el.style.color = 'var(--green)'; await addXP(15); }
+  else { el.style.background = 'var(--red3)'; el.style.borderColor = '#fca5a5'; el.style.color = 'var(--red)'; el.parentElement.querySelectorAll('.rq-opt')[correct].style.background = 'var(--green3)'; }
+  document.getElementById('companion-msg').textContent = explain;
+}
+function backToPassages() { document.getElementById('reading-menu').classList.remove('hidden'); document.getElementById('reading-active').classList.add('hidden'); }
+
+// ═══════════════════════════════════════════
+//  QUIZ
+// ═══════════════════════════════════════════
+let qzQs = [], qzIdx = 0, qzScore = 0;
+
+function renderQuizMenu() {
+  const c = getChar();
+  renderPortrait(document.getElementById('quiz-portrait'), ACTIVE_CHAR);
+  const cn = document.getElementById('quiz-char-name');
+  if (cn) { cn.textContent = c.name; cn.style.color = c.nameColor; }
+}
+
+function startQuiz(type) {
+  document.getElementById('quiz-menu').classList.add('hidden');
+  document.getElementById('quiz-result').classList.add('hidden');
+  document.getElementById('quiz-active').classList.remove('hidden');
+  if (type === 'vocab') qzQs = buildVocabQ(10);
+  else if (type === 'grammar') qzQs = buildGrammarQ(10);
+  else qzQs = buildKanaQ(20);
+  qzIdx = 0; qzScore = 0;
+  document.getElementById('qz-tot').textContent = qzQs.length;
+  renderQZ();
+}
+function buildVocabQ(n) { return shuffle([...VOCAB]).slice(0, n).map(v => { const w = shuffle(VOCAB.filter(x => x.e !== v.e)).slice(0, 3).map(x => x.e); return { instr: 'What does this word mean?', q: v.j, sub: v.r, ans: v.e, opts: shuffle([v.e, ...w]), explain: v.j + ' = ' + v.e, ex: v.x || '' }; }); }
+function buildGrammarQ(n) { return shuffle([...GRAMMAR]).slice(0, n).map(g => { const w = shuffle(GRAMMAR.filter(x => x.p !== g.p)).slice(0, 3).map(x => x.e); return { instr: 'What does this pattern mean?', q: g.p, sub: '', ans: g.e, opts: shuffle([g.e, ...w]), explain: g.p + ' — ' + g.e, ex: g.ex[0].j + ' → ' + g.ex[0].e }; }); }
+function buildKanaQ(n) { const pool = shuffle([...HG, ...KT]).slice(0, n); return pool.map(k => { const w = shuffle(ALL_ROM.filter(r => r !== k.r)).slice(0, 3); return { instr: 'Romaji reading?', q: k.k, sub: '', ans: k.r, opts: shuffle([k.r, ...w]), explain: k.k + ' = "' + k.r + '"', ex: '' }; }); }
+
+function renderQZ() {
+  if (qzIdx >= qzQs.length) { showQZResult(); return; }
+  const q = qzQs[qzIdx];
+  document.getElementById('qz-num').textContent = qzIdx + 1;
+  document.getElementById('qz-progress').style.width = Math.round(qzIdx / qzQs.length * 100) + '%';
+  document.getElementById('qz-score').textContent = qzScore;
+  document.getElementById('qz-instr').textContent = q.instr;
+  document.getElementById('qz-q').textContent = q.q;
+  document.getElementById('qz-sub').textContent = q.sub;
+  document.getElementById('qz-fb').classList.remove('show', 'ok', 'bad');
+  document.getElementById('qz-opts').innerHTML = q.opts.map(o =>
+    `<button class="mcq-opt" onclick="checkQZ(this,${JSON.stringify(o)},${JSON.stringify(q.ans)},${qzIdx})">${o}</button>`
+  ).join('');
+}
+
+async function checkQZ(el, chosen, correct, qi) {
+  document.querySelectorAll('.mcq-opt').forEach(o => o.classList.add('disabled'));
+  const q = qzQs[qi];
+  const fb = document.getElementById('qz-fb');
+  if (chosen === correct) {
+    el.classList.add('correct'); qzScore++; document.getElementById('qz-score').textContent = qzScore;
+    fb.classList.add('show', 'ok');
+    document.getElementById('qz-fb-title').textContent = '✓ Correct! ' + charSay('correct');
+    await addXP(10);
+  } else {
+    el.classList.add('wrong');
+    document.querySelectorAll('.mcq-opt').forEach(o => { if (o.textContent.trim() === correct) o.classList.add('correct'); });
+    fb.classList.add('show', 'bad');
+    document.getElementById('qz-fb-title').textContent = '✗ Not quite — ' + charSay('wrong');
+  }
+  document.getElementById('qz-fb-body').textContent = q.explain;
+  document.getElementById('qz-fb-ex').textContent = q.ex;
+}
+function nextQz() { qzIdx++; renderQZ(); }
+function endQuiz() { document.getElementById('quiz-active').classList.add('hidden'); document.getElementById('quiz-result').classList.add('hidden'); document.getElementById('quiz-menu').classList.remove('hidden'); renderQuizMenu(); }
+
+async function showQZResult() {
+  document.getElementById('quiz-active').classList.add('hidden');
+  document.getElementById('quiz-result').classList.remove('hidden');
+  const pct = qzScore / qzQs.length;
+  document.getElementById('qr-emoji').textContent = pct >= 0.8 ? '🏆' : pct >= 0.6 ? '😊' : '💪';
+  document.getElementById('qr-score').textContent = qzScore;
+  document.getElementById('qr-tot').textContent = qzQs.length;
+  document.getElementById('qr-msg').textContent = pct >= 0.8 ? charSay('quizGood') : pct >= 0.5 ? charSay('quizOk') : charSay('quizPoor');
+  await addXP(qzScore * 15);
+  logActivity('quiz_complete', { score: qzScore, total: qzQs.length });
+}
+
+// ═══════════════════════════════════════════
+//  FRIENDS
+// ═══════════════════════════════════════════
+function friendsTab(t, btn) {
+  document.querySelectorAll('#page-friends .tab').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('ft-activity').classList.toggle('hidden', t !== 'activity');
+  document.getElementById('ft-list').classList.toggle('hidden', t !== 'list');
+  document.getElementById('ft-add').classList.toggle('hidden', t !== 'add');
+  if (t === 'activity') loadFriendsActivity(false);
+  if (t === 'list') loadFriendsList();
+  if (t === 'add') loadFriendRequests();
+}
+
+function timeAgo(iso) {
+  const d = (Date.now() - new Date(iso).getTime()) / 1000;
+  if (d < 60) return 'just now';
+  if (d < 3600) return Math.floor(d / 60) + 'm ago';
+  if (d < 86400) return Math.floor(d / 3600) + 'h ago';
+  return Math.floor(d / 86400) + 'd ago';
+}
+
+function actLabel(a) {
+  const t = a.type, p = a.payload || {};
+  if (t === 'streak') return 'hit a <strong>' + p.days + '-day streak</strong> 🔥';
+  if (t === 'level_up') return 'reached <strong>Level ' + p.level + '</strong> ⭐';
+  if (t === 'kana_mastered') return 'mastered <strong>' + p.kana + '</strong> in ' + (p.script || 'kana') + '!';
+  if (t === 'quiz_complete') return 'scored <strong>' + p.score + '/' + p.total + '</strong> on a quiz 🎯';
+  if (t === 'vocab_milestone') return 'learned their <strong>' + p.count + 'th word</strong> 📖';
+  return 'studied Japanese';
+}
+
+async function loadFriendsActivity(homeOnly = false) {
+  if (!USER) return;
+  const { data: fRows } = await SB.from('friends').select('user_id,friend_id').or('user_id.eq.' + USER.id + ',friend_id.eq.' + USER.id).eq('status', 'accepted');
+  const fIds = (fRows || []).map(r => r.user_id === USER.id ? r.friend_id : r.user_id);
+
+  if (!fIds.length) {
+    const el = document.getElementById('ft-activity');
+    if (el && !homeOnly) el.innerHTML = '<div style="text-align:center;padding:40px;color:var(--ink3)"><div style="font-size:30px;margin-bottom:10px">👥</div>Add friends to see their activity here.</div>';
+    document.getElementById('home-feed-section')?.classList.add('hidden');
+    return;
+  }
+
+  const { data: acts } = await SB.from('activity').select('*,profiles(username,avatar_emoji)').in('user_id', fIds).order('created_at', { ascending: false }).limit(20);
+  const items = (acts || []);
+
+  if (!homeOnly) {
+    const el = document.getElementById('ft-activity');
+    if (el) el.innerHTML = items.length ? items.map(a => feedItem(a)).join('') : '<div style="padding:24px;color:var(--ink3)">No activity yet.</div>';
+  }
+
+  const homeEl = document.getElementById('home-feed');
+  if (homeEl && items.length) {
+    document.getElementById('home-feed-section')?.classList.remove('hidden');
+    homeEl.innerHTML = items.slice(0, 3).map(a => feedItem(a)).join('');
+  }
+}
+
+function feedItem(a) {
+  const prof = a.profiles || {};
+  return `<div class="feed-item">
+    <div class="feed-avatar">${prof.avatar_emoji || '🌸'}</div>
+    <div class="feed-text"><strong>${prof.username || 'Friend'}</strong> ${actLabel(a)}<div class="feed-time">${timeAgo(a.created_at)}</div></div>
+    <button class="enc-btn" id="enc-${a.id}" onclick="sendEnc('${a.id}',this)">🌸 Cheer</button>
+  </div>`;
+}
+
+async function sendEnc(id, btn) {
+  if (btn.classList.contains('sent')) return;
+  btn.classList.add('sent'); btn.textContent = '🌸 Sent!';
+  const { data: act } = await SB.from('activity').select('encouragements').eq('id', id).single();
+  const encs = act?.encouragements || [];
+  encs.push({ from_id: USER.id, emoji: '🌸', at: new Date().toISOString() });
+  await SB.from('activity').update({ encouragements: encs }).eq('id', id);
+}
+
+async function loadFriendsList() {
+  const el = document.getElementById('friends-list');
+  if (!el || !USER) return;
+  const { data: r1 } = await SB.from('friends').select('friend_id,profiles!friends_friend_id_fkey(username,avatar_emoji,xp,streak)').eq('user_id', USER.id).eq('status', 'accepted');
+  const { data: r2 } = await SB.from('friends').select('user_id,profiles!friends_user_id_fkey(username,avatar_emoji,xp,streak)').eq('friend_id', USER.id).eq('status', 'accepted');
+  const all = [...(r1 || []).map(r => r.profiles), ...(r2 || []).map(r => r.profiles)].filter(Boolean);
+  el.innerHTML = all.length ? all.map(f =>
+    `<div class="friend-card"><div class="friend-av">${f.avatar_emoji || '🌸'}</div>
+     <div><div style="font-size:14px;font-weight:600">${f.username}</div><div style="font-size:11px;color:var(--ink3)">⚡ ${f.xp || 0} XP &nbsp;🔥 ${f.streak || 0}d streak</div></div></div>`
+  ).join('') : '<div style="padding:24px;color:var(--ink3)">No friends yet. Use Add Friend!</div>';
+}
+
+async function loadFriendRequests() {
+  const el = document.getElementById('fr-requests');
+  if (!el || !USER) return;
+  const { data: reqs } = await SB.from('friends').select('id,profiles!friends_user_id_fkey(username,avatar_emoji)').eq('friend_id', USER.id).eq('status', 'pending');
+  el.innerHTML = (reqs || []).length ? reqs.map(r =>
+    `<div class="friend-card"><div class="friend-av">${r.profiles?.avatar_emoji || '🌸'}</div>
+     <div style="flex:1"><div style="font-size:14px;font-weight:600">${r.profiles?.username}</div><div style="font-size:11px;color:var(--ink3)">Wants to study with you!</div></div>
+     <button class="btn btn-primary btn-sm" onclick="acceptFriend('${r.id}')">Accept</button></div>`
+  ).join('') : '<div style="font-size:13px;color:var(--ink3)">No pending requests.</div>';
+}
+
+async function acceptFriend(id) {
+  await SB.from('friends').update({ status: 'accepted' }).eq('id', id);
+  loadFriendRequests(); loadFriendsList();
+}
+
+async function searchFriend() {
+  const un = document.getElementById('fr-search-in').value.trim();
+  const res = document.getElementById('fr-result');
+  if (!un) return;
+  const { data } = await SB.from('profiles').select('id,username,avatar_emoji,xp,streak').eq('username', un).neq('id', USER.id).single();
+  if (!data) { res.innerHTML = '<div style="font-size:13px;color:var(--ink3)">No user found.</div>'; return; }
+  res.innerHTML = `<div class="friend-card"><div class="friend-av">${data.avatar_emoji || '🌸'}</div>
+    <div style="flex:1"><div style="font-size:14px;font-weight:600">${data.username}</div><div style="font-size:11px;color:var(--ink3)">⚡ ${data.xp || 0} XP</div></div>
+    <button class="btn btn-primary btn-sm" onclick="sendFriendReq('${data.id}',this)">+ Add</button></div>`;
+}
+
+async function sendFriendReq(fId, btn) {
+  btn.disabled = true; btn.textContent = 'Sent ✓';
+  await SB.from('friends').insert({ user_id: USER.id, friend_id: fId, status: 'pending' });
+}
+
+// ═══════════════════════════════════════════
+//  SETTINGS
+// ═══════════════════════════════════════════
+function renderSettings() {
+  const el = document.getElementById('char-grid');
+  if (el) {
+    el.innerHTML = Object.values(CHARS).map(c => {
+      const active = c.id === ACTIVE_CHAR;
+      return `<div class="char-select-card ${active ? 'active' : ''}" onclick="selectChar('${c.id}')">
+        <div class="char-portrait" id="sp-${c.id}"></div>
+        <div class="char-name-label">${c.name}</div>
+        <div class="char-style-label">${active ? '✓ Active' : c.emoji}</div>
+      </div>`;
+    }).join('');
+    Object.values(CHARS).forEach(c => renderPortrait(document.getElementById('sp-' + c.id), c.id));
+  }
+  const acct = document.getElementById('acct-info');
+  if (acct) {
+    acct.innerHTML = `Signed in as <strong>${PROFILE?.username || USER?.username || 'User'}</strong>`;
+  }
+}
+
+async function selectChar(id) {
+  if (!CHARS[id]) return;
+  ACTIVE_CHAR = id;
+  if (PROFILE) PROFILE.active_character = id;
+  if (USER) dbSave(SB.from('profiles').update({ active_character: id }).eq('id', USER.id));
+  renderSettings();
+  const c = getChar();
+  renderPortrait(document.getElementById('home-portrait'), id);
+  renderPortrait(document.getElementById('quiz-portrait'), id);
+  const nameEl = document.getElementById('home-char-name');
+  if (nameEl) { nameEl.textContent = c.name; nameEl.style.color = c.nameColor; }
+  const msgEl = document.getElementById('companion-msg');
+  if (msgEl) msgEl.textContent = charSay('greetings');
+  openCompanionModal(`Nice to meet you! I'm ${c.name} ${c.emoji}`);
+}
+
+// ═══════════════════════════════════════════
+//  REALTIME
+// ═══════════════════════════════════════════
+function setupRealtime() {
+  if (RT_CHANNEL) { SB.removeChannel(RT_CHANNEL); RT_CHANNEL = null; }
+  RT_CHANNEL = SB.channel('lwm-activity')
+    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'activity' }, () => {
+      const onHome    = document.getElementById('page-home')?.classList.contains('active');
+      const onFriends = document.getElementById('page-friends')?.classList.contains('active');
+      if (onHome || onFriends) loadFriendsActivity(onHome && !onFriends);
+    }).subscribe();
+}
+
+// ═══════════════════════════════════════════
+//  UTILS
+// ═══════════════════════════════════════════
+// ── COMPANION BUBBLE ─────────────────────────
+function showBubble(bubbleId, portraitId, speechId, msg, type) {
+  const bubble   = document.getElementById(bubbleId);
+  const portrait = document.getElementById(portraitId);
+  const speech   = document.getElementById(speechId);
+  if (!bubble) return;
+  const c = getChar();
+  if (c.portrait) {
+    portrait.style.background = 'transparent';
+    portrait.innerHTML = `<img src="${c.portrait}" alt="${c.name}" style="width:100%;height:100%;object-fit:cover;border-radius:50%" onerror="this.parentElement.innerHTML='<span>${c.emoji}</span>'">`;
+  } else {
+    portrait.style.background = c.color;
+    portrait.innerHTML = `<span>${c.emoji}</span>`;
+  }
+  speech.innerHTML = msg;
+  speech.className = 'cb-speech ' + (type || '');
+  bubble.classList.add('show');
+}
+function hideBubble(bubbleId) {
+  const el = document.getElementById(bubbleId);
+  if (el) el.classList.remove('show');
+}
+// ── KANA STUDY OVERLAY ───────────────────────
+function openKanaStudy(char, romaji, script) {
+  window._kanaStudyChar   = char;
+  window._kanaStudyRomaji = romaji;
+  document.getElementById('ks-char').textContent   = char;
+  document.getElementById('ks-romaji').textContent = romaji;
+  document.getElementById('ks-script').textContent = script;
+  document.getElementById('ks-tip').textContent    = (typeof KANA_TIPS !== 'undefined' && KANA_TIPS[romaji]) || 'Trace the shape — connect it to the sound.';
+  const ov = document.getElementById('kana-study-overlay');
+  ov.classList.remove('hidden'); ov.style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+}
+function closeKanaStudy() {
+  const ov = document.getElementById('kana-study-overlay');
+  ov.classList.add('hidden'); ov.style.display = '';
+  document.body.style.overflow = '';
+}
+function markKanaSeen() {
+  const romaji = window._kanaStudyRomaji;
+  if (!romaji) { closeKanaStudy(); return; }
+  if (!KANA_P[romaji]) KANA_P[romaji] = { correct: 0, wrong: 0, seen: true };
+  else KANA_P[romaji].seen = true;
+  if (USER) dbSave(SB.from('progress_kana').upsert(
+    { user_id: USER.id, kana_key: romaji, correct: KANA_P[romaji].correct || 0,
+      wrong: KANA_P[romaji].wrong || 0,
+      next_review: new Date().toISOString(), updated_at: new Date().toISOString() },
+    { onConflict: 'user_id,kana_key' }
+  ));
+  closeKanaStudy();
+  renderKanaGrids();
+}
+function shuffle(arr) { const a = [...arr]; for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
+
+
+  
+</script>
+</body>
+</html>
