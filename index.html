@@ -599,24 +599,7 @@ const PAGE_META = {
   settings: { title: 'Settings', sub: 'Preferences' },
 };
 
-  function getChar() { return CHARS[ACTIVE_CHAR] || CHARS.cyrene; }
-function charSay(key) {
-  const c = getChar();
-  const v = c[key];
-  if (!v) return c.greetings[0];
-  if (Array.isArray(v)) return v[Math.floor(Math.random() * v.length)];
-  return v;
-}
-function renderPortrait(el, charId) {
-  const c = CHARS[charId || ACTIVE_CHAR];
-  if (!el) return;
-  if (c.portrait) {
-    el.innerHTML = `<img src="${c.portrait}" alt="${c.name}">`;
-  } else {
-    el.style.background = c.color;
-    el.innerHTML = `<span style="font-size:24px">${c.emoji}</span>`;
-  }
-}
+  // getChar, charSay, renderPortrait are defined in characters.js — do not redefine here.
 
 // ═══════════════════════════════════════════
 //  KANA & VOCAB DATA
