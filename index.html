@@ -640,6 +640,12 @@ const SB = supabase.createClient(
   'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJudnNsamRvcHhjY25uY2loc3Z3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkyNzk1NDAsImV4cCI6MjA5NDg1NTU0MH0.jZ3O6ufE5ohmkMvgySYfMyJVKDTYWkudGA2XE-vQ-MM'
 );
 
+// Fire-and-forget DB write — calls .then() directly on the Supabase
+// query builder, which is the only reliable way to trigger it without await.
+function dbSave(q) {
+  q.then(({ error }) => { if (error) console.warn('DB save error:', error.message); });
+}
+
 // ═══════════════════════════════════════════
 // GLOBAL STATE
 // ═══════════════════════════════════════════
@@ -1182,7 +1188,7 @@ function checkKQ(el, chosen) {
     kQScore++;
     showBubble('kq-bubble','kq-bubble-portrait','kq-bubble-speech', charSay('correct') + '  ✓ ' + note, 'correct');
     if (prog.correct === 3) logActivity('kana_mastered', { kana: window._kqChar, script: HG.some(h => h.r === window._kqRomaji) ? 'hiragana' : 'katakana' }).catch(() => {});
-    addXP(5).catch(() => {});
+    addXP(5);
   } else {
     document.querySelectorAll('.kana-opt').forEach(o => { if (o.textContent.trim() === correct) o.classList.add('correct'); });
     el.classList.add('wrong');
@@ -1192,11 +1198,11 @@ function checkKQ(el, chosen) {
   prog.seen = true;
   KANA_P[window._kqRomaji] = prog;
   setTimeout(() => { kQIdx++; renderKQ(); }, 2200);
-  if (USER) withTimeout(SB.from('progress_kana').upsert(
+  if (USER) dbSave(SB.from('progress_kana').upsert(
     { user_id: USER.id, kana_key: window._kqRomaji, correct: prog.correct, wrong: prog.wrong,
       next_review: new Date().toISOString(), updated_at: new Date().toISOString() },
     { onConflict: 'user_id,kana_key' }
-  )).catch(() => {});
+  ));
 }
 
 // ═══════════════════════════════════════════
@@ -1291,13 +1297,13 @@ function rateCard(rating) {
   if (wasRight) fcSessionCorrect++;
   showBubble('fc-bubble','fc-bubble-portrait','fc-bubble-speech', wasRight ? charSay('correct') : charSay('wrong'), wasRight ? 'correct' : 'wrong');
   if (USER) {
-    withTimeout(SB.from('progress_vocab').upsert({ user_id: USER.id, vocab_index: card.idx, correct: updated.correct, wrong: updated.wrong, ease: updated.ease, interval_ms: updated.interval_ms, next_review: new Date(updated.next_review).toISOString(), updated_at: new Date().toISOString() }, { onConflict: 'user_id,vocab_index' })).catch(() => {});
-    if (wasRight) addXP(10).catch(() => {});
+    dbSave(SB.from('progress_vocab').upsert({ user_id: USER.id, vocab_index: card.idx, correct: updated.correct, wrong: updated.wrong, ease: updated.ease, interval_ms: updated.interval_ms, next_review: new Date(updated.next_review).toISOString(), updated_at: new Date().toISOString() }, { onConflict: 'user_id,vocab_index' }));
+    if (wasRight) addXP(10);
     if (PROFILE) {
       PROFILE.reviewed_today = (PROFILE.reviewed_today || 0) + 1;
       PROFILE.correct_today  = (PROFILE.correct_today  || 0) + (wasRight ? 1 : 0);
       PROFILE.total_today    = (PROFILE.total_today    || 0) + 1;
-      withTimeout(SB.from('profiles').update({ reviewed_today: PROFILE.reviewed_today, correct_today: PROFILE.correct_today, total_today: PROFILE.total_today }).eq('id', USER.id)).catch(() => {});
+      dbSave(SB.from('profiles').update({ reviewed_today: PROFILE.reviewed_today, correct_today: PROFILE.correct_today, total_today: PROFILE.total_today }).eq('id', USER.id));
     }
   }
   fcIdx++;
@@ -1623,7 +1629,7 @@ async function selectChar(id) {
   if (!CHARS[id]) return;
   ACTIVE_CHAR = id;
   if (PROFILE) PROFILE.active_character = id;
-  if (USER) withTimeout(SB.from('profiles').update({ active_character: id }).eq('id', USER.id)).catch(() => {});
+  if (USER) dbSave(SB.from('profiles').update({ active_character: id }).eq('id', USER.id));
   renderSettings();
   const c = getChar();
   renderPortrait(document.getElementById('home-portrait'), id);
@@ -1695,12 +1701,12 @@ function markKanaSeen() {
   if (!romaji) { closeKanaStudy(); return; }
   if (!KANA_P[romaji]) KANA_P[romaji] = { correct: 0, wrong: 0, seen: true };
   else KANA_P[romaji].seen = true;
-  if (USER) withTimeout(SB.from('progress_kana').upsert(
+  if (USER) dbSave(SB.from('progress_kana').upsert(
     { user_id: USER.id, kana_key: romaji, correct: KANA_P[romaji].correct || 0,
       wrong: KANA_P[romaji].wrong || 0,
       next_review: new Date().toISOString(), updated_at: new Date().toISOString() },
     { onConflict: 'user_id,kana_key' }
-  )).catch(() => {});
+  ));
   closeKanaStudy();
   renderKanaGrids();
 }
