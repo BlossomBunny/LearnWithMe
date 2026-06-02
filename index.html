@@ -263,6 +263,20 @@ body{font-family:var(--ff);background:var(--bg);color:var(--ink);min-height:100v
 .kana-cell.new-kana{background:var(--surface);border-color:var(--border);opacity:0.7;cursor:pointer}
 .kana-cell.new-kana:hover{opacity:1;border-color:var(--plum2);background:var(--plum3)}
 
+
+/* ── ACTION CARDS ── */
+.action-cards{display:grid;grid-template-columns:repeat(4,1fr);gap:11px;margin-bottom:22px}
+.ac{background:var(--card);border:1.5px solid var(--border);border-radius:var(--r2);padding:16px 17px;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:6px;position:relative;overflow:hidden;transition:all .14s;cursor:default}
+.ac.clickable{cursor:pointer}
+.ac.clickable:hover{border-color:var(--plum2);transform:translateY(-2px);box-shadow:0 6px 18px rgba(124,58,237,0.11)}
+.ac-label{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.6px;color:var(--ink3)}
+.ac-value{font-size:26px;font-weight:700;color:var(--ink);line-height:1.1}
+.ac-sub{font-size:11.5px;color:var(--ink3);line-height:1.4}
+.ac-cta{font-size:11px;font-weight:600;color:var(--plum);display:flex;align-items:center;gap:3px;margin-top:2px}
+.ac-bar{height:4px;background:var(--border);border-radius:2px;overflow:hidden;margin-top:4px}
+.ac-bar-fill{height:100%;border-radius:2px;background:var(--plum);transition:width .4s ease}
+@media(max-width:900px){.action-cards{grid-template-columns:repeat(2,1fr)}}
+
 @media(max-width:900px){
   .grid-4{grid-template-columns:repeat(2,1fr)}
   .grid-3{grid-template-columns:1fr 1fr}
@@ -421,12 +435,7 @@ body{font-family:var(--ff);background:var(--bg);color:var(--ink);min-height:100v
         </div>
         <div style="font-size:11px;color:var(--ink3);padding:4px 8px;background:var(--plum3);border-radius:20px;white-space:nowrap">tap to chat</div>
       </div>
-      <div class="grid-4">
-        <div class="stat-card"><div class="stat-icon">📚</div><div class="stat-num" id="s-reviewed">0</div><div class="stat-label">Reviewed Today</div></div>
-        <div class="stat-card"><div class="stat-icon">✅</div><div class="stat-num" id="s-accuracy">0%</div><div class="stat-label">Accuracy</div></div>
-        <div class="stat-card"><div class="stat-icon">🎯</div><div class="stat-num" id="s-due">0</div><div class="stat-label">Due for Review</div></div>
-        <div class="stat-card"><div class="stat-icon">⭐</div><div class="stat-num" id="s-mastered">0</div><div class="stat-label">Mastered</div></div>
-      </div>
+      <div class="action-cards" id="action-cards"></div>
       <div class="grid-3">
         <div class="mode-card" onclick="setPage('kana')"><div class="mode-icon" style="background:#ede9fe">🔤</div><div class="mode-title">Kana Mastery</div><div class="mode-desc">Hiragana & katakana with spaced repetition</div><div class="mode-badge" id="mc-kana">Loading...</div></div>
         <div class="mode-card" onclick="setPage('vocab')"><div class="mode-icon" style="background:#fce7f3">📖</div><div class="mode-title">Vocabulary</div><div class="mode-desc">N5 core vocab SRS flashcards</div><div class="mode-badge">800 words</div></div>
@@ -1046,14 +1055,42 @@ function renderHome() {
   const now      = Date.now();
   const due      = VOCAB.filter((_, i) => { const p = VOCAB_P[i]; return !p || p.next_review <= now; }).length;
   const mastered = Object.values(VOCAB_P).filter(p => p.interval_ms > 3000000).length;
-  const reviewed = PROFILE.reviewed_today || 0;
-  const acc      = (PROFILE.total_today || 0) > 0
-    ? Math.round((PROFILE.correct_today || 0) / PROFILE.total_today * 100) : 0;
+  // Build action cards
+  const kanaMastered = HG.filter(k => (KANA_P[k.r]||{}).correct >= 3).length
+                     + KT.filter(k => (KANA_P[k.r]||{}).correct >= 3).length;
+  const kanaTotal = HG.length + KT.length; // 92
 
-  document.getElementById('s-reviewed').textContent = reviewed;
-  document.getElementById('s-accuracy').textContent = acc + '%';
-  document.getElementById('s-due').textContent      = due;
-  document.getElementById('s-mastered').textContent = mastered;
+  const ac = document.getElementById('action-cards');
+  if (ac) ac.innerHTML = `
+    <!-- Streak -->
+    <div class="ac">
+      <div class="ac-label">Streak</div>
+      <div class="ac-value">${PROFILE.streak || 0}<span style="font-size:17px;margin-left:3px">${(PROFILE.streak||0) >= 1 ? '🔥' : '🌱'}</span></div>
+      <div class="ac-sub">${(PROFILE.streak||0) >= 1 ? 'Keep it going — study today!' : 'Study today to start your streak'}</div>
+    </div>
+    <!-- Due for review -->
+    <div class="ac clickable" onclick="setPage('vocab')" title="Go to flashcards">
+      <div class="ac-label">Ready to Study</div>
+      <div class="ac-value">${due}</div>
+      <div class="ac-sub">vocab cards due for review</div>
+      <div class="ac-cta">Open flashcards →</div>
+    </div>
+    <!-- Kana progress -->
+    <div class="ac clickable" onclick="setPage('kana')" title="Go to Kana">
+      <div class="ac-label">Kana Mastered</div>
+      <div class="ac-value">${kanaMastered}<span style="font-size:14px;color:var(--ink3);font-weight:400"> / ${kanaTotal}</span></div>
+      <div class="ac-sub">hiragana & katakana</div>
+      <div class="ac-bar"><div class="ac-bar-fill" style="width:${Math.round(kanaMastered/kanaTotal*100)}%"></div></div>
+    </div>
+    <!-- Level / XP -->
+    <div class="ac">
+      <div class="ac-label">Level</div>
+      <div class="ac-value">${PROFILE.level || 1}<span style="font-size:13px;color:var(--ink3);font-weight:400"> · ⚡${PROFILE.xp || 0} XP</span></div>
+      <div class="ac-sub">${200 - ((PROFILE.xp||0) % 200)} XP to next level</div>
+      <div class="ac-bar"><div class="ac-bar-fill" style="width:${Math.round(((PROFILE.xp||0)%200)/200*100)}%;background:var(--gold2)"></div></div>
+    </div>
+  `;
+
 
   const hM = HG.filter(k => (KANA_P[k.r] || {}).correct >= 3).length;
   const kM = KT.filter(k => (KANA_P[k.r] || {}).correct >= 3).length;
