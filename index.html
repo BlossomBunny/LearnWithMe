@@ -662,24 +662,7 @@ const PAGE_META = {
   settings: { title: 'Settings', sub: 'Preferences' },
 };
 
-  function getChar() { return CHARS[ACTIVE_CHAR] || CHARS.cyrene; }
-function charSay(key) {
-  const c = getChar();
-  const v = c[key];
-  if (!v) return c.greetings[0];
-  if (Array.isArray(v)) return v[Math.floor(Math.random() * v.length)];
-  return v;
-}
-function renderPortrait(el, charId) {
-  const c = CHARS[charId || ACTIVE_CHAR];
-  if (!el) return;
-  if (c.portrait) {
-    el.innerHTML = `<img src="${c.portrait}" alt="${c.name}">`;
-  } else {
-    el.style.background = c.color;
-    el.innerHTML = `<span style="font-size:24px">${c.emoji}</span>`;
-  }
-}
+// charSay, getChar, renderPortrait — defined in characters.js
 
 // ═══════════════════════════════════════════
 //  KANA & VOCAB DATA
@@ -933,9 +916,20 @@ async function bootApp() {
 async function loadUserData() {
   setSyncStatus('⟳', false);
 
-  const { data: prof } = await withTimeout(
+  let { data: prof } = await withTimeout(
     SB.from('profiles').select('*').eq('id', USER.id).single()
   );
+  if (!prof) {
+    // Profile row missing — create it (handles 406 / partial signup)
+    const newProf = {
+      id: USER.id, username: USER.username, display_name: USER.username,
+      avatar_emoji: '🌸', active_character: 'cyrene',
+      xp: 0, level: 1, streak: 0,
+      reviewed_today: 0, correct_today: 0, total_today: 0,
+    };
+    await withTimeout(SB.from('profiles').insert(newProf));
+    prof = newProf;
+  }
   if (prof) {
     PROFILE = prof;
     ACTIVE_CHAR = prof.active_character || 'cyrene';
@@ -1033,36 +1027,42 @@ function setPage(page) {
 //  HOME
 // ═══════════════════════════════════════════
 function renderHome() {
-  if (!PROFILE) return;
+  // Always render companion (doesn't need PROFILE)
   const c = getChar();
   renderPortrait(document.getElementById('home-portrait'), ACTIVE_CHAR);
-  document.getElementById('home-char-name').textContent = c.name;
-  document.getElementById('home-char-name').style.color = c.nameColor;
-  document.getElementById('companion-msg').textContent = charSay('greetings');
+  const nameEl = document.getElementById('home-char-name');
+  if (nameEl) { nameEl.textContent = c.name; nameEl.style.color = c.nameColor; }
+  const msgEl = document.getElementById('companion-msg');
+  if (msgEl) msgEl.textContent = charSay('greetings');
 
-  const now = Date.now();
-  const due = VOCAB.filter((_, i) => { const p = VOCAB_P[i]; return !p || p.next_review <= now; }).length;
+  // Kana progress badge doesn't need PROFILE either
+  const kanaDue = [...HG,...KT].filter(k => { const p = KANA_P[k.r]; return !p || p.correct < 3; }).length;
+  const mcKana = document.getElementById('mc-kana');
+  if (mcKana) mcKana.textContent = kanaDue > 0 ? kanaDue + ' to review' : 'All mastered! 🎉';
+
+  if (!PROFILE) return;
+
+  const now      = Date.now();
+  const due      = VOCAB.filter((_, i) => { const p = VOCAB_P[i]; return !p || p.next_review <= now; }).length;
   const mastered = Object.values(VOCAB_P).filter(p => p.interval_ms > 3000000).length;
   const reviewed = PROFILE.reviewed_today || 0;
-  const acc = (PROFILE.total_today || 0) > 0 ? Math.round((PROFILE.correct_today || 0) / PROFILE.total_today * 100) : 0;
+  const acc      = (PROFILE.total_today || 0) > 0
+    ? Math.round((PROFILE.correct_today || 0) / PROFILE.total_today * 100) : 0;
 
   document.getElementById('s-reviewed').textContent = reviewed;
   document.getElementById('s-accuracy').textContent = acc + '%';
-  document.getElementById('s-due').textContent = due;
+  document.getElementById('s-due').textContent      = due;
   document.getElementById('s-mastered').textContent = mastered;
 
   const hM = HG.filter(k => (KANA_P[k.r] || {}).correct >= 3).length;
   const kM = KT.filter(k => (KANA_P[k.r] || {}).correct >= 3).length;
-  document.getElementById('hp-lbl').textContent = hM + '/46';
-  document.getElementById('kp-lbl').textContent = kM + '/46';
-  document.getElementById('hp-bar').style.width = Math.round(hM / 46 * 100) + '%';
-  document.getElementById('kp-bar').style.width = Math.round(kM / 46 * 100) + '%';
-
-  const kanaDue = [...HG, ...KT].filter(k => { const p = KANA_P[k.r]; return !p || p.correct < 3; }).length;
-  document.getElementById('mc-kana').textContent = kanaDue > 0 ? kanaDue + ' to review' : 'All mastered! 🎉';
+  document.getElementById('hp-lbl').textContent   = hM + '/46';
+  document.getElementById('kp-lbl').textContent   = kM + '/46';
+  document.getElementById('hp-bar').style.width   = Math.round(hM / 46 * 100) + '%';
+  document.getElementById('kp-bar').style.width   = Math.round(kM / 46 * 100) + '%';
 
   checkStreak();
-  loadFriendsActivity(true); // true = home feed only
+  loadFriendsActivity(true);
 }
 
 // ═══════════════════════════════════════════
