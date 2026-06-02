@@ -265,6 +265,12 @@ body{font-family:var(--ff);background:var(--bg);color:var(--ink);min-height:100v
 .kana-cell.new-kana:hover{opacity:1;border-color:var(--plum2);background:var(--plum3)}
 
 
+
+/* ── CATEGORY PILLS ── */
+.cat-pill{padding:5px 12px;border-radius:20px;border:1.5px solid var(--border2);background:var(--card);font-family:var(--ff);font-size:12px;font-weight:500;cursor:pointer;color:var(--ink3);transition:all .13s}
+.cat-pill:hover{border-color:var(--plum2);color:var(--plum)}
+.cat-pill.active{background:var(--plum);border-color:var(--plum);color:#fff}
+
 /* ── ACTION CARDS ── */
 .action-cards{display:grid;grid-template-columns:repeat(4,1fr);gap:11px;margin-bottom:22px}
 .ac{background:var(--card);border:1.5px solid var(--border);border-radius:var(--r2);padding:16px 17px;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:6px;position:relative;overflow:hidden;transition:all .14s;cursor:default}
@@ -491,6 +497,20 @@ body{font-family:var(--ff);background:var(--bg);color:var(--ink);min-height:100v
         <button class="tab" onclick="vocabTab('browse',this)">Browse</button>
       </div>
       <div id="vt-fc">
+        <!-- Category filter -->
+        <div id="fc-cat-filter" style="margin-bottom:16px">
+          <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--ink3);margin-bottom:8px">Study by category</div>
+          <div style="display:flex;gap:6px;flex-wrap:wrap" id="fc-cat-btns">
+            <button class="cat-pill active" onclick="setVocabCat('',this)">All</button>
+            <button class="cat-pill" onclick="setVocabCat('greeting',this)">👋 Greetings</button>
+            <button class="cat-pill" onclick="setVocabCat('number',this)">🔢 Numbers</button>
+            <button class="cat-pill" onclick="setVocabCat('time',this)">🕐 Time</button>
+            <button class="cat-pill" onclick="setVocabCat('noun',this)">🏷️ Nouns</button>
+            <button class="cat-pill" onclick="setVocabCat('verb',this)">⚡ Verbs</button>
+            <button class="cat-pill" onclick="setVocabCat('adj',this)">🎨 Adjectives</button>
+          </div>
+          <div id="fc-cat-info" style="font-size:11.5px;color:var(--ink3);margin-top:8px"></div>
+        </div>
         <div class="fc-wrap">
           <!-- How it works hint -->
           <div id="fc-hint" style="width:100%;background:var(--plum3);border:1px solid var(--plum2);border-radius:var(--r);padding:11px 14px;font-size:12.5px;color:var(--plum);line-height:1.6;display:flex;gap:10px;align-items:flex-start">
@@ -1265,10 +1285,39 @@ function checkKQ(el, chosen) {
 //  VOCAB SRS
 // ═══════════════════════════════════════════
 let fcQueue = [], fcIdx = 0, fcRevealed = false, fcSessionCorrect = 0;
+let fcActiveCat = ''; // '' = all categories
 
 function getDueVocab() {
   const now = Date.now();
-  return VOCAB.map((v, i) => ({ v, i })).filter(({ i }) => { const p = VOCAB_P[i]; return !p || p.next_review <= now; }).slice(0, 20);
+  const all = VOCAB.map((v, i) => ({ v, i }))
+    .filter(({ v, i }) => {
+      if (fcActiveCat && v.c !== fcActiveCat) return false;
+      const p = VOCAB_P[i];
+      return !p || p.next_review <= now;
+    });
+  // New cards first, then overdue
+  return [...all.filter(({ i }) => !VOCAB_P[i]), ...all.filter(({ i }) => !!VOCAB_P[i])].slice(0, 20);
+}
+
+function setVocabCat(cat, btn) {
+  fcActiveCat = cat;
+  // Update pill styles
+  document.querySelectorAll('.cat-pill').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  // Update info line
+  const catNames = { '':'All categories', greeting:'Greetings', number:'Numbers', time:'Time words', noun:'Nouns', verb:'Verbs', adj:'Adjectives' };
+  const filtered = VOCAB.filter(v => !cat || v.c === cat);
+  const now = Date.now();
+  const due = filtered.filter((v, idx) => {
+    const i = VOCAB.indexOf(v);
+    const p = VOCAB_P[i];
+    return !p || p.next_review <= now;
+  }).length;
+  const info = document.getElementById('fc-cat-info');
+  if (info) info.textContent = due > 0
+    ? `${due} of ${filtered.length} words due for review in ${catNames[cat] || cat}`
+    : `All ${filtered.length} words in ${catNames[cat] || cat} are up to date ✓`;
+  initVocabFC();
 }
 
 function initVocabFC() {
