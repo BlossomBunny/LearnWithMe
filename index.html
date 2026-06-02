@@ -233,6 +233,36 @@ body{font-family:var(--ff);background:var(--bg);color:var(--ink);min-height:100v
 .section-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
 .section-title{font-size:14px;font-weight:600;color:var(--ink)}
 
+
+/* ── COMPANION MODAL ── */
+.companion-modal-overlay{position:fixed;inset:0;background:rgba(10,5,20,0.7);z-index:200;display:flex;align-items:center;justify-content:center;padding:20px;animation:fadeIn .2s ease;backdrop-filter:blur(4px)}
+.companion-modal{background:var(--card);border-radius:28px;padding:0;width:340px;max-width:95vw;box-shadow:0 24px 60px rgba(0,0,0,0.3);overflow:hidden;animation:slideUp .22s ease}
+@keyframes slideUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+.cm-portrait-wrap{width:100%;height:260px;position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center}
+.cm-portrait-gradient{position:absolute;bottom:0;left:0;right:0;height:50%;background:linear-gradient(transparent,var(--card))}
+.cm-body{padding:20px 24px 24px}
+.cm-name{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px}
+.cm-message{font-size:15px;line-height:1.65;color:var(--ink2);font-style:italic}
+.cm-close{width:100%;margin-top:18px;padding:11px;background:var(--plum);color:#fff;border:none;border-radius:var(--r);font-family:var(--ff);font-size:14px;font-weight:600;cursor:pointer;transition:background .15s}
+.cm-close:hover{background:#6d28d9}
+/* ── COMPANION BUBBLE ── */
+.companion-bubble{display:none;align-items:flex-start;gap:12px;margin-top:14px;animation:bubbleIn .2s ease}
+.companion-bubble.show{display:flex}
+@keyframes bubbleIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.cb-portrait{width:52px;height:52px;border-radius:50%;flex-shrink:0;overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:24px;box-shadow:0 2px 8px rgba(0,0,0,0.15)}
+.cb-portrait img{width:100%;height:100%;object-fit:cover;object-position:top}
+.cb-speech{position:relative;background:var(--card);border:1.5px solid var(--border2);border-radius:16px;border-bottom-left-radius:4px;padding:11px 14px;flex:1;font-size:13px;line-height:1.55;color:var(--ink2);box-shadow:var(--shadow)}
+.cb-speech::before{content:'';position:absolute;left:-9px;bottom:14px;border:5px solid transparent;border-right-color:var(--border2)}
+.cb-speech::after{content:'';position:absolute;left:-7px;bottom:14px;border:5px solid transparent;border-right-color:var(--card)}
+.cb-speech.correct{border-color:#86efac;background:var(--green3)}
+.cb-speech.correct::after{border-right-color:var(--green3)}
+.cb-speech.wrong{border-color:#fca5a5;background:var(--red3)}
+.cb-speech.wrong::after{border-right-color:var(--red3)}
+/* ── KANA CELL STATES ── */
+.kana-cell.seen-kana{background:var(--plum3);border-color:var(--plum2)}
+.kana-cell.new-kana{background:var(--surface);border-color:var(--border);opacity:0.7;cursor:pointer}
+.kana-cell.new-kana:hover{opacity:1;border-color:var(--plum2);background:var(--plum3)}
+
 @media(max-width:900px){
   .grid-4{grid-template-columns:repeat(2,1fr)}
   .grid-3{grid-template-columns:1fr 1fr}
@@ -248,7 +278,33 @@ body{font-family:var(--ff);background:var(--bg);color:var(--ink);min-height:100v
   <div id="tt-en"></div>
 </div>
 
- <div id="auth-screen">
+<!-- COMPANION MODAL -->
+<div id="companion-modal" class="companion-modal-overlay hidden" onclick="if(event.target===this)closeCompanionModal()">
+  <div class="companion-modal">
+    <div class="cm-portrait-wrap" id="cm-portrait-wrap">
+      <div id="cm-portrait-img" style="width:100%;height:100%;display:flex;align-items:center;justify-content:center"></div>
+      <div class="cm-portrait-gradient"></div>
+    </div>
+    <div class="cm-body">
+      <div class="cm-name" id="cm-name" style="color:var(--plum)">Cyrene</div>
+      <div class="cm-message" id="cm-message"></div>
+      <button class="cm-close" onclick="closeCompanionModal()">Let's continue ✨</button>
+    </div>
+  </div>
+</div>
+<!-- KANA STUDY OVERLAY -->
+<div id="kana-study-overlay" class="hidden" style="position:fixed;inset:0;background:rgba(10,5,20,0.75);z-index:300;display:flex;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(4px)" onclick="if(event.target===this)closeKanaStudy()">
+  <div style="background:var(--card);border-radius:24px;width:320px;max-width:95vw;padding:36px 28px;text-align:center;box-shadow:0 24px 60px rgba(0,0,0,0.3)">
+    <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--ink3);margin-bottom:16px" id="ks-script">Hiragana</div>
+    <div style="font-family:var(--ffj);font-size:96px;line-height:1;color:var(--ink);margin-bottom:8px" id="ks-char">あ</div>
+    <div style="font-size:28px;font-weight:600;color:var(--plum);margin-bottom:12px" id="ks-romaji">a</div>
+    <div style="font-size:13px;color:var(--ink3);line-height:1.6;margin-bottom:24px;min-height:40px" id="ks-tip"></div>
+    <button class="btn btn-primary" style="width:100%;margin-bottom:10px" onclick="markKanaSeen()">Got it! 覚えた →</button>
+    <button class="btn btn-ghost btn-sm" style="width:100%" onclick="closeKanaStudy()">Skip for now</button>
+  </div>
+</div>
+
+<div id="auth-screen">
   <div class="auth-card">
     <div class="auth-logo">日</div>
     <div class="auth-title">Learn With Me — JP!</div>
@@ -357,12 +413,13 @@ body{font-family:var(--ff);background:var(--bg);color:var(--ink);min-height:100v
 
     <!-- HOME -->
     <div class="page active" id="page-home">
-      <div class="companion-bar">
+      <div class="companion-bar" onclick="openCompanionModal()" style="cursor:pointer" title="Click to chat with your companion">
         <div class="companion-portrait" id="home-portrait"></div>
-        <div>
+        <div style="flex:1">
           <div class="companion-name" id="home-char-name" style="color:var(--plum)">Cyrene</div>
           <div class="companion-msg" id="companion-msg">Loading...</div>
         </div>
+        <div style="font-size:11px;color:var(--ink3);padding:4px 8px;background:var(--plum3);border-radius:20px;white-space:nowrap">tap to chat</div>
       </div>
       <div class="grid-4">
         <div class="stat-card"><div class="stat-icon">📚</div><div class="stat-num" id="s-reviewed">0</div><div class="stat-label">Reviewed Today</div></div>
@@ -394,20 +451,26 @@ body{font-family:var(--ff);background:var(--bg);color:var(--ink);min-height:100v
     <!-- KANA -->
     <div class="page" id="page-kana">
       <div class="tabs">
-        <button class="tab active" onclick="kanaTab('h',this)">Hiragana</button>
-        <button class="tab" onclick="kanaTab('k',this)">Katakana</button>
-        <button class="tab" onclick="kanaTab('q',this)">Quiz</button>
+        <button class="tab active" id="ktab-h"     onclick="kanaTab('h',this)">Hiragana</button>
+        <button class="tab"        id="ktab-k"     onclick="kanaTab('k',this)">Katakana</button>
+        <button class="tab"        id="ktab-hq"    onclick="kanaTab('hq',this)">Hiragana Quiz</button>
+        <button class="tab"        id="ktab-kq"    onclick="kanaTab('kq',this)">Katakana Quiz</button>
+        <button class="tab"        id="ktab-mixed" onclick="kanaTab('mixed',this)">Mixed</button>
       </div>
       <div id="kt-h"></div>
       <div id="kt-k" class="hidden"></div>
       <div id="kt-q" class="hidden">
-        <div style="background:var(--card);border:1.5px solid var(--border);border-radius:20px;padding:36px;text-align:center;margin-bottom:18px;box-shadow:var(--shadow)">
-          <div style="font-size:12px;color:var(--ink3);margin-bottom:6px" id="kq-prompt">Romaji for this character?</div>
-          <div style="font-family:var(--ffj);font-size:72px;line-height:1;margin-bottom:10px" id="kq-char">あ</div>
-          <div style="font-size:11px;color:var(--ink3)" id="kq-score">0/0</div>
+        <div style="background:var(--card);border:1.5px solid var(--border);border-radius:18px;padding:28px;text-align:center;margin-bottom:14px;box-shadow:var(--shadow)">
+          <div style="font-size:11px;color:var(--ink3);margin-bottom:4px;font-weight:500;text-transform:uppercase;letter-spacing:.5px" id="kq-set-label">Hiragana Quiz</div>
+          <div style="font-size:13px;color:var(--ink3);margin-bottom:8px" id="kq-prompt">What is the romaji reading?</div>
+          <div style="font-family:var(--ffj);font-size:72px;line-height:1;margin-bottom:10px;color:var(--ink)" id="kq-char">あ</div>
+          <div style="font-size:12px;color:var(--ink3)" id="kq-score">1 / 15</div>
         </div>
-        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:7px" id="kq-opts"></div>
-        <div id="kq-fb" style="display:none;margin-top:12px;padding:10px 14px;border-radius:var(--r);font-size:13px"></div>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:14px" id="kq-opts"></div>
+        <div class="companion-bubble" id="kq-bubble">
+          <div class="cb-portrait" id="kq-bubble-portrait"></div>
+          <div class="cb-speech" id="kq-bubble-speech"></div>
+        </div>
       </div>
     </div>
 
@@ -599,7 +662,24 @@ const PAGE_META = {
   settings: { title: 'Settings', sub: 'Preferences' },
 };
 
-  // getChar, charSay, renderPortrait are defined in characters.js — do not redefine here.
+  function getChar() { return CHARS[ACTIVE_CHAR] || CHARS.cyrene; }
+function charSay(key) {
+  const c = getChar();
+  const v = c[key];
+  if (!v) return c.greetings[0];
+  if (Array.isArray(v)) return v[Math.floor(Math.random() * v.length)];
+  return v;
+}
+function renderPortrait(el, charId) {
+  const c = CHARS[charId || ACTIVE_CHAR];
+  if (!el) return;
+  if (c.portrait) {
+    el.innerHTML = `<img src="${c.portrait}" alt="${c.name}">`;
+  } else {
+    el.style.background = c.color;
+    el.innerHTML = `<span style="font-size:24px">${c.emoji}</span>`;
+  }
+}
 
 // ═══════════════════════════════════════════
 //  KANA & VOCAB DATA
@@ -701,9 +781,9 @@ function setSyncStatus(text, isError = false) {
 }
 
 function closeCompanionModal() {
-  // If you have a companion modal, close it here
-  // For now, a safe empty function:
-  console.log('Companion modal closed (placeholder)');
+  const el = document.getElementById('companion-modal');
+  if (el) el.classList.add('hidden');
+  document.body.style.overflow = '';
 }
   
 function switchAuthTab(tab) {
@@ -815,15 +895,27 @@ function doLogout() {
   switchAuthTab('login');
 }
 
-function openCompanionModal() {
-  // Placeholder for now - you can expand this later
-  console.log("Companion modal opened");
-  
-  // If you want the companion bar to show something on home
-  const homePortrait = document.getElementById('home-portrait');
-  if (homePortrait) {
-    renderPortrait(homePortrait, ACTIVE_CHAR);
+function openCompanionModal(msgOverride) {
+  const c   = getChar();
+  const msg = msgOverride || charSay('greetings');
+  const imgEl = document.getElementById('cm-portrait-img');
+  if (imgEl) {
+    if (c.portrait) {
+      imgEl.innerHTML = `<img src="${c.portrait}" alt="${c.name}" style="width:100%;height:260px;object-fit:cover;object-position:top" onerror="this.parentElement.innerHTML='<span style=font-size:96px>${c.emoji}</span>'">`;
+      imgEl.style.background = 'transparent';
+    } else {
+      imgEl.style.background = c.color;
+      imgEl.innerHTML = `<span style="font-size:96px">${c.emoji}</span>`;
+    }
+    document.getElementById('cm-portrait-wrap').style.background = c.color;
   }
+  const nameEl = document.getElementById('cm-name');
+  if (nameEl) { nameEl.textContent = c.name; nameEl.style.color = c.nameColor; }
+  const msgEl = document.getElementById('cm-message');
+  if (msgEl) msgEl.textContent = msg;
+  const modal = document.getElementById('companion-modal');
+  if (modal) modal.classList.remove('hidden');
+  document.body.style.overflow = 'hidden';
 }
   
 async function bootApp() {
@@ -1000,97 +1092,130 @@ function srsNext(prog, rating) {
 // ═══════════════════════════════════════════
 //  KANA
 // ═══════════════════════════════════════════
-let kQSet = [], kQIdx = 0, kQScore = 0;
+let kQSet = [], kQIdx = 0, kQScore = 0, kQCurrentSet = 'h';
 
 function renderKanaGrids() {
-  renderKanaGrid(HG, document.getElementById('kt-h'));
-  renderKanaGrid(KT, document.getElementById('kt-k'));
+  renderKanaGrid(HG, 'kt-h');
+  renderKanaGrid(KT, 'kt-k');
 }
 
-function renderKanaGrid(set, el) {
+function renderKanaGrid(set, elId) {
+  const el = document.getElementById(typeof elId === 'string' ? elId : (set === HG ? 'kt-h' : 'kt-k'));
   if (!el) return;
-  let html = '<div style="font-size:12px;color:var(--ink3);margin-bottom:12px"><span style="color:var(--green);font-weight:600">■</span> Mastered &nbsp;<span style="color:var(--gold);font-weight:600">■</span> Learning &nbsp;<span style="color:var(--ink3)">■</span> New</div><div class="kana-grid">';
+  const isH     = set === HG;
+  const quizKey = isH ? 'hq' : 'kq';
+  const tabId   = isH ? 'ktab-hq' : 'ktab-kq';
+  let html = '<div style="font-size:11px;color:var(--ink3);margin-bottom:10px;display:flex;gap:14px;flex-wrap:wrap">'
+    + '<span>🟩 Mastered</span><span>🟨 Learning</span>'
+    + '<span style="color:var(--plum)">🟪 Seen</span><span>◻ New — click to study!</span></div>'
+    + '<div class="kana-grid">';
   set.forEach(k => {
-    const p = KANA_P[k.r] || {};
-    const cls = p.correct >= 3 ? 'mastered' : p.correct >= 1 ? 'learning' : '';
-    html += `<div class="kana-cell ${cls}"><div class="kana-char">${k.k}</div><div class="kana-rom">${k.r}</div></div>`;
+    const p        = KANA_P[k.r] || {};
+    const mastered = p.correct >= 3;
+    const learning = p.correct >= 1;
+    const seen     = p.seen && !learning && !mastered;
+    const isNew    = !p.seen && !learning && !mastered;
+    const cls      = mastered ? 'mastered' : learning ? 'learning' : seen ? 'seen-kana' : 'new-kana';
+    const oc       = isNew ? `onclick="openKanaStudy('${k.k}','${k.r}','${isH ? 'Hiragana' : 'Katakana'}')"` : '';
+    const title    = isNew ? `title="Click to study ${k.r}"` : '';
+    html += `<div class="kana-cell ${cls}" ${oc} ${title}><div class="kana-char">${k.k}</div><div class="kana-rom">${(p.seen || learning || mastered) ? k.r : '?'}</div></div>`;
   });
-  html += '</div><button class="btn btn-primary btn-sm" style="margin-top:8px" onclick="startKanaQuiz()">Quiz this set →</button>';
+  const masteredCount = set.filter(k => (KANA_P[k.r] || {}).correct >= 3).length;
+  html += `</div><div style="margin-top:14px;display:flex;align-items:center;justify-content:space-between">
+    <span style="font-size:12px;color:var(--ink3)">${masteredCount} / ${set.length} mastered</span>
+    <button class="btn btn-primary btn-sm" onclick="kanaTab('${quizKey}',document.getElementById('${tabId}'))">
+      Start ${isH ? 'Hiragana' : 'Katakana'} Quiz →
+    </button></div>`;
   el.innerHTML = html;
 }
 
 function kanaTab(t, btn) {
   document.querySelectorAll('#page-kana .tab').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
+  const isQuiz = t === 'hq' || t === 'kq' || t === 'mixed';
   document.getElementById('kt-h').classList.toggle('hidden', t !== 'h');
   document.getElementById('kt-k').classList.toggle('hidden', t !== 'k');
-  document.getElementById('kt-q').classList.toggle('hidden', t !== 'q');
-  if (t === 'q') startKanaQuiz();
+  document.getElementById('kt-q').classList.toggle('hidden', !isQuiz);
+  if (isQuiz) startKanaQuiz(t === 'hq' ? 'h' : t === 'kq' ? 'k' : 'mixed');
 }
 
-function startKanaQuiz() {
-  kQSet = shuffle([...HG, ...KT]);
-  kQIdx = 0; kQScore = 0;
+function startKanaQuiz(set) {
+  kQCurrentSet = set || 'mixed';
+  const fullPool = kQCurrentSet === 'h' ? [...HG] : kQCurrentSet === 'k' ? [...KT] : [...HG,...KT];
+  kQSet   = shuffle(fullPool).slice(0, 15);
+  kQIdx   = 0; kQScore = 0;
+  hideBubble('kq-bubble');
+  const labels = { h: 'Hiragana Quiz', k: 'Katakana Quiz', mixed: 'Mixed Quiz' };
+  const labelEl = document.getElementById('kq-set-label');
+  if (labelEl) labelEl.textContent = labels[kQCurrentSet] || 'Quiz';
   renderKQ();
 }
 
 function renderKQ() {
+  hideBubble('kq-bubble');
   if (kQIdx >= kQSet.length) {
-    document.getElementById('kq-char').textContent = '🎉';
-    document.getElementById('kq-prompt').textContent = 'Done! Score: ' + kQScore + '/' + kQSet.length;
-    document.getElementById('kq-opts').innerHTML = '<button class="btn btn-primary" style="grid-column:span 4" onclick="startKanaQuiz()">Play Again</button>';
-    document.getElementById('kq-score').textContent = '';
+    const pct = kQSet.length > 0 ? kQScore / kQSet.length : 0;
+    document.getElementById('kq-char').textContent   = pct >= 0.8 ? '🏆' : pct >= 0.5 ? '😊' : '💪';
+    document.getElementById('kq-prompt').textContent = 'Quiz complete!';
+    document.getElementById('kq-score').textContent  = kQScore + ' / ' + kQSet.length + ' correct';
+    document.getElementById('kq-opts').innerHTML =
+      `<button class="btn btn-primary" style="grid-column:span 4" onclick="startKanaQuiz(kQCurrentSet)">Play Again →</button>`;
+    const msg = pct >= 0.8 ? charSay('quizGood') : pct >= 0.5 ? charSay('quizOk') : charSay('quizPoor');
+    setTimeout(() => openCompanionModal(msg), 400);
     return;
   }
   const q = kQSet[kQIdx];
-  document.getElementById('kq-char').textContent = q.k;
-  document.getElementById('kq-score').textContent = kQScore + '/' + kQIdx;
-  document.getElementById('kq-fb').style.display = 'none';
-  const opts = shuffle([q.r, ...shuffle(ALL_ROM.filter(r => r !== q.r)).slice(0, 3)]);
+  const showChar      = kQIdx % 2 === 0;
+  window._kqShowChar  = showChar;
+  window._kqRomaji    = q.r;
+  window._kqChar      = q.k;
+  window._kqCorrect   = showChar ? q.r : q.k;
+  document.getElementById('kq-char').textContent   = showChar ? q.k : q.r;
+  document.getElementById('kq-prompt').textContent = showChar ? 'What is the romaji reading?' : 'Which character matches this sound?';
+  document.getElementById('kq-score').textContent  = (kQIdx + 1) + ' / ' + kQSet.length;
+  const samePool = kQCurrentSet === 'h' ? HG : kQCurrentSet === 'k' ? KT : kQSet;
+  const wrongs   = shuffle(samePool.filter(x => (showChar ? x.r : x.k) !== window._kqCorrect)).slice(0, 3).map(x => showChar ? x.r : x.k);
+  const opts     = shuffle([window._kqCorrect, ...wrongs]);
   document.getElementById('kq-opts').innerHTML = opts.map(o =>
-    `<div class="kana-opt" onclick="checkKQ(this,'${o}','${q.r}','${q.k}')">${o}</div>`
+    `<div class="kana-opt" onclick="checkKQ(this,'${o}')">${o}</div>`
   ).join('');
 }
 
-function checkKQ(el, chosen, correct, kana) {
-  // Lock options immediately — synchronous, never blocks
-  document.querySelectorAll('.kana-opt').forEach(o => {
-    o.classList.add('disabled');
-    o.style.pointerEvents = 'none';
-  });
-  const prog = KANA_P[correct] || { correct: 0, wrong: 0 };
-  const fb = document.getElementById('kq-fb');
-  if (chosen === correct) {
+function checkKQ(el, chosen) {
+  document.querySelectorAll('.kana-opt').forEach(o => { o.style.pointerEvents = 'none'; o.classList.add('disabled'); });
+  const correct   = window._kqCorrect;
+  const isCorrect = chosen === correct;
+  const note      = window._kqShowChar
+    ? window._kqChar + ' = ' + window._kqRomaji
+    : window._kqRomaji + ' = ' + window._kqChar;
+  const prog = KANA_P[window._kqRomaji] || { correct: 0, wrong: 0 };
+  if (isCorrect) {
     el.classList.add('correct');
     prog.correct = (prog.correct || 0) + 1;
     kQScore++;
-    fb.style.cssText = 'display:block;background:var(--green3);color:var(--green);padding:10px 14px;border-radius:var(--r)';
-    fb.textContent = charSay('correct') + ' ✓ ' + kana + ' = ' + correct;
-    addXP(5).catch(() => {}); // fire-and-forget
-    if (prog.correct === 3) logActivity('kana_mastered', { kana, script: HG.some(h => h.r === correct) ? 'hiragana' : 'katakana' });
+    showBubble('kq-bubble','kq-bubble-portrait','kq-bubble-speech', charSay('correct') + '  ✓ ' + note, 'correct');
+    if (prog.correct === 3) logActivity('kana_mastered', { kana: window._kqChar, script: HG.some(h => h.r === window._kqRomaji) ? 'hiragana' : 'katakana' }).catch(() => {});
+    addXP(5).catch(() => {});
   } else {
-    document.querySelectorAll('.kana-opt').forEach(o => {
-      if (o.textContent.trim() === correct) o.classList.add('correct');
-    });
+    document.querySelectorAll('.kana-opt').forEach(o => { if (o.textContent.trim() === correct) o.classList.add('correct'); });
     el.classList.add('wrong');
     prog.wrong = (prog.wrong || 0) + 1;
-    fb.style.cssText = 'display:block;background:var(--red3);color:var(--red);padding:10px 14px;border-radius:var(--r)';
-    fb.textContent = charSay('wrong') + ' — ' + kana + ' is "' + correct + '"';
+    showBubble('kq-bubble','kq-bubble-portrait','kq-bubble-speech', charSay('wrong') + '  ✗ ' + note, 'wrong');
   }
-  KANA_P[correct] = prog;
-  // Next question fires immediately — DB save happens in background
-  setTimeout(() => { kQIdx++; renderKQ(); }, 1800);
-  if (USER) withTimeout(SB.from('progress_kana').upsert(
-    { user_id: USER.id, kana_key: correct, correct: prog.correct, wrong: prog.wrong,
+  prog.seen = true;
+  KANA_P[window._kqRomaji] = prog;
+  setTimeout(() => { kQIdx++; renderKQ(); }, 2200);
+  if (USER) SB.from('progress_kana').upsert(
+    { user_id: USER.id, kana_key: window._kqRomaji, correct: prog.correct, wrong: prog.wrong,
       next_review: new Date().toISOString(), updated_at: new Date().toISOString() },
     { onConflict: 'user_id,kana_key' }
-  )).catch(() => {});
+  ).catch(() => {});
 }
 
 // ═══════════════════════════════════════════
 //  VOCAB SRS
 // ═══════════════════════════════════════════
-let fcQueue = [], fcIdx = 0, fcRevealed = false;
+let fcQueue = [], fcIdx = 0, fcRevealed = false, fcSessionCorrect = 0;
 
 function getDueVocab() {
   const now = Date.now();
@@ -1098,6 +1223,8 @@ function getDueVocab() {
 }
 
 function initVocabFC() {
+  hideBubble('fc-bubble');
+  fcSessionCorrect = 0;
   const due = getDueVocab();
   fcQueue = due.map(({ v, i }) => ({ ...v, idx: i }));
   fcIdx = 0; fcRevealed = false;
@@ -1113,25 +1240,45 @@ function initVocabFC() {
 }
 
 function updateFC() {
+  hideBubble('fc-bubble');
   if (fcIdx >= fcQueue.length) {
     document.getElementById('flashcard').style.display = 'none';
     document.getElementById('fc-back').classList.add('hidden');
-    document.getElementById('fc-done').classList.remove('hidden');
+    const doneEl = document.getElementById('fc-done');
+    doneEl.classList.remove('hidden');
+    const pct   = fcQueue.length > 0 ? Math.round(fcSessionCorrect / fcQueue.length * 100) : 0;
+    const emoji = pct >= 80 ? '🏆' : pct >= 50 ? '😊' : '💪';
+    doneEl.innerHTML = `<div style="font-size:38px;margin-bottom:9px">${emoji}</div>
+      <div style="font-size:17px;font-weight:600;margin-bottom:5px">Session complete!</div>
+      <div style="font-size:13px;color:var(--ink3);margin-bottom:16px">${fcSessionCorrect} / ${fcQueue.length} correct</div>
+      <button class="btn btn-primary" style="margin-bottom:8px" onclick="initVocabFC()">Next session →</button><br>
+      <button class="btn btn-ghost btn-sm" onclick="vocabTab('browse',document.querySelectorAll('#page-vocab .tab')[1])">Browse all vocab</button>`;
+    const msg = pct >= 80 ? charSay('quizGood') : pct >= 50 ? charSay('quizOk') : charSay('quizPoor');
+    setTimeout(() => openCompanionModal(msg), 400);
     return;
   }
   const card = fcQueue[fcIdx];
-  const el = document.getElementById('fc-front');
-  el.textContent = card.j;
-  el.className = 'card-main' + (card.j.length > 4 ? ' sm' : '');
+  const fe = document.getElementById('fc-front');
+  fe.textContent = card.j;
+  fe.className = 'card-main' + (card.j.length > 5 ? ' sm' : '');
   document.getElementById('fc-cat').textContent = '[' + card.c + ']';
-  document.getElementById('fc-badge').textContent = card.c || 'vocab';
+  // Colour-coded SRS badge + card border
+  const p = VOCAB_P[card.idx];
+  let badgeLabel, badgeBg, badgeColor, cardBorder;
+  if (!p || p.correct === 0)        { badgeLabel='NEW';      badgeBg='var(--teal3)';  badgeColor='var(--teal2)'; cardBorder='var(--teal2)'; }
+  else if (p.interval_ms > 3000000) { badgeLabel='MASTERED'; badgeBg='var(--green3)'; badgeColor='var(--green)'; cardBorder='#86efac'; }
+  else if (p.correct >= 2)          { badgeLabel='LEARNING'; badgeBg='var(--gold3)';  badgeColor='var(--gold)';  cardBorder='var(--gold2)'; }
+  else                               { badgeLabel='SEEN';     badgeBg='var(--plum3)';  badgeColor='var(--plum)';  cardBorder='var(--plum2)'; }
+  const badge = document.getElementById('fc-badge');
+  badge.textContent = badgeLabel; badge.style.background = badgeBg; badge.style.color = badgeColor;
+  document.getElementById('flashcard').style.borderColor = cardBorder;
   document.getElementById('flashcard').classList.remove('revealed');
   document.getElementById('fc-back').classList.add('hidden');
   document.getElementById('flashcard').style.display = 'flex';
-  document.getElementById('fc-cur').textContent = fcIdx + 1;
-  document.getElementById('fc-tot').textContent = fcQueue.length;
+  document.getElementById('fc-cur').textContent  = fcIdx + 1;
+  document.getElementById('fc-tot').textContent  = fcQueue.length;
   document.getElementById('fc-left').textContent = (fcQueue.length - fcIdx) + ' left';
-  document.getElementById('fc-bar').style.width = Math.round(fcIdx / fcQueue.length * 100) + '%';
+  document.getElementById('fc-bar').style.width  = Math.round(fcIdx / fcQueue.length * 100) + '%';
   fcRevealed = false;
 }
 
@@ -1146,31 +1293,28 @@ function revealCard() {
   document.getElementById('fc-back').classList.remove('hidden');
 }
 
-async function rateCard(rating) {
+function rateCard(rating) {
   if (!fcRevealed) return;
-  const card = fcQueue[fcIdx];
-  const prog = VOCAB_P[card.idx] || { correct: 0, wrong: 0, ease: 2.5, interval_ms: 0 };
-  const next = srsNext(prog, rating);
-  const updated = { ...prog, ...next, correct: prog.correct + (rating >= 2 ? 1 : 0), wrong: prog.wrong + (rating < 2 ? 1 : 0) };
+  const card     = fcQueue[fcIdx];
+  const prog     = VOCAB_P[card.idx] || { correct: 0, wrong: 0, ease: 2.5, interval_ms: 0 };
+  const next     = srsNext(prog, rating);
+  const wasRight = rating >= 2;
+  const updated  = { ...prog, ...next, correct: prog.correct + (wasRight ? 1 : 0), wrong: prog.wrong + (wasRight ? 0 : 1) };
   VOCAB_P[card.idx] = updated;
-  if (USER) await SB.from('progress_vocab').upsert({ user_id: USER.id, vocab_index: card.idx, correct: updated.correct, wrong: updated.wrong, ease: updated.ease, interval_ms: updated.interval_ms, next_review: new Date(updated.next_review).toISOString(), updated_at: new Date().toISOString() }, { onConflict: 'user_id,vocab_index' });
-  if (rating >= 2) {
-    await addXP(10);
+  if (wasRight) fcSessionCorrect++;
+  showBubble('fc-bubble','fc-bubble-portrait','fc-bubble-speech', wasRight ? charSay('correct') : charSay('wrong'), wasRight ? 'correct' : 'wrong');
+  if (USER) {
+    SB.from('progress_vocab').upsert({ user_id: USER.id, vocab_index: card.idx, correct: updated.correct, wrong: updated.wrong, ease: updated.ease, interval_ms: updated.interval_ms, next_review: new Date(updated.next_review).toISOString(), updated_at: new Date().toISOString() }, { onConflict: 'user_id,vocab_index' }).catch(() => {});
+    if (wasRight) addXP(10).catch(() => {});
     if (PROFILE) {
-      const rt = (PROFILE.reviewed_today || 0) + 1;
-      const ct = (PROFILE.correct_today || 0) + 1;
-      const tt = (PROFILE.total_today || 0) + 1;
-      await SB.from('profiles').update({ reviewed_today: rt, correct_today: ct, total_today: tt }).eq('id', USER.id);
-      PROFILE.reviewed_today = rt; PROFILE.correct_today = ct; PROFILE.total_today = tt;
-      if ([10, 50, 100].includes(rt)) logActivity('vocab_milestone', { count: rt });
+      PROFILE.reviewed_today = (PROFILE.reviewed_today || 0) + 1;
+      PROFILE.correct_today  = (PROFILE.correct_today  || 0) + (wasRight ? 1 : 0);
+      PROFILE.total_today    = (PROFILE.total_today    || 0) + 1;
+      SB.from('profiles').update({ reviewed_today: PROFILE.reviewed_today, correct_today: PROFILE.correct_today, total_today: PROFILE.total_today }).eq('id', USER.id).catch(() => {});
     }
-  } else if (PROFILE) {
-    const tt = (PROFILE.total_today || 0) + 1;
-    await SB.from('profiles').update({ total_today: tt }).eq('id', USER.id);
-    PROFILE.total_today = tt;
   }
   fcIdx++;
-  updateFC();
+  setTimeout(() => updateFC(), 1000);
 }
 
 function vocabTab(t, btn) {
@@ -1483,33 +1627,97 @@ function renderSettings() {
     Object.values(CHARS).forEach(c => renderPortrait(document.getElementById('sp-' + c.id), c.id));
   }
   const acct = document.getElementById('acct-info');
-  if (acct && PROFILE) acct.textContent = 'Signed in as ' + (PROFILE.username || USER?.email || '...') + '  ·  ' + (USER?.email || '');
+  const acct = document.getElementById('acct-info');
+  if (acct) {
+    acct.innerHTML = `Signed in as <strong>${PROFILE?.username || USER?.username || 'User'}</strong>`;
+  }
 }
 
 async function selectChar(id) {
+  if (!CHARS[id]) return;
   ACTIVE_CHAR = id;
-  if (USER) await SB.from('profiles').update({ active_character: id }).eq('id', USER.id);
   if (PROFILE) PROFILE.active_character = id;
+  if (USER) SB.from('profiles').update({ active_character: id }).eq('id', USER.id).catch(() => {});
   renderSettings();
+  const c = getChar();
+  renderPortrait(document.getElementById('home-portrait'), id);
+  renderPortrait(document.getElementById('quiz-portrait'), id);
+  const nameEl = document.getElementById('home-char-name');
+  if (nameEl) { nameEl.textContent = c.name; nameEl.style.color = c.nameColor; }
+  const msgEl = document.getElementById('companion-msg');
+  if (msgEl) msgEl.textContent = charSay('greetings');
+  openCompanionModal(`Nice to meet you! I'm ${c.name} ${c.emoji}`);
 }
 
 // ═══════════════════════════════════════════
 //  REALTIME
 // ═══════════════════════════════════════════
 function setupRealtime() {
-  if (RT_CHANNEL) SB.removeChannel(RT_CHANNEL);
+  if (RT_CHANNEL) { SB.removeChannel(RT_CHANNEL); RT_CHANNEL = null; }
   RT_CHANNEL = SB.channel('lwm-activity')
     .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'activity' }, () => {
-      if (document.getElementById('page-friends').classList.contains('active') || document.getElementById('page-home').classList.contains('active')) {
-        loadFriendsActivity(document.getElementById('page-home').classList.contains('active'));
-      }
-    })
-    .subscribe();
+      const onHome    = document.getElementById('page-home')?.classList.contains('active');
+      const onFriends = document.getElementById('page-friends')?.classList.contains('active');
+      if (onHome || onFriends) loadFriendsActivity(onHome && !onFriends);
+    }).subscribe();
 }
 
 // ═══════════════════════════════════════════
 //  UTILS
 // ═══════════════════════════════════════════
+// ── COMPANION BUBBLE ─────────────────────────
+function showBubble(bubbleId, portraitId, speechId, msg, type) {
+  const bubble   = document.getElementById(bubbleId);
+  const portrait = document.getElementById(portraitId);
+  const speech   = document.getElementById(speechId);
+  if (!bubble) return;
+  const c = getChar();
+  if (c.portrait) {
+    portrait.style.background = 'transparent';
+    portrait.innerHTML = `<img src="${c.portrait}" alt="${c.name}" style="width:100%;height:100%;object-fit:cover;border-radius:50%" onerror="this.parentElement.innerHTML='<span>${c.emoji}</span>'">`;
+  } else {
+    portrait.style.background = c.color;
+    portrait.innerHTML = `<span>${c.emoji}</span>`;
+  }
+  speech.innerHTML = msg;
+  speech.className = 'cb-speech ' + (type || '');
+  bubble.classList.add('show');
+}
+function hideBubble(bubbleId) {
+  const el = document.getElementById(bubbleId);
+  if (el) el.classList.remove('show');
+}
+// ── KANA STUDY OVERLAY ───────────────────────
+function openKanaStudy(char, romaji, script) {
+  window._kanaStudyChar   = char;
+  window._kanaStudyRomaji = romaji;
+  document.getElementById('ks-char').textContent   = char;
+  document.getElementById('ks-romaji').textContent = romaji;
+  document.getElementById('ks-script').textContent = script;
+  document.getElementById('ks-tip').textContent    = (typeof KANA_TIPS !== 'undefined' && KANA_TIPS[romaji]) || 'Trace the shape — connect it to the sound.';
+  const ov = document.getElementById('kana-study-overlay');
+  ov.classList.remove('hidden'); ov.style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+}
+function closeKanaStudy() {
+  const ov = document.getElementById('kana-study-overlay');
+  ov.classList.add('hidden'); ov.style.display = '';
+  document.body.style.overflow = '';
+}
+function markKanaSeen() {
+  const romaji = window._kanaStudyRomaji;
+  if (!romaji) { closeKanaStudy(); return; }
+  if (!KANA_P[romaji]) KANA_P[romaji] = { correct: 0, wrong: 0, seen: true };
+  else KANA_P[romaji].seen = true;
+  if (USER) SB.from('progress_kana').upsert(
+    { user_id: USER.id, kana_key: romaji, correct: KANA_P[romaji].correct || 0,
+      wrong: KANA_P[romaji].wrong || 0,
+      next_review: new Date().toISOString(), updated_at: new Date().toISOString() },
+    { onConflict: 'user_id,kana_key' }
+  ).catch(() => {});
+  closeKanaStudy();
+  renderKanaGrids();
+}
 function shuffle(arr) { const a = [...arr]; for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
 
 
