@@ -136,7 +136,8 @@ body{font-family:var(--ff);background:var(--bg);color:var(--ink);min-height:100v
 .card-meaning{font-size:22px;font-weight:600;color:var(--ink)}
 .card-example{font-size:12px;color:var(--ink3);font-family:var(--ffj);line-height:1.6;margin-top:4px}
 .srs-row{display:flex;gap:8px;width:100%}
-.srs-btn{flex:1;padding:11px 8px;border-radius:var(--r);border:1.5px solid;font-family:var(--ff);font-size:12px;font-weight:500;cursor:pointer;transition:all .14s;display:flex;flex-direction:column;align-items:center;gap:2px}
+.srs-btn{flex:1;padding:12px 6px;border-radius:var(--r);border:1.5px solid;font-family:var(--ff);font-size:12px;font-weight:600;cursor:pointer;transition:all .14s;display:flex;flex-direction:column;align-items:center;gap:3px}
+.srs-btn:hover{transform:translateY(-1px);box-shadow:0 3px 10px rgba(0,0,0,0.10)}
 .srs-next{font-size:10px;opacity:.7}
 .srs-again{background:var(--red3);border-color:#fca5a5;color:var(--red)}
 .srs-hard{background:#fff7ed;border-color:#fdba74;color:#c2410c}
@@ -491,36 +492,59 @@ body{font-family:var(--ff);background:var(--bg);color:var(--ink);min-height:100v
       </div>
       <div id="vt-fc">
         <div class="fc-wrap">
+          <!-- How it works hint -->
+          <div id="fc-hint" style="width:100%;background:var(--plum3);border:1px solid var(--plum2);border-radius:var(--r);padding:11px 14px;font-size:12.5px;color:var(--plum);line-height:1.6;display:flex;gap:10px;align-items:flex-start">
+            <span style="font-size:16px;flex-shrink:0">💡</span>
+            <span>Look at the word and try to recall its meaning. Tap the card to reveal, then tell us how it went — the app will show it again at the right time to help it stick.</span>
+          </div>
           <div class="fc-progress-row">
-            <span><span id="fc-cur">1</span>/<span id="fc-tot">0</span></span>
+            <span style="font-size:11px;color:var(--ink3)">Card <span id="fc-cur">1</span> of <span id="fc-tot">0</span></span>
             <div class="progress-track" style="flex:1"><div class="progress-fill" id="fc-bar" style="width:0%"></div></div>
-            <span id="fc-left">0 left</span>
+            <span id="fc-left" style="font-size:11px;color:var(--ink3)">0 left</span>
           </div>
           <div class="flashcard" id="flashcard" onclick="revealCard()">
-            <div class="card-badge" id="fc-badge">vocab</div>
+            <div class="card-badge" id="fc-badge">NEW</div>
             <div class="card-main" id="fc-front">—</div>
             <div style="font-size:11px;color:var(--ink3)" id="fc-cat"></div>
-            <div style="font-size:12px;color:var(--ink3);margin-top:12px">tap to reveal</div>
+            <div style="font-size:12px;color:var(--ink3);margin-top:14px;display:flex;align-items:center;gap:5px;opacity:.7">
+              <span>👆</span> tap to reveal
+            </div>
           </div>
           <div id="fc-back" class="hidden" style="width:100%;display:flex;flex-direction:column;align-items:center;gap:14px">
-            <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--r2);padding:18px 24px;width:100%;text-align:center;box-shadow:var(--shadow)">
+            <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--r2);padding:20px 24px;width:100%;text-align:center;box-shadow:var(--shadow)">
               <div class="card-reading" id="fc-reading"></div>
               <div class="card-meaning" id="fc-meaning"></div>
               <div class="card-example" id="fc-ex"></div>
             </div>
+            <div style="width:100%;font-size:11.5px;font-weight:600;color:var(--ink3);text-align:center;text-transform:uppercase;letter-spacing:.5px">How well did you remember it?</div>
             <div class="srs-row">
-              <button class="srs-btn srs-again" onclick="rateCard(0)">Again<span class="srs-next">&lt;1m</span></button>
-              <button class="srs-btn srs-hard" onclick="rateCard(1)">Hard<span class="srs-next">10m</span></button>
-              <button class="srs-btn srs-good" onclick="rateCard(2)">Good<span class="srs-next">1d</span></button>
-              <button class="srs-btn srs-easy" onclick="rateCard(3)">Easy<span class="srs-next">4d</span></button>
+              <button class="srs-btn srs-again" onclick="rateCard(0)">
+                <span style="font-size:15px">😵</span>
+                <span>Didn't know</span>
+                <span class="srs-next">show again soon</span>
+              </button>
+              <button class="srs-btn srs-hard" onclick="rateCard(1)">
+                <span style="font-size:15px">😅</span>
+                <span>Almost</span>
+                <span class="srs-next">show again later</span>
+              </button>
+              <button class="srs-btn srs-good" onclick="rateCard(2)">
+                <span style="font-size:15px">😊</span>
+                <span>Got it</span>
+                <span class="srs-next">see tomorrow</span>
+              </button>
+              <button class="srs-btn srs-easy" onclick="rateCard(3)">
+                <span style="font-size:15px">🌟</span>
+                <span>Easy!</span>
+                <span class="srs-next">see in 4 days</span>
+              </button>
             </div>
           </div>
-          <div id="fc-done" class="hidden" style="text-align:center;padding:36px">
-            <div style="font-size:44px;margin-bottom:10px">🎉</div>
-            <div style="font-size:19px;font-weight:600;margin-bottom:6px">Session complete!</div>
-            <div style="font-size:13px;color:var(--ink3);margin-bottom:20px">All cards reviewed.</div>
-            <button class="btn btn-primary" onclick="initVocabFC()">Study More</button>
+          <div class="companion-bubble" id="fc-bubble">
+            <div class="cb-portrait" id="fc-bubble-portrait"></div>
+            <div class="cb-speech" id="fc-bubble-speech"></div>
           </div>
+          <div id="fc-done" class="hidden" style="text-align:center;padding:36px"></div>
         </div>
       </div>
       <div id="vt-browse" class="hidden">
@@ -1320,6 +1344,8 @@ function revealCard() {
 
 function rateCard(rating) {
   if (!fcRevealed) return;
+  // Hide the how-it-works hint after first interaction
+  const hint = document.getElementById('fc-hint'); if (hint) hint.style.display = 'none';
   const card     = fcQueue[fcIdx];
   const prog     = VOCAB_P[card.idx] || { correct: 0, wrong: 0, ease: 2.5, interval_ms: 0 };
   const next     = srsNext(prog, rating);
