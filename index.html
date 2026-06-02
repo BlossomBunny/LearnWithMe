@@ -927,7 +927,7 @@ async function loadUserData() {
       xp: 0, level: 1, streak: 0,
       reviewed_today: 0, correct_today: 0, total_today: 0,
     };
-    await withTimeout(SB.from('profiles').insert(newProf));
+    await withTimeout(SB.from('profiles').upsert(newProf, { onConflict: 'id', ignoreDuplicates: true }));
     prof = newProf;
   }
   if (prof) {
