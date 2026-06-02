@@ -920,38 +920,33 @@ async function bootApp() {
 //  DATA LOADING
 // ═══════════════════════════════════════════
 async function loadUserData() {
-  setSyncStatus('⟳', false);
+  setSyncStatus('⟳');
 
-  let { data: prof } = await withTimeout(
-    SB.from('profiles').select('*').eq('id', USER.id).maybeSingle()
-  );
-  if (!prof) {
-    // Profile row missing — create it (handles 406 / partial signup)
+  // Direct await — more reliable than withTimeout for reads
+  const { data: prof } = await SB.from('profiles').select('*').eq('id', USER.id).maybeSingle();
+  if (prof) {
+    PROFILE = prof;
+    ACTIVE_CHAR = prof.active_character || 'cyrene';
+  } else {
+    // No profile yet — create one (first login or partial signup)
     const newProf = {
       id: USER.id, username: USER.username, display_name: USER.username,
       avatar_emoji: '🌸', active_character: 'cyrene',
       xp: 0, level: 1, streak: 0,
       reviewed_today: 0, correct_today: 0, total_today: 0,
     };
-    await withTimeout(SB.from('profiles').upsert(newProf, { onConflict: 'id', ignoreDuplicates: true }));
-    prof = newProf;
-  }
-  if (prof) {
-    PROFILE = prof;
-    ACTIVE_CHAR = prof.active_character || 'cyrene';
+    const { error: insErr } = await SB.from('profiles').insert(newProf);
+    if (!insErr) { PROFILE = newProf; ACTIVE_CHAR = 'cyrene'; }
+    else console.warn('Profile create error:', insErr.message);
   }
 
-  const { data: kp } = await withTimeout(
-    SB.from('progress_kana').select('*').eq('user_id', USER.id)
-  );
+  const { data: kp } = await SB.from('progress_kana').select('*').eq('user_id', USER.id);
   KANA_P = {};
   (kp || []).forEach(r => {
     KANA_P[r.kana_key] = { correct: r.correct || 0, wrong: r.wrong || 0, seen: true };
   });
 
-  const { data: vp } = await withTimeout(
-    SB.from('progress_vocab').select('*').eq('user_id', USER.id)
-  );
+  const { data: vp } = await SB.from('progress_vocab').select('*').eq('user_id', USER.id);
   VOCAB_P = {};
   (vp || []).forEach(r => {
     VOCAB_P[r.vocab_index] = {
