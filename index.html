@@ -471,9 +471,13 @@ body{font-family:var(--ff);background:var(--bg);color:var(--ink);min-height:100v
       <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
       <span class="nav-label">Quiz</span>
     </button>
-    <button class="nav-btn" id="nb-friends" onclick="setPage('friends')">
-      <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+    <button class="nav-btn" id="nb-friends" onclick="setPage('friends')" style="position:relative">
+      <div style="position:relative;display:inline-flex;justify-content:center">
+        <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        <span id="fr-badge" class="hidden" style="position:absolute;top:-5px;right:-8px;background:var(--rose);color:#fff;font-size:9px;font-weight:700;border-radius:10px;padding:1px 4px;min-width:14px;text-align:center;line-height:14px"></span>
+      </div>
       <span class="nav-label">Friends</span>
+    </button>
     </button>
     <div class="nav-sep"></div>
     <button class="nav-btn" id="nb-settings" onclick="setPage('settings')">
@@ -1479,6 +1483,7 @@ async function bootApp() {
   applyTheme(localStorage.getItem('theme') === 'dark');
   setPage('home');
   await loadUserData();
+  checkFriendRequests();
   setupRealtime();
   setTimeout(() => openCompanionModal(), 400);
 }
@@ -2549,43 +2554,74 @@ async function loadFriendsActivity(homeOnly = false) {
 
 function feedItem(a) {
   const prof = a.profiles || {};
-  return `<div class="feed-item">
+  const encs = a.encouragements || [];
+  const myReaction = encs.find(e => e.from_id === USER?.id)?.emoji;
+  const reacts = ['🎉','💪','⭐','🌸'].map(em => {
+    const cnt = encs.filter(e => e.emoji === em).length;
+    const active = myReaction === em;
+    return `<button class="enc-btn ${active?'sent':''}" data-id="${a.id}" onclick="sendEnc('${a.id}','${em}',this)">${em}${cnt?` ${cnt}`:''}</button>`;
+  }).join('');
+  const isTip = a.type === 'tip';
+  const name = prof.display_name || prof.username || 'Friend';
+  return `<div class="feed-item${isTip?' feed-tip':''}>
     <div class="feed-avatar">${prof.avatar_emoji || '🌸'}</div>
-    <div class="feed-text"><strong>${prof.username || 'Friend'}</strong> ${actLabel(a)}<div class="feed-time">${timeAgo(a.created_at)}</div></div>
-    <button class="enc-btn" id="enc-${a.id}" onclick="sendEnc('${a.id}',this)">🌸 Cheer</button>
+    <div class="feed-text">
+      <strong>${name}</strong>${isTip?'':(' '+actLabel(a))}
+      ${isTip?`<div style="margin:4px 0 2px;font-size:13px;color:var(--ink);font-style:italic">"${(a.payload||{}).text||''}"</div>`:''}
+      <div class="feed-time">${timeAgo(a.created_at)}</div>
+    </div>
+    <div style="display:flex;gap:3px;flex-shrink:0;flex-wrap:wrap;justify-content:flex-end;max-width:90px">${reacts}</div>
   </div>`;
 }
 
-async function sendEnc(id, btn) {
+async function sendEnc(id, emoji, btn) {
   if (btn.classList.contains('sent')) return;
-  btn.classList.add('sent'); btn.textContent = '🌸 Sent!';
+  document.querySelectorAll(`.enc-btn[data-id="${id}"]`).forEach(b => b.classList.remove('sent'));
+  btn.classList.add('sent');
   const { data: act } = await SB.from('activity').select('encouragements').eq('id', id).single();
-  const encs = act?.encouragements || [];
-  encs.push({ from_id: USER.id, emoji: '🌸', at: new Date().toISOString() });
+  const encs = (act?.encouragements || []).filter(e => e.from_id !== USER.id);
+  encs.push({ from_id: USER.id, emoji: emoji || '🌸', at: new Date().toISOString() });
   await SB.from('activity').update({ encouragements: encs }).eq('id', id);
+  loadFriendsActivity(false);
 }
 
 async function loadFriendsList() {
   const el = document.getElementById('friends-list');
   if (!el || !USER) return;
-  const { data: r1 } = await SB.from('friends').select('friend_id,profiles!friends_friend_id_fkey(username,avatar_emoji,xp,streak)').eq('user_id', USER.id).eq('status', 'accepted');
-  const { data: r2 } = await SB.from('friends').select('user_id,profiles!friends_user_id_fkey(username,avatar_emoji,xp,streak)').eq('friend_id', USER.id).eq('status', 'accepted');
-  const all = [...(r1 || []).map(r => r.profiles), ...(r2 || []).map(r => r.profiles)].filter(Boolean);
-  el.innerHTML = all.length ? all.map(f =>
-    `<div class="friend-card"><div class="friend-av">${f.avatar_emoji || '🌸'}</div>
-     <div><div style="font-size:14px;font-weight:600">${f.username}</div><div style="font-size:11px;color:var(--ink3)">⚡ ${f.xp || 0} XP &nbsp;🔥 ${f.streak || 0}d streak</div></div></div>`
-  ).join('') : '<div style="padding:24px;color:var(--ink3)">No friends yet. Use Add Friend!</div>';
+  const [s, r] = await Promise.all([
+    SB.from('friends').select('friend_id').eq('user_id', USER.id).eq('status', 'accepted'),
+    SB.from('friends').select('user_id').eq('friend_id', USER.id).eq('status', 'accepted')
+  ]);
+  const ids = [...(s.data||[]).map(x=>x.friend_id), ...(r.data||[]).map(x=>x.user_id)].filter(Boolean);
+  if (!ids.length) { el.innerHTML = '<div style="padding:24px;color:var(--ink3)">No friends yet — use Add Friend to connect! 🌸</div>'; return; }
+  const { data: profs } = await SB.from('profiles').select('id,username,display_name,avatar_emoji').in('id', ids);
+  el.innerHTML = (profs||[]).map(f =>
+    `<div class="friend-card"><div class="friend-av">${f.avatar_emoji||'🌸'}</div>
+     <div><div style="font-size:14px;font-weight:600">${f.display_name||f.username}</div>`,
+     `<div style="font-size:11px;color:var(--ink3)">@${f.username}</div></div></div>`
+  ).join('');
 }
 
 async function loadFriendRequests() {
   const el = document.getElementById('fr-requests');
   if (!el || !USER) return;
-  const { data: reqs } = await SB.from('friends').select('id,profiles!friends_user_id_fkey(username,avatar_emoji)').eq('friend_id', USER.id).eq('status', 'pending');
-  el.innerHTML = (reqs || []).length ? reqs.map(r =>
-    `<div class="friend-card"><div class="friend-av">${r.profiles?.avatar_emoji || '🌸'}</div>
-     <div style="flex:1"><div style="font-size:14px;font-weight:600">${r.profiles?.username}</div><div style="font-size:11px;color:var(--ink3)">Wants to study with you!</div></div>
-     <button class="btn btn-primary btn-sm" onclick="acceptFriend('${r.id}')">Accept</button><button class="btn btn-secondary btn-sm" style="margin-left:6px" onclick="declineFriend('${r.id}')">Decline</button></div>`
-  ).join('') : '<div style="font-size:13px;color:var(--ink3)">No pending requests.</div>';
+  const { data: reqs } = await SB.from('friends').select('id,user_id').eq('friend_id', USER.id).eq('status', 'pending');
+  updateFriendBadge((reqs||[]).length);
+  if (!(reqs||[]).length) { el.innerHTML = '<div style="font-size:13px;color:var(--ink3)">No pending requests.</div>'; return; }
+  const senderIds = reqs.map(r => r.user_id);
+  const { data: profs } = await SB.from('profiles').select('id,username,display_name,avatar_emoji').in('id', senderIds);
+  const pm = {};
+  (profs||[]).forEach(p => pm[p.id] = p);
+  el.innerHTML = reqs.map(r => {
+    const p = pm[r.user_id] || {};
+    return `<div class="friend-card"><div class="friend-av">${p.avatar_emoji||'🌸'}</div>`,
+           `<div style="flex:1"><div style="font-size:14px;font-weight:600">${p.display_name||p.username||'Unknown'}</div>`,
+           `<div style="font-size:11px;color:var(--ink3)">wants to be friends 🌸</div></div>`,
+           `<div style="display:flex;gap:6px">`,
+           `<button class="btn btn-primary btn-sm" onclick="acceptFriend('${r.id}')">Accept</button>`,
+           `<button class="btn btn-secondary btn-sm" onclick="declineFriend('${r.id}')">Decline</button>`,
+           `</div></div>`;
+  }).join('');
 }
 
 async function acceptFriend(id) {
@@ -2716,10 +2752,27 @@ function setupRealtime() {
   if (RT_CHANNEL) { SB.removeChannel(RT_CHANNEL); RT_CHANNEL = null; }
   RT_CHANNEL = SB.channel('lwm-activity')
     .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'activity' }, () => {
-      const onHome    = document.getElementById('page-home')?.classList.contains('active');
+      const onHome = document.getElementById('page-home')?.classList.contains('active');
       const onFriends = document.getElementById('page-friends')?.classList.contains('active');
       if (onHome || onFriends) loadFriendsActivity(onHome && !onFriends);
-    }).subscribe();
+    })
+    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'friends' }, payload => {
+      if (payload.new?.friend_id === USER?.id) checkFriendRequests();
+    })
+    .subscribe();
+}
+
+async function checkFriendRequests() {
+  if (!USER) return;
+  const { data } = await SB.from('friends').select('id').eq('friend_id', USER.id).eq('status', 'pending');
+  updateFriendBadge((data || []).length);
+}
+
+function updateFriendBadge(n) {
+  const b = document.getElementById('fr-badge');
+  if (!b) return;
+  if (n > 0) { b.textContent = n > 9 ? '9+' : n; b.classList.remove('hidden'); }
+  else { b.classList.add('hidden'); }
 }
 
 // ═══════════════════════════════════════════
