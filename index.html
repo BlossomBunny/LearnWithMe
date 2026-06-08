@@ -1888,6 +1888,7 @@ function initVocabFC() {
   document.getElementById('fc-back').classList.add('hidden');
   if (newWords.length > 0) {
     lcMode = true;
+  window._lcWrong = {};
     lcNewQueue = newWords.map(({v, i}) => ({...v, idx: i}));
     lcNewIdx = 0;
     showLearnCard(lcNewQueue[0]);
@@ -1898,6 +1899,7 @@ function initVocabFC() {
   lcMode = false;
   fcQueue = dueWords.map(({ v, i }) => ({ ...v, idx: i }));
   fcIdx = 0; fcRevealed = false;
+  document.querySelector('.fc-wrap').classList.remove('hidden');
   document.getElementById('flashcard').style.display = 'flex';
   document.getElementById('fc-learn-card').classList.add('hidden');
   document.getElementById('fc-learn-check').classList.add('hidden');
@@ -1964,33 +1966,48 @@ function checkLearnAnswer(btn, correct, selected) {
   document.querySelectorAll('.lc-opt').forEach(b => b.disabled = true);
   if (selected === correct) {
     btn.classList.add('lc-ok');
+    showBubble('fc-bubble','fc-bubble-portrait','fc-bubble-speech', charSay('correct'), 'correct');
     fb.textContent = '\u2705 Correct!';
     fb.style.color = '#22c55e';
     if (lcCurrentWord && !VOCAB_P[lcCurrentWord.idx]) {
-      VOCAB_P[lcCurrentWord.idx] = { correct: 0, wrong: 0, ease: 2.5, interval_ms: 0, next_review: Date.now() };
-      if (USER) { const _ev = VOCAB_P[lcCurrentWord.idx]; dbSave(SB.from('progress_vocab').upsert({ user_id: USER.id, vocab_index: lcCurrentWord.idx, correct: 0, wrong: 0, ease: 2.5, interval_ms: 0, next_review: new Date(_ev.next_review).toISOString(), updated_at: new Date().toISOString() }, { onConflict: 'user_id,vocab_index' })); }
+      VOCAB_P[lcCurrentWord.idx] = { correct: 1, wrong: (window._lcWrong && window._lcWrong[lcCurrentWord.idx]) || 0, ease: 2.5, interval_ms: 0, next_review: Date.now() };
+      if (USER) { const _ev = VOCAB_P[lcCurrentWord.idx]; dbSave(SB.from('progress_vocab').upsert({ user_id: USER.id, vocab_index: lcCurrentWord.idx, correct: 1, wrong: (window._lcWrong && window._lcWrong[lcCurrentWord.idx]) || 0, ease: 2.5, interval_ms: 0, next_review: new Date(_ev.next_review).toISOString(), updated_at: new Date().toISOString() }, { onConflict: 'user_id,vocab_index' })); }
     }
     setTimeout(() => {
       lcNewIdx++;
       if (lcNewIdx < lcNewQueue.length) { startLearnCheck(); }
-      else {
-        lcMode = false;
-        const notice = document.getElementById('lc-notice');
-        if (notice) notice.textContent = '\uD83C\uDF89 All ' + lcNewQueue.length + ' words learned! Now reviewing with flashcards\u2026';
-        document.getElementById('fc-learn-card').classList.add('hidden');
-        document.getElementById('fc-learn-check').classList.add('hidden');
-        initVocabFC();
-      }
+      else { showLearnComplete(); }
     }, 800);
   } else {
     btn.classList.add('lc-no');
+    showBubble('fc-bubble','fc-bubble-portrait','fc-bubble-speech', charSay('wrong'), 'wrong');
+    window._lcWrong = window._lcWrong || {};
+    if (lcCurrentWord) window._lcWrong[lcCurrentWord.idx] = (window._lcWrong[lcCurrentWord.idx]||0) + 1;
     document.querySelectorAll('.lc-opt').forEach(b => { if (b.textContent === correct) b.classList.add('lc-ok'); });
-    fb.textContent = '\u274C ' + correct;
+    fb.textContent = '❌ ' + correct;
     fb.style.color = '#ef4444';
     const missed = lcNewQueue.splice(lcNewIdx, 1)[0];
     lcNewQueue.push(missed);
     setTimeout(startLearnCheck, 1400);
   }
+}
+
+function showLearnComplete() {
+  lcMode = false;
+  document.getElementById('fc-learn-card').classList.add('hidden');
+  document.getElementById('fc-learn-check').classList.add('hidden');
+  document.querySelector('.fc-wrap').classList.add('hidden');
+  const done = document.getElementById('fc-done');
+  done.classList.remove('hidden');
+  const n = lcNewQueue.length;
+  done.innerHTML = '<div style="font-size:36px;margin-bottom:12px">🎉</div><div style="font-size:18px;font-weight:700;margin-bottom:8px">All ' + n + ' words learned!</div><div style="font-size:13px;color:var(--ink3);margin-bottom:20px">Ready to test yourself?</div><button class="btn btn-primary" style="margin-bottom:10px;width:100%" onclick="startVocabReview()">Review with flashcards →</button><br><button class="btn btn-ghost btn-sm" onclick="backToVocabMenu()">← Back to categories</button>';
+  showBubble('fc-bubble','fc-bubble-portrait','fc-bubble-speech', charSay('quizGood'), 'correct');
+}
+
+function startVocabReview() {
+  document.getElementById('fc-done').classList.add('hidden');
+  document.querySelector('.fc-wrap').classList.remove('hidden');
+  initVocabFC();
 }
 
 
