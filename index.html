@@ -1793,7 +1793,12 @@ function showLearnCard(card) {
   }
   document.getElementById('fc-learn-card').classList.remove('hidden');
   document.getElementById('fc-learn-check').classList.add('hidden');
-  document.querySelector('.fc-wrap') && document.querySelector('.fc-wrap').classList.add('hidden');
+  const _w = document.querySelector('.fc-wrap');
+  if (_w) {
+    _w.classList.remove('hidden');
+    ['flashcard','fc-hint','fc-back'].forEach(function(id){const el=document.getElementById(id);if(el)el.style.display='none';});
+    const _pr = _w.querySelector('.fc-progress-row'); if(_pr) _pr.style.display='none';
+  }
 }
 
 function getDueVocab() {
@@ -1996,7 +2001,8 @@ function showLearnComplete() {
   lcMode = false;
   document.getElementById('fc-learn-card').classList.add('hidden');
   document.getElementById('fc-learn-check').classList.add('hidden');
-  document.querySelector('.fc-wrap').classList.add('hidden');
+  const _n = document.getElementById('lc-notice'); if(_n) _n.style.display='none';
+  document.getElementById('flashcard').style.display = 'none';
   const done = document.getElementById('fc-done');
   done.classList.remove('hidden');
   const n = lcNewQueue.length;
