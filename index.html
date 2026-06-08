@@ -1947,7 +1947,7 @@ function startLearnCheck() {
   window._lcOpts = opts; window._lcCorrect = correct;
 
   document.getElementById('lcc-opts').innerHTML = opts.map((o, idx) =>
-    '<button class="lc-opt" onclick="checkLearnAnswer(this,' + JSON.stringify(correct) + ',' + JSON.stringify(o) + ')">' + o + '</button>'
+    '<button class="lc-opt" onclick="lcPickOpt(' + idx + ')">' + o + '</button>'
   ).join('');
   document.getElementById('lcc-fb').textContent = '';
   document.getElementById('fc-learn-card').classList.add('hidden');
@@ -1968,6 +1968,7 @@ function checkLearnAnswer(btn, correct, selected) {
     fb.style.color = '#22c55e';
     if (lcCurrentWord && !VOCAB_P[lcCurrentWord.idx]) {
       VOCAB_P[lcCurrentWord.idx] = { correct: 0, wrong: 0, ease: 2.5, interval_ms: 0, next_review: Date.now() };
+      if (USER) { const _ev = VOCAB_P[lcCurrentWord.idx]; dbSave(SB.from('progress_vocab').upsert({ user_id: USER.id, vocab_index: lcCurrentWord.idx, correct: 0, wrong: 0, ease: 2.5, interval_ms: 0, next_review: new Date(_ev.next_review).toISOString(), updated_at: new Date().toISOString() }, { onConflict: 'user_id,vocab_index' })); }
     }
     setTimeout(() => {
       lcNewIdx++;
