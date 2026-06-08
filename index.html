@@ -2577,10 +2577,10 @@ function feedItem(a) {
     (p.reading ? `<div style="font-size:11px;color:var(--ink3)">${p.reading}</div>` : '') +
     `<div style="font-size:13px;font-weight:500;margin-top:2px">${p.meaning||''}</div></div>`;
   if (a.type === 'studying') extra = `<button class="btn btn-secondary btn-sm" style="margin-top:6px;font-size:11px" onclick="setPage('vocab')">Join them →</button>`;
-  return `<div class="feed-item">`,
-    `<div class="feed-avatar">${prof.avatar_emoji||'🌸'}</div>`,
-    `<div class="feed-text" style="flex:1"><strong>${name}</strong> ${actLabel(a)}${extra}<div class="feed-time">${timeAgo(a.created_at)}</div></div>`,
-    `<div style="display:flex;gap:3px;flex-shrink:0;flex-wrap:wrap;justify-content:flex-end;max-width:90px;align-self:flex-start">${reacts}</div>`,
+  return `<div class="feed-item">` +
+    `<div class="feed-avatar">${prof.avatar_emoji||'🌸'}</div>` +
+    `<div class="feed-text" style="flex:1"><strong>${name}</strong> ${actLabel(a)}${extra}<div class="feed-time">${timeAgo(a.created_at)}</div></div>` +
+    `<div style="display:flex;gap:3px;flex-shrink:0;flex-wrap:wrap;justify-content:flex-end;max-width:90px;align-self:flex-start">${reacts}</div>` +
     `</div>`;
 }
 
@@ -2606,9 +2606,10 @@ async function loadFriendsList() {
   if (!ids.length) { el.innerHTML = '<div style="padding:24px;color:var(--ink3)">No friends yet — use Add Friend to connect! 🌸</div>'; return; }
   const { data: profs } = await SB.from('profiles').select('id,username,display_name,avatar_emoji').in('id', ids);
   el.innerHTML = (profs||[]).map(f =>
-    `<div class="friend-card"><div class="friend-av">${f.avatar_emoji||'🌸'}</div>
-     <div><div style="font-size:14px;font-weight:600">${f.display_name||f.username}</div>`,
-     `<div style="font-size:11px;color:var(--ink3)">@${f.username}</div></div></div>`
+    `<div class="friend-card"><div class="friend-av">${f.avatar_emoji||'🌸'}</div>` +
+    `<div><div style="font-size:14px;font-weight:600">${f.display_name||f.username}</div>` +
+    `<div style="font-size:11px;color:var(--ink3)">@${f.username}</div></div></div>`
+  ).join('');
   ).join('');
 }
 
@@ -2624,12 +2625,12 @@ async function loadFriendRequests() {
   (profs||[]).forEach(p => pm[p.id] = p);
   el.innerHTML = reqs.map(r => {
     const p = pm[r.user_id] || {};
-    return `<div class="friend-card"><div class="friend-av">${p.avatar_emoji||'🌸'}</div>`,
-           `<div style="flex:1"><div style="font-size:14px;font-weight:600">${p.display_name||p.username||'Unknown'}</div>`,
-           `<div style="font-size:11px;color:var(--ink3)">wants to be friends 🌸</div></div>`,
-           `<div style="display:flex;gap:6px">`,
-           `<button class="btn btn-primary btn-sm" onclick="acceptFriend('${r.id}')">Accept</button>`,
-           `<button class="btn btn-secondary btn-sm" onclick="declineFriend('${r.id}')">Decline</button>`,
+    return `<div class="friend-card"><div class="friend-av">${p.avatar_emoji||'🌸'}</div>` +
+           `<div style="flex:1"><div style="font-size:14px;font-weight:600">${p.display_name||p.username||'Unknown'}</div>` +
+           `<div style="font-size:11px;color:var(--ink3)">wants to be friends 🌸</div></div>` +
+           `<div style="display:flex;gap:6px">` +
+           `<button class="btn btn-primary btn-sm" onclick="acceptFriend('${r.id}')">Accept</button>` +
+           `<button class="btn btn-secondary btn-sm" onclick="declineFriend('${r.id}')">Decline</button>` +
            `</div></div>`;
   }).join('');
 }
@@ -2662,9 +2663,9 @@ function renderSettings() {
   if (el) {
     el.innerHTML = Object.values(CHARS).map(c => {
       const active = c.id === ACTIVE_CHAR;
-      return `<div class="char-select-card ${active ? 'active' : ''}" onclick="selectChar('${c.id}')">`,
-        `<div class="char-portrait" id="sp-${c.id}"></div>`,
-        `<div class="char-name-label">${c.name}</div>`,
+      return `<div class="char-select-card ${active ? 'active' : ''}" onclick="selectChar('${c.id}')">` +
+        `<div class="char-portrait" id="sp-${c.id}"></div>` +
+        `<div class="char-name-label">${c.name}</div>` +
         `<div class="char-style-label">${active ? '✓ Active' : c.emoji}</div></div>`;
     }).join('');
     Object.values(CHARS).forEach(c => renderPortrait(document.getElementById('sp-' + c.id), c.id));
