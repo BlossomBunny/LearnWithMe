@@ -1916,23 +1916,6 @@ function initVocabFC() {
   }
 }
 
-function showLearnCard(card) {
-  lcCurrentWord = card;
-  document.getElementById('lc-word').textContent = card.j || '';
-  document.getElementById('lc-romaji').textContent = card.r || '';
-  const wt = WORD_TYPES[card.c] || WORD_TYPES.noun;
-  document.getElementById('lc-type').innerHTML = '<span class="fc-type-tag ' + wt.cls + '">' + wt.label + '</span>';
-  document.getElementById('lc-meaning').textContent = card.e || '';
-  document.getElementById('lc-example').textContent = card.x || '';
-  const notice = document.getElementById('lc-notice');
-  if (notice) { notice.textContent = '\u2728 Word ' + (lcNewIdx + 1) + ' of ' + lcNewQueue.length + ' — study it, then tap next'; notice.style.display = 'block'; }
-  const btn = document.getElementById('lc-next-btn');
-  if (btn) btn.textContent = lcNewIdx < lcNewQueue.length - 1 ? 'Got it, next word \u2192' : 'Done studying — quiz me! \u2192';
-  document.getElementById('fc-learn-card').classList.remove('hidden');
-  document.getElementById('fc-learn-check').classList.add('hidden');
-  document.querySelector('.fc-wrap').classList.add('hidden');
-}
-
 function nextLearnWord() {
   lcNewIdx++;
   if (lcNewIdx < lcNewQueue.length) { showLearnCard(lcNewQueue[lcNewIdx]); }
@@ -1944,7 +1927,7 @@ function startLearnCheck() {
   const card = lcNewQueue[lcNewIdx];
   lcCurrentWord = card;
   const correct = card.e || '';
-  const pool = VOCAB.filter(v => v.e && v.j !== card.j && v.e !== correct && v.c !== card.c);
+  const pool = VOCAB.filter(v => v.e && v.j !== card.j && v.e !== correct && v.c === card.c);
   const fallback = VOCAB.filter(v => v.e && v.j !== card.j && v.e !== correct);
   const src = (pool.length >= 3 ? pool : fallback).slice().sort(() => Math.random() - 0.5);
   const opts = [correct, ...src.slice(0,3).map(v => v.e)].sort(() => Math.random() - 0.5);
