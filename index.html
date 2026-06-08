@@ -307,6 +307,36 @@ body{font-family:var(--ff);background:var(--bg);color:var(--ink);min-height:100v
   .grid-3{grid-template-columns:1fr 1fr}
   .char-select-grid{grid-template-columns:repeat(3,1fr)}
 }
+
+/* ── VOCAB LEARN MODE ── */
+.learn-card{background:var(--card);border:1.5px solid var(--plum2);border-radius:var(--r2);padding:26px 22px;text-align:center;box-shadow:var(--shadow);width:100%}
+.learn-badge{display:inline-block;background:var(--plum3);color:var(--plum);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;padding:3px 10px;border-radius:20px;margin-bottom:14px}
+.learn-word{font-family:var(--ffj);font-size:44px;color:var(--ink);margin-bottom:6px;line-height:1.2}
+.learn-romaji{font-size:17px;color:var(--plum);font-weight:500;margin-bottom:5px}
+.learn-type-badge{display:inline-block;background:var(--gold3);color:var(--gold);font-size:10px;font-weight:600;padding:2px 9px;border-radius:20px;margin-bottom:13px}
+.learn-meaning{font-size:21px;font-weight:600;color:var(--ink);margin-bottom:11px}
+.learn-example{font-family:var(--ffj);font-size:13px;color:var(--ink2);background:var(--surface);border-radius:var(--r);padding:11px 14px;margin-bottom:14px;line-height:1.65;text-align:left}
+.learn-actions{display:flex;flex-direction:column;align-items:center;gap:9px}
+.btn-speak{background:none;border:1.5px solid var(--border2);border-radius:var(--r);padding:7px 16px;font-size:12.5px;cursor:pointer;color:var(--ink2);display:inline-flex;align-items:center;gap:6px;font-family:var(--ff);transition:all .13s}
+.btn-speak:hover{border-color:var(--plum);color:var(--plum);background:var(--plum3)}
+.lc-check{background:var(--card);border:1.5px solid var(--border);border-radius:var(--r2);padding:22px 18px;width:100%;text-align:center}
+.lc-check-q{font-size:13px;color:var(--ink2);margin-bottom:6px}
+.lc-check-word{font-family:var(--ffj);font-size:30px;color:var(--ink);display:block;margin-bottom:16px;font-weight:500}
+.lc-opts{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
+.lc-opt{padding:10px 12px;border:1.5px solid var(--border2);border-radius:var(--r);background:var(--card);cursor:pointer;font-size:13px;font-family:var(--ff);color:var(--ink);text-align:center;transition:all .13s;line-height:1.3}
+.lc-opt:hover:not(:disabled){border-color:var(--plum);background:var(--plum3)}
+.lc-opt.lc-ok{border-color:#22c55e!important;background:#f0fdf4!important;color:#15803d!important;font-weight:600}
+.lc-opt.lc-no{border-color:#ef4444!important;background:#fef2f2!important;color:#b91c1c!important}
+.lc-fb{font-size:12px;padding:8px 11px;border-radius:var(--r);display:none;margin-bottom:8px}
+.lc-fb.ok{background:#f0fdf4;color:#15803d;border:1px solid #bbf7d0;display:block}
+.lc-fb.err{background:#fef2f2;color:#b91c1c;border:1px solid #fecaca;display:block}
+.lc-session-notice{background:var(--plum3);border:1px solid var(--plum2);border-radius:var(--r);padding:10px 14px;font-size:12.5px;color:var(--plum);line-height:1.55;margin-bottom:13px;display:none}
+.fc-type-tag{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;padding:2px 8px;border-radius:20px;display:inline-block;margin-top:4px}
+.fc-type-verb{background:#fee2e2;color:#b91c1c}
+.fc-type-noun{background:#dbeafe;color:#1d4ed8}
+.fc-type-adj{background:#dcfce7;color:#15803d}
+.fc-type-greeting{background:#fce7f3;color:#9333ea}
+.fc-type-other{background:var(--gold3);color:var(--gold)}
 </style>
 </head>
 <body>
@@ -534,6 +564,36 @@ body{font-family:var(--ff);background:var(--bg);color:var(--ink);min-height:100v
           </div>
           <div id="fc-cat-info" style="font-size:11.5px;color:var(--ink3);margin-top:8px"></div>
         </div>
+        
+        <!-- Learn session notice -->
+        <div id="lc-notice" class="lc-session-notice"></div>
+
+        <!-- Learn card (new words) -->
+        <div id="fc-learn-card" class="hidden" style="width:100%;display:flex;flex-direction:column;align-items:center;gap:0">
+          <div class="learn-card">
+            <div class="learn-badge">✨ New Word</div>
+            <div class="learn-word" id="lc-word"></div>
+            <div class="learn-romaji" id="lc-romaji"></div>
+            <div class="learn-type-badge" id="lc-type"></div>
+            <div class="learn-meaning" id="lc-meaning"></div>
+            <div class="learn-example" id="lc-example"></div>
+            <div class="learn-actions">
+              <button class="btn-speak" onclick="speakJP('lc-word')">🔊 Hear it in Japanese</button>
+              <button class="btn btn-primary" style="width:100%" onclick="startLearnCheck()">Quiz me on this word →</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Learn spot check -->
+        <div id="fc-learn-check" class="hidden" style="width:100%;display:flex;flex-direction:column;align-items:center">
+          <div class="lc-check">
+            <div class="lc-check-q">What does this mean?</div>
+            <span class="lc-check-word" id="lcc-word"></span>
+            <div class="lc-opts" id="lcc-opts"></div>
+            <div class="lc-fb" id="lcc-fb"></div>
+          </div>
+        </div>
+
         <div class="fc-wrap">
           <!-- How it works hint -->
           <div id="fc-hint" style="width:100%;background:var(--plum3);border:1px solid var(--plum2);border-radius:var(--r);padding:11px 14px;font-size:12.5px;color:var(--plum);line-height:1.6;display:flex;gap:10px;align-items:flex-start">
@@ -549,12 +609,14 @@ body{font-family:var(--ff);background:var(--bg);color:var(--ink);min-height:100v
             <div class="card-badge" id="fc-badge">NEW</div>
             <div class="card-main" id="fc-front">—</div>
             <div style="font-size:11px;color:var(--ink3)" id="fc-cat"></div>
+            <div id="fc-type-tag" style="margin-top:5px"></div>
             <div style="font-size:12px;color:var(--ink3);margin-top:14px;display:flex;align-items:center;gap:5px;opacity:.7">
               <span>👆</span> tap to reveal
             </div>
           </div>
           <div id="fc-back" class="hidden" style="width:100%;display:flex;flex-direction:column;align-items:center;gap:14px">
             <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--r2);padding:20px 24px;width:100%;text-align:center;box-shadow:var(--shadow)">
+              <button class="btn-speak" style="margin-bottom:10px" onclick="speakJP('fc-reading')">🔊 Hear it</button>
               <div class="card-reading" id="fc-reading"></div>
               <div class="card-meaning" id="fc-meaning"></div>
               <div class="card-example" id="fc-ex"></div>
@@ -1644,6 +1706,109 @@ function checkKQ(el, chosen) {
 // ═══════════════════════════════════════════
 let fcQueue = [], fcIdx = 0, fcRevealed = false, fcSessionCorrect = 0;
 let fcActiveCat = ''; // '' = all categories
+let lcMode = false, lcNewQueue = [], lcNewIdx = 0, lcCurrentWord = null;
+
+const WORD_TYPES = {
+  greeting: {label:'Expression', cls:'fc-type-greeting'},
+  verb:     {label:'Verb',       cls:'fc-type-verb'},
+  noun:     {label:'Noun',       cls:'fc-type-noun'},
+  adj:      {label:'Adjective',  cls:'fc-type-adj'},
+  other:    {label:'Other',      cls:'fc-type-other'}
+};
+
+function speakJP(elId) {
+  const el = document.getElementById(elId);
+  if (!el || !window.speechSynthesis) return;
+  const text = el.textContent.trim();
+  if (!text) return;
+  window.speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang = 'ja-JP';
+  u.rate = 0.85;
+  window.speechSynthesis.speak(u);
+}
+
+function showLearnCard(card) {
+  lcCurrentWord = card;
+  document.getElementById('lc-word').textContent = card.j || card.front || '';
+  document.getElementById('lc-romaji').textContent = card.r || '';
+  const wt = WORD_TYPES[card.c] || WORD_TYPES.noun;
+  document.getElementById('lc-type').innerHTML = '<span class="fc-type-tag ' + wt.cls + '">' + wt.label + '</span>';
+  document.getElementById('lc-meaning').textContent = card.e || card.back || '';
+  document.getElementById('lc-example').textContent = card.ex || '';
+  // progress bar
+  const bar = document.getElementById('lc-prog');
+  if (bar) bar.style.width = Math.round((lcNewIdx / lcNewQueue.length) * 100) + '%';
+  const notice = document.getElementById('lc-notice');
+  if (notice) {
+    const remaining = lcNewQueue.length - lcNewIdx;
+    notice.textContent = '✨ Learn mode: ' + remaining + ' new word' + (remaining !== 1 ? 's' : '') + ' to go!';
+    notice.style.display = 'block';
+  }
+  document.getElementById('fc-learn-card').classList.remove('hidden');
+  document.getElementById('fc-learn-check').classList.add('hidden');
+  document.querySelector('.fc-wrap') && document.querySelector('.fc-wrap').classList.add('hidden');
+}
+
+function startLearnCheck() {
+  if (!lcCurrentWord) return;
+  const correct = lcCurrentWord.e || lcCurrentWord.back || '';
+  const correctJ = lcCurrentWord.j || lcCurrentWord.front || '';
+  // build 3 wrong distractors from vocab list
+  const allWords = (window.VOCAB || []).filter(v => (v.e || v.back) && (v.j || v.front) !== correctJ);
+  const shuffled = allWords.sort(() => Math.random() - 0.5).slice(0, 3);
+  const opts = [correct, ...shuffled.map(v => v.e || v.back)].sort(() => Math.random() - 0.5);
+  document.getElementById('lcc-word').textContent = correctJ;
+  const optsEl = document.getElementById('lcc-opts');
+  optsEl.innerHTML = opts.map(o =>
+    '<button class="lc-opt" onclick="checkLearnAnswer(this, ' + JSON.stringify(correct) + ', ' + JSON.stringify(o) + ')">' + o + '</button>'
+  ).join('');
+  document.getElementById('lcc-fb').textContent = '';
+  document.getElementById('fc-learn-card').classList.add('hidden');
+  document.getElementById('fc-learn-check').classList.remove('hidden');
+}
+
+function checkLearnAnswer(btn, correct, selected) {
+  const fb = document.getElementById('lcc-fb');
+  const opts = document.querySelectorAll('.lc-opt');
+  opts.forEach(b => b.disabled = true);
+  if (selected === correct) {
+    btn.classList.add('lc-ok');
+    fb.textContent = '✅ Correct! Great job!';
+    fb.style.color = '#22c55e';
+    // mark as seen so SRS picks it up
+    if (lcCurrentWord && window.VOCAB_P) {
+      const key = lcCurrentWord.j || lcCurrentWord.front;
+      if (!window.VOCAB_P[key]) window.VOCAB_P[key] = {due: Date.now(), ease: 2.5, interval: 1};
+    }
+    setTimeout(() => {
+      lcNewIdx++;
+      if (lcNewIdx < lcNewQueue.length) {
+        showLearnCard(lcNewQueue[lcNewIdx]);
+      } else {
+        // done with learn batch — switch to SRS review
+        lcMode = false;
+        const notice = document.getElementById('lc-notice');
+        if (notice) { notice.textContent = '🎉 Learn session complete! Time to review!'; }
+        document.getElementById('fc-learn-card').classList.add('hidden');
+        document.getElementById('fc-learn-check').classList.add('hidden');
+        const wrap = document.querySelector('.fc-wrap');
+        if (wrap) wrap.classList.remove('hidden');
+        initVocabFC();
+      }
+    }, 900);
+  } else {
+    btn.classList.add('lc-no');
+    // highlight correct
+    opts.forEach(b => { if (b.textContent === correct) b.classList.add('lc-ok'); });
+    fb.textContent = '❌ Not quite — the answer is: ' + correct;
+    fb.style.color = '#ef4444';
+    setTimeout(() => {
+      // reset the check with same card
+      startLearnCheck();
+    }, 1400);
+  }
+}
 
 function getDueVocab() {
   const now = Date.now();
@@ -1682,7 +1847,28 @@ function initVocabFC() {
   hideBubble('fc-bubble');
   fcSessionCorrect = 0;
   const due = getDueVocab();
-  fcQueue = due.map(({ v, i }) => ({ ...v, idx: i }));
+  // Separate new words (never seen) from review words
+  const newWords = due.filter(({v}) => {
+    const key = v.j || v.front;
+    return !window.VOCAB_P || !window.VOCAB_P[key];
+  }).slice(0, 8);
+  const dueWords = due.filter(({v}) => {
+    const key = v.j || v.front;
+    return window.VOCAB_P && window.VOCAB_P[key];
+  });
+  if (newWords.length > 0) {
+    // Enter learn mode first
+    lcMode = true;
+    lcNewQueue = newWords.map(({v, i}) => ({...v, idx: i}));
+    lcNewIdx = 0;
+    showLearnCard(lcNewQueue[0]);
+    return;
+  }
+  // Standard SRS review
+  const notice = document.getElementById('lc-notice');
+  if (notice) notice.style.display = 'none';
+  lcMode = false;
+  fcQueue = dueWords.map(({ v, i }) => ({ ...v, idx: i }));
   fcIdx = 0; fcRevealed = false;
   document.getElementById('fc-done').classList.add('hidden');
   document.getElementById('fc-back').classList.add('hidden');
@@ -1718,6 +1904,9 @@ function updateFC() {
   fe.textContent = card.j;
   fe.className = 'card-main' + (card.j.length > 5 ? ' sm' : '');
   document.getElementById('fc-cat').textContent = '[' + card.c + ']';
+  const _wt = WORD_TYPES[card.c] || WORD_TYPES.noun;
+  const _ttag = document.getElementById('fc-type-tag');
+  if (_ttag) _ttag.innerHTML = '<span class="fc-type-tag ' + _wt.cls + '">' + _wt.label + '</span>';
   // Colour-coded SRS badge + card border
   const p = VOCAB_P[card.idx];
   let badgeLabel, badgeBg, badgeColor, cardBorder;
