@@ -1796,66 +1796,6 @@ function showLearnCard(card) {
   document.querySelector('.fc-wrap') && document.querySelector('.fc-wrap').classList.add('hidden');
 }
 
-function startLearnCheck() {
-  if (!lcCurrentWord) return;
-  const correct = lcCurrentWord.e || lcCurrentWord.back || '';
-  const correctJ = lcCurrentWord.j || lcCurrentWord.front || '';
-  // build 3 wrong distractors from vocab list
-  const allWords = (window.VOCAB || []).filter(v => (v.e || v.back) && (v.j || v.front) !== correctJ);
-  const shuffled = allWords.sort(() => Math.random() - 0.5).slice(0, 3);
-  const opts = [correct, ...shuffled.map(v => v.e || v.back)].sort(() => Math.random() - 0.5);
-  document.getElementById('lcc-word').textContent = correctJ;
-  const optsEl = document.getElementById('lcc-opts');
-  optsEl.innerHTML = opts.map(o =>
-    '<button class="lc-opt" onclick="checkLearnAnswer(this, ' + JSON.stringify(correct) + ', ' + JSON.stringify(o) + ')">' + o + '</button>'
-  ).join('');
-  document.getElementById('lcc-fb').textContent = '';
-  document.getElementById('fc-learn-card').classList.add('hidden');
-  document.getElementById('fc-learn-check').classList.remove('hidden');
-}
-
-function checkLearnAnswer(btn, correct, selected) {
-  const fb = document.getElementById('lcc-fb');
-  const opts = document.querySelectorAll('.lc-opt');
-  opts.forEach(b => b.disabled = true);
-  if (selected === correct) {
-    btn.classList.add('lc-ok');
-    fb.textContent = '✅ Correct! Great job!';
-    fb.style.color = '#22c55e';
-    // mark as seen so SRS picks it up
-    if (lcCurrentWord && window.VOCAB_P) {
-      const key = lcCurrentWord.j || lcCurrentWord.front;
-      if (!window.VOCAB_P[key]) window.VOCAB_P[key] = {due: Date.now(), ease: 2.5, interval: 1};
-    }
-    setTimeout(() => {
-      lcNewIdx++;
-      if (lcNewIdx < lcNewQueue.length) {
-        showLearnCard(lcNewQueue[lcNewIdx]);
-      } else {
-        // done with learn batch — switch to SRS review
-        lcMode = false;
-        const notice = document.getElementById('lc-notice');
-        if (notice) { notice.textContent = '🎉 Learn session complete! Time to review!'; }
-        document.getElementById('fc-learn-card').classList.add('hidden');
-        document.getElementById('fc-learn-check').classList.add('hidden');
-        const wrap = document.querySelector('.fc-wrap');
-        if (wrap) wrap.classList.remove('hidden');
-        initVocabFC();
-      }
-    }, 900);
-  } else {
-    btn.classList.add('lc-no');
-    // highlight correct
-    opts.forEach(b => { if (b.textContent === correct) b.classList.add('lc-ok'); });
-    fb.textContent = '❌ Not quite — the answer is: ' + correct;
-    fb.style.color = '#ef4444';
-    setTimeout(() => {
-      // reset the check with same card
-      startLearnCheck();
-    }, 1400);
-  }
-}
-
 function getDueVocab() {
   const now = Date.now();
   const all = VOCAB.map((v, i) => ({ v, i }))
@@ -2004,13 +1944,20 @@ function startLearnCheck() {
   const notice = document.getElementById('lc-notice');
   if (notice) notice.textContent = '\uD83E\uDDE0 Quiz — ' + (lcNewIdx + 1) + ' of ' + lcNewQueue.length;
   document.getElementById('lcc-word').textContent = card.j || '';
-  document.getElementById('lcc-opts').innerHTML = opts.map(o =>
+  window._lcOpts = opts; window._lcCorrect = correct;
+
+  document.getElementById('lcc-opts').innerHTML = opts.map((o, idx) =>
     '<button class="lc-opt" onclick="checkLearnAnswer(this,' + JSON.stringify(correct) + ',' + JSON.stringify(o) + ')">' + o + '</button>'
   ).join('');
   document.getElementById('lcc-fb').textContent = '';
   document.getElementById('fc-learn-card').classList.add('hidden');
   document.getElementById('fc-learn-check').classList.remove('hidden');
 }
+
+function lcPickOpt(idx) {
+  checkLearnAnswer(document.querySelectorAll('.lc-opt')[idx], window._lcCorrect, window._lcOpts[idx]);
+}
+
 
 function checkLearnAnswer(btn, correct, selected) {
   const fb = document.getElementById('lcc-fb');
