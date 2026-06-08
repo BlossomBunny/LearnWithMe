@@ -169,6 +169,24 @@ body{font-family:var(--ff);background:var(--bg);color:var(--ink);min-height:100v
 .gc-lvl{font-size:10px;font-weight:600;background:var(--gold3);color:var(--gold);padding:2px 7px;border-radius:20px}
 .gc-body{padding:0 20px 16px;border-top:1px solid var(--border);display:none}
 .gc-body.open{display:block}
+/* ── GRAMMAR PRACTICE EXERCISES ── */
+.gc-practice{margin-top:13px;border-top:1px dashed var(--border2);padding-top:12px}
+.gc-practice-lbl{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--plum);margin-bottom:11px;display:flex;align-items:center;gap:5px}
+.gc-xstep{display:none}
+.gc-xstep.active{display:block}
+.gc-xq{font-size:12.5px;font-weight:500;color:var(--ink);margin-bottom:9px;line-height:1.55;font-family:var(--ffj)}
+.gc-xopts{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:7px}
+.gc-xopt{padding:8px 11px;border:1.5px solid var(--border2);border-radius:var(--r);background:var(--card);cursor:pointer;font-size:12px;font-family:var(--ffj);color:var(--ink);text-align:center;transition:all .13s;line-height:1.35}
+.gc-xopt:hover:not(:disabled){border-color:var(--plum);background:var(--plum3)}
+.gc-xopt.gx-ok{border-color:#22c55e!important;background:#f0fdf4!important;color:#15803d!important;font-weight:600}
+.gc-xopt.gx-no{border-color:#ef4444!important;background:#fef2f2!important;color:#b91c1c!important}
+.gc-xopt:disabled{cursor:default}
+.gc-xfb{font-size:11.5px;padding:8px 11px;border-radius:var(--r);line-height:1.5;margin-bottom:6px;display:none}
+.gc-xfb.ok{background:#f0fdf4;color:#15803d;border:1px solid #bbf7d0;display:block}
+.gc-xfb.err{background:#fef2f2;color:#b91c1c;border:1px solid #fecaca;display:block}
+.gc-done-badge{display:none;background:var(--plum3);border:1px solid var(--plum);border-radius:var(--r);padding:9px 13px;text-align:center;font-size:12px;font-weight:600;color:var(--plum);margin-top:8px}
+.gc-prog{font-size:10.5px;color:var(--ink3);margin-bottom:9px}
+
 .gc-rule{font-size:13px;color:var(--ink2);line-height:1.7;margin:12px 0 10px}
 .gc-ex{background:var(--surface);border-radius:var(--r);padding:11px 13px;border-left:3px solid var(--plum);margin-bottom:7px}
 .gc-ex-jp{font-family:var(--ffj);font-size:14px;color:var(--ink);margin-bottom:2px}
@@ -1021,39 +1039,39 @@ const VOCAB=[
 
 const GRAMMAR=[
   // CORE SENTENCE STRUCTURE
-  {p:'〜は〜です',e:'[Topic] is [noun]',l:'N5',rule:'は (wa) marks the topic. です (desu) is "is/am/are". This is the most fundamental sentence pattern in Japanese.',ex:[{j:'わたしはがくせいです。',r:'Watashi wa gakusei desu.',e:'I am a student.'},{j:'これはほんです。',r:'Kore wa hon desu.',e:'This is a book.'}]},
-  {p:'〜は〜じゃないです',e:'[Topic] is not [noun]',l:'N5',rule:'じゃないです (ja nai desu) is the casual negative. More formal: ではありません (de wa arimasen).',ex:[{j:'わたしはせんせいじゃないです。',r:'Watashi wa sensei ja nai desu.',e:'I am not a teacher.'},{j:'これはほんじゃないです。',r:'Kore wa hon ja nai desu.',e:'This is not a book.'}]},
-  {p:'〜は〜でした',e:'[Topic] was [noun]',l:'N5',rule:'でした (deshita) is the past tense of です. Used for past states.',ex:[{j:'きのうはやすみでした。',r:'Kinou wa yasumi deshita.',e:'Yesterday was a holiday.'},{j:'むかしはがくせいでした。',r:'Mukashi wa gakusei deshita.',e:'I was a student in the past.'}]},
-  {p:'〜ですか',e:'Is it ~? / Are you ~?',l:'N5',rule:'Add か (ka) at the end of any sentence to turn it into a yes/no question. Voice rises at the end.',ex:[{j:'たなかさんですか？',r:'Tanaka-san desu ka?',e:'Are you Mr. Tanaka?'},{j:'にほんごがすきですか？',r:'Nihongo ga suki desu ka?',e:'Do you like Japanese?'}]},
+  {p:'〜は〜です',e:'[Topic] is [noun]',l:'N5',rule:'は (wa) marks the topic. です (desu) is "is/am/are". This is the most fundamental sentence pattern in Japanese.',ex:[{j:'わたしはがくせいです。',r:'Watashi wa gakusei desu.',e:'I am a student.'},{j:'これはほんです。',r:'Kore wa hon desu.',e:'This is a book.'}],exercises:[{q:'Fill the blank: わたし ___ がくせいです。',opts:['は','が','を','で'],ans:0,explain:"は (wa) marks the topic — the thing you're talking about."},{q:'How do you say "This is a book"?',opts:['これはほんです。','これがほんです。','ほんはこれです。','これをほんです。'],ans:0,explain:'これ(this) は(topic) ほん(book) です(is) — topic → は → noun → です.'}]},
+  {p:'〜は〜じゃないです',e:'[Topic] is not [noun]',l:'N5',rule:'じゃないです (ja nai desu) is the casual negative. More formal: ではありません (de wa arimasen).',ex:[{j:'わたしはせんせいじゃないです。',r:'Watashi wa sensei ja nai desu.',e:'I am not a teacher.'},{j:'これはほんじゃないです。',r:'Kore wa hon ja nai desu.',e:'This is not a book.'}],exercises:[{q:'Which ending makes a negative?',opts:['じゃないです','ではありますか','もないです','がないです'],ans:0,explain:'じゃないです = is not (casual). More formal: ではありません.'},{q:'What does これはねこじゃないです mean?',opts:['This is not a cat.','This is a cat.','Where is the cat?','I like cats.'],ans:0,explain:'じゃないです flips です to "is not" — so ねこじゃないです = not a cat.'}]},
+  {p:'〜は〜でした',e:'[Topic] was [noun]',l:'N5',rule:'でした (deshita) is the past tense of です. Used for past states.',ex:[{j:'きのうはやすみでした。',r:'Kinou wa yasumi deshita.',e:'Yesterday was a holiday.'},{j:'むかしはがくせいでした。',r:'Mukashi wa gakusei deshita.',e:'I was a student in the past.'}],exercises:[{q:'でした is the ___ tense of です.',opts:['past','present','future','negative'],ans:0,explain:'でした = was/were — the past form of です (is/am/are).'},{q:"How do you say 'Yesterday was a holiday'?",opts:['きのうはやすみでした。','きのうはやすみです。','きのうがやすみでした。','きのうをやすみでした。'],ans:0,explain:'きのう(yesterday) は(topic) やすみ(holiday) でした(was).'}]},
+  {p:'〜ですか',e:'Is it ~? / Are you ~?',l:'N5',rule:'Add か (ka) at the end of any sentence to turn it into a yes/no question. Voice rises at the end.',ex:[{j:'たなかさんですか？',r:'Tanaka-san desu ka?',e:'Are you Mr. Tanaka?'},{j:'にほんごがすきですか？',r:'Nihongo ga suki desu ka?',e:'Do you like Japanese?'}],exercises:[{q:'How do you turn a statement into a yes/no question?',opts:['Add か at the end','Add は at the start','Change です to ですが','Add ね at the end'],ans:0,explain:'Just add か after です — no question mark needed in Japanese!'},{q:'Which sentence is a question?',opts:['にほんごがすきですか？','にほんごがすきです。','にほんごがすきですね。','にほんごがすきですよ。'],ans:0,explain:'か at the end = yes/no question. ね = seeking agreement. よ = informing.'}]},
   // PARTICLES
-  {p:'〜が〜',e:'Subject marker が',l:'N5',rule:'が marks the grammatical subject, especially with verbs of existence, ability, and desire.',ex:[{j:'あそこにねこがいます。',r:'Asoko ni neko ga imasu.',e:'There is a cat over there.'},{j:'にほんごがわかります。',r:'Nihongo ga wakarimasu.',e:'I understand Japanese.'}]},
-  {p:'〜を〜',e:'Object marker を',l:'N5',rule:'を (wo) marks the direct object — the thing being acted on.',ex:[{j:'ほんをよみます。',r:'Hon wo yomimasu.',e:'I read a book.'},{j:'みずをのみます。',r:'Mizu wo nomimasu.',e:'I drink water.'}]},
-  {p:'〜に〜',e:'Direction / time marker に',l:'N5',rule:'に marks: (1) destination of movement, (2) specific time, (3) location of existence.',ex:[{j:'がっこうにいきます。',r:'Gakkou ni ikimasu.',e:'I go to school.'},{j:'くじにおきます。',r:'Ku-ji ni okimasu.',e:'I wake up at 9.'}]},
-  {p:'〜で〜',e:'Location / means marker で',l:'N5',rule:'で marks: (1) where an action takes place, (2) the means or tool used for an action.',ex:[{j:'としょかんでべんきょうします。',r:'Toshokan de benkyou shimasu.',e:'I study at the library.'},{j:'バスでいきます。',r:'Basu de ikimasu.',e:'I go by bus.'}]},
-  {p:'〜の〜',e:'Possession / belonging の',l:'N5',rule:'の connects two nouns. The first noun modifies the second: A の B = B of A / A no B.',ex:[{j:'わたしのほんです。',r:'Watashi no hon desu.',e:'It is my book.'},{j:'にほんごのせんせい。',r:'Nihongo no sensei.',e:'A Japanese language teacher.'}]},
-  {p:'〜と〜',e:'And (listing nouns) と',l:'N5',rule:'と connects two or more nouns. Also means "with" (together with someone).',ex:[{j:'ほんとざっしをかいました。',r:'Hon to zasshi wo kaimashita.',e:'I bought a book and a magazine.'},{j:'ともだちといきます。',r:'Tomodachi to ikimasu.',e:'I go with a friend.'}]},
-  {p:'〜も',e:'Also / too も',l:'N5',rule:'も replaces は or が to mean "also" or "too". Shows something applies equally.',ex:[{j:'わたしもがくせいです。',r:'Watashi mo gakusei desu.',e:'I am also a student.'},{j:'これもおいしいです。',r:'Kore mo oishii desu.',e:'This is also delicious.'}]},
-  {p:'〜か〜か',e:'Or ~ or ~',l:'N5',rule:'か between two options means "or". Used in questions to offer choices.',ex:[{j:'コーヒーかおちゃはいかがですか？',r:'Koohii ka ocha wa ikaga desu ka?',e:'Would you like coffee or tea?'}]},
+  {p:'〜が〜',e:'Subject marker が',l:'N5',rule:'が marks the grammatical subject, especially with verbs of existence, ability, and desire.',ex:[{j:'あそこにねこがいます。',r:'Asoko ni neko ga imasu.',e:'There is a cat over there.'},{j:'にほんごがわかります。',r:'Nihongo ga wakarimasu.',e:'I understand Japanese.'}],exercises:[{q:'What does が mark?',opts:['The grammatical subject','The direct object','The topic','The location'],ans:0,explain:'が marks who or what performs the action or exists — the grammatical subject.'},{q:'Fill the blank: にほんご ___ わかります。',opts:['が','は','を','で'],ans:0,explain:'With わかります (understand), が marks what is understood — not を.'}]},
+  {p:'〜を〜',e:'Object marker を',l:'N5',rule:'を (wo) marks the direct object — the thing being acted on.',ex:[{j:'ほんをよみます。',r:'Hon wo yomimasu.',e:'I read a book.'},{j:'みずをのみます。',r:'Mizu wo nomimasu.',e:'I drink water.'}],exercises:[{q:'Fill the blank: ほん ___ よみます。',opts:['を','は','が','に'],ans:0,explain:'を marks the direct object — the thing being acted on. ほんをよむ = read a book.'},{q:'Which uses を correctly?',opts:['みずをのみます。','みずはのみます。','みずがのみます。','みずにのみます。'],ans:0,explain:'みず(water) を(object marker) のみます(drink) — を always marks what you do the action to.'}]},
+  {p:'〜に〜',e:'Direction / time marker に',l:'N5',rule:'に marks: (1) destination of movement, (2) specific time, (3) location of existence.',ex:[{j:'がっこうにいきます。',r:'Gakkou ni ikimasu.',e:'I go to school.'},{j:'くじにおきます。',r:'Ku-ji ni okimasu.',e:'I wake up at 9.'}],exercises:[{q:'に can mark… (choose all that apply)',opts:['Destination, specific time, location of existence','Only movement direction','Only clock time','Only where actions happen'],ans:0,explain:'に has 3 main uses: where you go (to), when something happens (at), and where things exist (in/at).'},{q:'Fill the blank: がっこう ___ いきます。',opts:['に','で','を','は'],ans:0,explain:'With movement verbs like いきます (go), に marks the destination.'}]},
+  {p:'〜で〜',e:'Location / means marker で',l:'N5',rule:'で marks: (1) where an action takes place, (2) the means or tool used for an action.',ex:[{j:'としょかんでべんきょうします。',r:'Toshokan de benkyou shimasu.',e:'I study at the library.'},{j:'バスでいきます。',r:'Basu de ikimasu.',e:'I go by bus.'}],exercises:[{q:'Fill the blank: としょかん ___ べんきょうします。',opts:['で','に','を','が'],ans:0,explain:'で marks where an action takes place. You study (action) at the library → としょかんで.'},{q:'What does で mark?',opts:['Where an action happens, or the means used','Where something exists','The destination','The topic'],ans:0,explain:'で = action location (library で study) OR means (bus で go). Different from に which marks existence location.'}]},
+  {p:'〜の〜',e:'Possession / belonging の',l:'N5',rule:'の connects two nouns. The first noun modifies the second: A の B = B of A / A no B.',ex:[{j:'わたしのほんです。',r:'Watashi no hon desu.',e:'It is my book.'},{j:'にほんごのせんせい。',r:'Nihongo no sensei.',e:'A Japanese language teacher.'}],exercises:[{q:'わたしのほん means…',opts:['My book','A book about me','I read a book','Book and me'],ans:0,explain:'A の B = "B of A" — わたしの = of me = my. の connects two nouns.'},{q:'Fill the blank: にほんご ___ せんせい',opts:['の','が','は','を'],ans:0,explain:"にほんご(Japanese) の('s) せんせい(teacher) = a teacher of Japanese = a Japanese teacher."}]},
+  {p:'〜と〜',e:'And (listing nouns) と',l:'N5',rule:'と connects two or more nouns. Also means "with" (together with someone).',ex:[{j:'ほんとざっしをかいました。',r:'Hon to zasshi wo kaimashita.',e:'I bought a book and a magazine.'},{j:'ともだちといきます。',r:'Tomodachi to ikimasu.',e:'I go with a friend.'}],exercises:[{q:'と between nouns means…',opts:['And (listing) or With (together)','But','Because','Or'],ans:0,explain:'ほんとざっし = book and magazine. ともだちといきます = go with a friend.'},{q:'ともだちといきます means…',opts:['I go with a friend.','I go to a friend.','A friend comes.','I like friends.'],ans:0,explain:'ともだち(friend) と(with) いきます(go) — と = "together with" when used with a person.'}]},
+  {p:'〜も',e:'Also / too も',l:'N5',rule:'も replaces は or が to mean "also" or "too". Shows something applies equally.',ex:[{j:'わたしもがくせいです。',r:'Watashi mo gakusei desu.',e:'I am also a student.'},{j:'これもおいしいです。',r:'Kore mo oishii desu.',e:'This is also delicious.'}],exercises:[{q:'も replaces は or が to mean…',opts:['Also / too','Only','But','Even so'],ans:0,explain:'も signals that what was said before also applies to this new subject. It replaces は or が.'},{q:'わたしもがくせいです means…',opts:['I am also a student.','I am a student.','Am I a student?','I am not a student.'],ans:0,explain:'わたし も = me too → "I am ALSO a student" (following on from someone else who was mentioned).'}]},
+  {p:'〜か〜か',e:'Or ~ or ~',l:'N5',rule:'か between two options means "or". Used in questions to offer choices.',ex:[{j:'コーヒーかおちゃはいかがですか？',r:'Koohii ka ocha wa ikaga desu ka?',e:'Would you like coffee or tea?'}],exercises:[{q:'か between two options means…',opts:['Or','And','But','So'],ans:0,explain:'A か B = A or B. Different from the sentence-ending か which makes questions.'},{q:'Which offers a choice?',opts:['コーヒーかおちゃ？','コーヒーとおちゃ','コーヒーもおちゃも','コーヒーのおちゃ'],ans:0,explain:"か between items = or. と = and. も〜も = both. の = of/'s."}]},
   // DEMONSTRATIVES
-  {p:'これ/それ/あれ/どれ',e:'This / That / That (far) / Which?',l:'N5',rule:'これ = this (near speaker), それ = that (near listener), あれ = that (far from both), どれ = which one?',ex:[{j:'これはなんですか？',r:'Kore wa nan desu ka?',e:'What is this?'},{j:'あれはわたしのかばんです。',r:'Are wa watashi no kaban desu.',e:'That (over there) is my bag.'}]},
-  {p:'この/その/あの/どの〜',e:'This ~ / That ~ / That ~ / Which ~?',l:'N5',rule:'Used before a noun. この本 = this book. その人 = that person. どの = which (before noun).',ex:[{j:'このほんはおもしろいです。',r:'Kono hon wa omoshiroi desu.',e:'This book is interesting.'},{j:'どのかばんがすきですか？',r:'Dono kaban ga suki desu ka?',e:'Which bag do you like?'}]},
-  {p:'ここ/そこ/あそこ/どこ',e:'Here / There / Over there / Where?',l:'N5',rule:'Location words. ここ = here (near me), そこ = there (near you), あそこ = over there, どこ = where?',ex:[{j:'トイレはどこですか？',r:'Toire wa doko desu ka?',e:'Where is the toilet?'},{j:'ここにあります。',r:'Koko ni arimasu.',e:'It is here.'}]},
+  {p:'これ/それ/あれ/どれ',e:'This / That / That (far) / Which?',l:'N5',rule:'これ = this (near speaker), それ = that (near listener), あれ = that (far from both), どれ = which one?',ex:[{j:'これはなんですか？',r:'Kore wa nan desu ka?',e:'What is this?'},{j:'あれはわたしのかばんです。',r:'Are wa watashi no kaban desu.',e:'That (over there) is my bag.'}],exercises:[{q:'これ refers to something…',opts:['Near the speaker','Near the listener','Far from both','Of unknown location'],ans:0,explain:'こ = close to ME, そ = close to YOU, あ = far from BOTH, ど = which/unknown.'},{q:'どれ means…',opts:['Which one?','This one','That one (far)','Everything'],ans:0,explain:'ど-words are always question words: どれ=which, どこ=where, だれ=who, どの=which~.'}]},
+  {p:'この/その/あの/どの〜',e:'This ~ / That ~ / That ~ / Which ~?',l:'N5',rule:'Used before a noun. この本 = this book. その人 = that person. どの = which (before noun).',ex:[{j:'このほんはおもしろいです。',r:'Kono hon wa omoshiroi desu.',e:'This book is interesting.'},{j:'どのかばんがすきですか？',r:'Dono kaban ga suki desu ka?',e:'Which bag do you like?'}],exercises:[{q:'この comes ___ a noun.',opts:['Before','After','Instead of','At the end of a sentence, before'],ans:0,explain:'この/その/あの/どの must be followed directly by a noun: このほん (this book), not ほんのこの.'},{q:'このほんはおもしろいです means…',opts:['This book is interesting.','That book is interesting.','Which book is interesting?','The book over there is interesting.'],ans:0,explain:'この = this (near speaker). その = that (near listener). あの = that over there.'}]},
+  {p:'ここ/そこ/あそこ/どこ',e:'Here / There / Over there / Where?',l:'N5',rule:'Location words. ここ = here (near me), そこ = there (near you), あそこ = over there, どこ = where?',ex:[{j:'トイレはどこですか？',r:'Toire wa doko desu ka?',e:'Where is the toilet?'},{j:'ここにあります。',r:'Koko ni arimasu.',e:'It is here.'}],exercises:[{q:'どこですか？ means…',opts:['Where is it?','What is it?','When is it?','Who is it?'],ans:0,explain:'どこ = where. These are location words: ここ(here), そこ(there), あそこ(over there), どこ(where?).'},{q:'Fill the blank: トイレは ___ ですか？',opts:['どこ','だれ','いつ','なに'],ans:0,explain:'Toilet は(topic) どこ(where) ですか(is it?) — asking the location of something → どこ.'}]},
   // EXISTENCE
-  {p:'〜があります / 〜がいます',e:'There is ~ (things vs living)',l:'N5',rule:'あります for inanimate things. います for living things (people, animals). Both mean "there is/are".',ex:[{j:'つくえのうえにほんがあります。',r:'Tsukue no ue ni hon ga arimasu.',e:'There is a book on the desk.'},{j:'こうえんにこどもたちがいます。',r:'Kouen ni kodomotachi ga imasu.',e:'There are children in the park.'}]},
+  {p:'〜があります / 〜がいます',e:'There is ~ (things vs living)',l:'N5',rule:'あります for inanimate things. います for living things (people, animals). Both mean "there is/are".',ex:[{j:'つくえのうえにほんがあります。',r:'Tsukue no ue ni hon ga arimasu.',e:'There is a book on the desk.'},{j:'こうえんにこどもたちがいます。',r:'Kouen ni kodomotachi ga imasu.',e:'There are children in the park.'}],exercises:[{q:'Which do you use for a living thing like a cat?',opts:['います','あります','です','ます'],ans:0,explain:'います = living things (people, animals). あります = non-living things (books, tables, events).'},{q:'つくえのうえにほんがあります means…',opts:['There is a book on the desk.','I have a desk.','The desk is a book.','I put a book on the desk.'],ans:0,explain:'つくえのうえ(on the desk) に(at) ほん(book) が あります(exists/there is).'}]},
   // QUESTION WORDS
-  {p:'なに/なん',e:'What?',l:'N5',rule:'なに (nani) = what. なん (nan) before counters or desu. Used in questions to ask about things.',ex:[{j:'これはなんですか？',r:'Kore wa nan desu ka?',e:'What is this?'},{j:'なにがすきですか？',r:'Nani ga suki desu ka?',e:'What do you like?'}]},
-  {p:'だれ',e:'Who?',l:'N5',rule:'だれ (dare) = who. More polite: どなた (donata). Used to ask about people.',ex:[{j:'あのひとはだれですか？',r:'Ano hito wa dare desu ka?',e:'Who is that person?'},{j:'だれとはなしましたか？',r:'Dare to hanashimashita ka?',e:'Who did you talk to?'}]},
-  {p:'いつ',e:'When?',l:'N5',rule:'いつ (itsu) = when. Used to ask about time or dates.',ex:[{j:'たんじょうびはいつですか？',r:'Tanjoubi wa itsu desu ka?',e:'When is your birthday?'},{j:'いつにほんにきましたか？',r:'Itsu nihon ni kimashita ka?',e:'When did you come to Japan?'}]},
-  {p:'どうして/なぜ',e:'Why?',l:'N5',rule:'どうして (doushite) is casual "why?". なぜ (naze) is more formal. Used to ask for reasons.',ex:[{j:'どうしてにほんごをべんきょうしていますか？',r:'Doushite nihongo wo benkyou shite imasu ka?',e:'Why are you studying Japanese?'}]},
+  {p:'なに/なん',e:'What?',l:'N5',rule:'なに (nani) = what. なん (nan) before counters or desu. Used in questions to ask about things.',ex:[{j:'これはなんですか？',r:'Kore wa nan desu ka?',e:'What is this?'},{j:'なにがすきですか？',r:'Nani ga suki desu ka?',e:'What do you like?'}],exercises:[{q:'これはなんですか？ means…',opts:['What is this?','Where is this?','Who is this?','When is this?'],ans:0,explain:'なん(what) ですか(is it?) — なに/なん both mean "what", なん is used before desu or counters.'},{q:'なに and なん both mean…',opts:['What?','Who?','Where?','When?'],ans:0,explain:'なに/なん = what. だれ = who. どこ = where. いつ = when.'}]},
+  {p:'だれ',e:'Who?',l:'N5',rule:'だれ (dare) = who. More polite: どなた (donata). Used to ask about people.',ex:[{j:'あのひとはだれですか？',r:'Ano hito wa dare desu ka?',e:'Who is that person?'},{j:'だれとはなしましたか？',r:'Dare to hanashimashita ka?',e:'Who did you talk to?'}],exercises:[{q:'だれ means…',opts:['Who?','What?','Where?','When?'],ans:0,explain:'だれ = who. More polite form: どなた (donata).'},{q:'あのひとはだれですか？ means…',opts:['Who is that person?','What is that person doing?','Where is that person?','When did that person come?'],ans:0,explain:'あのひと(that person) は(topic) だれ(who) ですか(is?).'}]},
+  {p:'いつ',e:'When?',l:'N5',rule:'いつ (itsu) = when. Used to ask about time or dates.',ex:[{j:'たんじょうびはいつですか？',r:'Tanjoubi wa itsu desu ka?',e:'When is your birthday?'},{j:'いつにほんにきましたか？',r:'Itsu nihon ni kimashita ka?',e:'When did you come to Japan?'}],exercises:[{q:'いつ means…',opts:['When?','Why?','How?','Which?'],ans:0,explain:'いつ = when. The other question words: なぜ/どうして=why, どうやって=how, どの/どれ=which.'},{q:'たんじょうびはいつですか？ means…',opts:['When is your birthday?','Where is your birthday?','Who is your birthday?','What is your birthday?'],ans:0,explain:'たんじょうび(birthday) は(topic) いつ(when) ですか(is it?).'}]},
+  {p:'どうして/なぜ',e:'Why?',l:'N5',rule:'どうして (doushite) is casual "why?". なぜ (naze) is more formal. Used to ask for reasons.',ex:[{j:'どうしてにほんごをべんきょうしていますか？',r:'Doushite nihongo wo benkyou shite imasu ka?',e:'Why are you studying Japanese?'}],exercises:[{q:'どうして means…',opts:['Why?','What?','When?','How?'],ans:0,explain:'どうして and なぜ both mean "why". どうして is more casual/conversational.'},{q:'Which is more formal — どうして or なぜ?',opts:['なぜ','どうして','Both are equal','Neither is formal'],ans:0,explain:'なぜ is slightly more formal/literary. どうして is casual and very common in conversation.'}]},
   // VERB PATTERNS
-  {p:'〜が好きです',e:'I like [noun]',l:'N5',rule:'が marks the object of 好き (suki = like). Opposite: 嫌いです (kirai desu = I dislike).',ex:[{j:'すしがすきです。',r:'Sushi ga suki desu.',e:'I like sushi.'},{j:'にほんごがだいすきです。',r:'Nihongo ga daisuki desu.',e:'I love Japanese.'}]},
-  {p:'〜ません',e:'Do not [verb]',l:'N5',rule:'Replace ます with ません for polite negative. ません = "do not / does not".',ex:[{j:'わかりません。',r:'Wakarimasen.',e:"I don't understand."},{j:'たべません。',r:'Tabemasen.',e:"I don't eat it."}]},
-  {p:'〜ました / 〜ませんでした',e:'Did / Did not (past)',l:'N5',rule:'ました = polite past (did). ませんでした = polite negative past (did not).',ex:[{j:'きのうえいがをみました。',r:'Kinou eiga wo mimashita.',e:'I watched a movie yesterday.'},{j:'あさごはんをたべませんでした。',r:'Asagohan wo tabemasen deshita.',e:'I did not eat breakfast.'}]},
-  {p:'〜たい',e:'Want to [verb]',l:'N5',rule:'Attach たい to the verb stem to express desire. Conjugates like an い-adjective.',ex:[{j:'にほんにいきたいです。',r:'Nihon ni ikitai desu.',e:'I want to go to Japan.'},{j:'すしをたべたいです。',r:'Sushi wo tabetai desu.',e:'I want to eat sushi.'}]},
-  {p:'〜てください',e:'Please do [verb]',l:'N5',rule:'て-form + ください = polite request. て-form rules: Group 1 (〜く→いて, 〜ぐ→いで, 〜す→して etc.)',ex:[{j:'みてください。',r:'Mite kudasai.',e:'Please look.'},{j:'ゆっくりはなしてください。',r:'Yukkuri hanashite kudasai.',e:'Please speak slowly.'}]},
-  {p:'〜ています',e:'Is doing / in a state of',l:'N5',rule:'て-form + います = (1) ongoing action "is doing", or (2) resulting state "has done and is still so".',ex:[{j:'いまたべています。',r:'Ima tabete imasu.',e:'I am eating now.'},{j:'にほんごをべんきょうしています。',r:'Nihongo wo benkyou shite imasu.',e:'I am studying Japanese.'}]},
-  {p:'〜から〜まで',e:'From [X] to [Y]',l:'N5',rule:'から = from/since, まで = until/to. Used for both time and distance.',ex:[{j:'くじからごじまではたらきます。',r:'Ku-ji kara go-ji made hatarakimasu.',e:'I work from 9 to 5.'},{j:'えきからここまでちかいです。',r:'Eki kara koko made chikai desu.',e:"It's close from the station to here."}]},
-  {p:'〜ましょう / 〜ましょうか',e:"Let's ~ / Shall we ~?",l:'N5',rule:'〜ましょう = lets do together. 〜ましょうか = shall we? (offering / suggesting)',ex:[{j:'たべましょう！',r:'Tabemashou!',e:"Let's eat!"},{j:'てつだいましょうか？',r:'Tetsudaimashou ka?',e:'Shall I help you?'}]},
+  {p:'〜が好きです',e:'I like [noun]',l:'N5',rule:'が marks the object of 好き (suki = like). Opposite: 嫌いです (kirai desu = I dislike).',ex:[{j:'すしがすきです。',r:'Sushi ga suki desu.',e:'I like sushi.'},{j:'にほんごがだいすきです。',r:'Nihongo ga daisuki desu.',e:'I love Japanese.'}],exercises:[{q:'Fill the blank: すし ___ すきです。',opts:['が','は','を','と'],ans:0,explain:'With 好き (like/love), が marks the thing you like — never を.'},{q:'How do you say "I love Japanese" (add だい for emphasis)?',opts:['にほんごがだいすきです。','にほんごはだいすきです。','にほんごをだいすきです。','にほんごのだいすきです。'],ans:0,explain:'大好き(daisuki) = love very much. にほんごが大好きです = I love Japanese!'}]},
+  {p:'〜ません',e:'Do not [verb]',l:'N5',rule:'Replace ます with ません for polite negative. ません = "do not / does not".',ex:[{j:'わかりません。',r:'Wakarimasen.',e:"I don't understand."},{j:'たべません。',r:'Tabemasen.',e:"I don't eat it."}],exercises:[{q:'わかりません means…',opts:['I don't understand.','I understand.','Do you understand?','Please understand.'],ans:0,explain:"わかり(root of わかる=understand) ません(polite negative) = I don't understand."},{q:'Fill the blank: よみ___',opts:['ません','ないます','ずます','くません'],ans:0,explain:"Drop ます, add ません. よみます → よみません. That's it!"}]},
+  {p:'〜ました / 〜ませんでした',e:'Did / Did not (past)',l:'N5',rule:'ました = polite past (did). ませんでした = polite negative past (did not).',ex:[{j:'きのうえいがをみました。',r:'Kinou eiga wo mimashita.',e:'I watched a movie yesterday.'},{j:'あさごはんをたべませんでした。',r:'Asagohan wo tabemasen deshita.',e:'I did not eat breakfast.'}],exercises:[{q:'ました indicates…',opts:['Polite past (did)','Polite present (do)','Polite future (will)','Polite negative (don't)'],ans:0,explain:'ます=present/future. ました=past. ません=negative. ませんでした=negative past.'},{q:'あさごはんをたべませんでした means…',opts:['I did not eat breakfast.','I ate breakfast.','I want to eat breakfast.','I am eating breakfast.'],ans:0,explain:'たべ(eat stem) ません(negative) でした(past) = did not eat. ませんでした = polite negative past.'}]},
+  {p:'〜たい',e:'Want to [verb]',l:'N5',rule:'Attach たい to the verb stem to express desire. Conjugates like an い-adjective.',ex:[{j:'にほんにいきたいです。',r:'Nihon ni ikitai desu.',e:'I want to go to Japan.'},{j:'すしをたべたいです。',r:'Sushi wo tabetai desu.',e:'I want to eat sushi.'}],exercises:[{q:'たい is attached to the verb ___.',opts:['Stem (drop ます)','Full ます form','て-form','Dictionary form'],ans:0,explain:'よみます → よみ(stem) + たい = よみたい (want to read). Just drop ます and add たい.'},{q:'にほんにいきたいです means…',opts:['I want to go to Japan.','I went to Japan.','I am going to Japan.','I will go to Japan.'],ans:0,explain:'いき(go stem) たい = want to go. いきたいです is the polite form.'}]},
+  {p:'〜てください',e:'Please do [verb]',l:'N5',rule:'て-form + ください = polite request. て-form rules: Group 1 (〜く→いて, 〜ぐ→いで, 〜す→して etc.)',ex:[{j:'みてください。',r:'Mite kudasai.',e:'Please look.'},{j:'ゆっくりはなしてください。',r:'Yukkuri hanashite kudasai.',e:'Please speak slowly.'}],exercises:[{q:'てください means…',opts:['Please do [verb]','Please don't do [verb]','I want to do [verb]','I am doing [verb]'],ans:0,explain:'て-form + ください = polite request. The て-form is like an "-ing" connector in Japanese.'},{q:'ゆっくりはなしてください means…',opts:['Please speak slowly.','I speak slowly.','I want to speak slowly.','Do you speak slowly?'],ans:0,explain:'ゆっくり(slowly) はなして(speak, て-form) ください(please) = Please speak slowly.'}]},
+  {p:'〜ています',e:'Is doing / in a state of',l:'N5',rule:'て-form + います = (1) ongoing action "is doing", or (2) resulting state "has done and is still so".',ex:[{j:'いまたべています。',r:'Ima tabete imasu.',e:'I am eating now.'},{j:'にほんごをべんきょうしています。',r:'Nihongo wo benkyou shite imasu.',e:'I am studying Japanese.'}],exercises:[{q:'ています expresses…',opts:['An ongoing action (is doing)','A completed action','A future plan','A polite request'],ans:0,explain:'て-form + います = currently happening or a state that resulted from an action.'},{q:'いまたべています means…',opts:['I am eating now.','I ate just now.','I want to eat now.','Please eat now.'],ans:0,explain:'いま(now) たべて(eat, て-form) います(am doing) = I am eating now — ongoing action.'}]},
+  {p:'〜から〜まで',e:'From [X] to [Y]',l:'N5',rule:'から = from/since, まで = until/to. Used for both time and distance.',ex:[{j:'くじからごじまではたらきます。',r:'Ku-ji kara go-ji made hatarakimasu.',e:'I work from 9 to 5.'},{j:'えきからここまでちかいです。',r:'Eki kara koko made chikai desu.',e:"It's close from the station to here."}],exercises:[{q:'から means ___ and まで means ___.',opts:['from … to/until','until … from','by … since','since … by'],ans:0,explain:'から = from/since (starting point). まで = to/until (ending point). Used for time AND distance.'},{q:'くじからごじまではたらきます means…',opts:['I work from 9 to 5.','I work until 9 from 5.','I worked from 9 to 5.','I want to work from 9 to 5.'],ans:0,explain:"くじ(9 o'clock) から(from) ごじ(5 o'clock) まで(until) はたらきます(I work)."}]},
+  {p:'〜ましょう / 〜ましょうか',e:"Let's ~ / Shall we ~?",l:'N5',rule:'〜ましょう = lets do together. 〜ましょうか = shall we? (offering / suggesting)',ex:[{j:'たべましょう！',r:'Tabemashou!',e:"Let's eat!"},{j:'てつだいましょうか？',r:'Tetsudaimashou ka?',e:'Shall I help you?'}],exercises:[{q:'ましょう is formed by replacing ___ with ましょう.',opts:['ます','ました','ません','まし'],ans:0,explain:"いきます → いきましょう (Let's go!). Just swap ます for ましょう."},{q:'てつだいましょうか？ means…',opts:['Shall I help you?','Let's help!','Please help me.','Do you need help?'],ans:0,explain:"ましょうか = shall we/I? (softer, offering). ましょう = let's (more direct suggestion)."}]},
   {p:'〜より〜のほうが',e:'[B] is more ~ than [A]',l:'N5',rule:'A より B のほうが = B is more (adj) than A. より = than. のほうが = is more.',ex:[{j:'なつよりふゆのほうがすきです。',r:'Natsu yori fuyu no hou ga suki desu.',e:'I like winter more than summer.'},{j:'このほうがやすいです。',r:'Kono hou ga yasui desu.',e:'This one is cheaper.'}]},
 ];
 
@@ -1781,21 +1799,70 @@ function renderVocabBrowse() {
 //  GRAMMAR
 // ═══════════════════════════════════════════
 function renderGrammar() {
-  document.getElementById('grammar-list').innerHTML = GRAMMAR.map((g, i) =>
-    `<div class="grammar-card">
+  document.getElementById('grammar-list').innerHTML = GRAMMAR.map((g, i) => {
+    const exHtml = g.exercises ? `
+      <div class="gc-practice">
+        <div class="gc-practice-lbl">✏️ Practice</div>
+        ${g.exercises.map((ex, xi) => `
+          <div class="gc-xstep${xi===0?' active':''}" id="gxs-${i}-${xi}">
+            <div class="gc-prog">Question ${xi+1} of ${g.exercises.length}</div>
+            <div class="gc-xq">${ex.q}</div>
+            <div class="gc-xopts" id="gxo-${i}-${xi}">
+              ${ex.opts.map((o,oi) => `<button class="gc-xopt" onclick="checkGx(${i},${xi},${oi})">${o}</button>`).join('')}
+            </div>
+            <div class="gc-xfb" id="gxfb-${i}-${xi}"></div>
+          </div>`).join('')}
+        <div class="gc-done-badge" id="gxdone-${i}">🌸 Pattern practised! Keep going!</div>
+      </div>` : '';
+    return `<div class="grammar-card">
       <div class="gc-head" onclick="toggleG(${i})">
         <div><div class="gc-pattern">${g.p}</div><div class="gc-eng">${g.e}</div></div>
         <div style="display:flex;gap:7px;align-items:center"><span class="gc-lvl">${g.l}</span>
           <svg class="gc-chevron" id="gc-cv-${i}" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
         </div>
       </div>
-      <div class="gc-body" id="gc-b-${i}"><div class="gc-rule">${g.rule}</div>
+      <div class="gc-body" id="gc-b-${i}">
+        <div class="gc-rule">${g.rule}</div>
         ${g.ex.map(e => `<div class="gc-ex"><div class="gc-ex-jp">${e.j}</div><div class="gc-ex-read">${e.r}</div><div class="gc-ex-en">${e.e}</div></div>`).join('')}
+        ${exHtml}
       </div>
-    </div>`
-  ).join('');
+    </div>`;
+  }).join('');
 }
 function toggleG(i) { document.getElementById('gc-b-' + i).classList.toggle('open'); document.getElementById('gc-cv-' + i).classList.toggle('open'); }
+
+function checkGx(pi, xi, sel) {
+  const g = GRAMMAR[pi];
+  const ex = g.exercises[xi];
+  const opts = document.querySelectorAll('#gxo-' + pi + '-' + xi + ' .gc-xopt');
+  const fb = document.getElementById('gxfb-' + pi + '-' + xi);
+  // Disable all options
+  opts.forEach(o => o.disabled = true);
+  if (sel === ex.ans) {
+    opts[sel].classList.add('gx-ok');
+    fb.className = 'gc-xfb ok';
+    fb.textContent = '✓ ' + ex.explain;
+    setTimeout(() => {
+      const nextStep = document.getElementById('gxs-' + pi + '-' + (xi + 1));
+      if (nextStep) {
+        nextStep.classList.add('active');
+        document.getElementById('gxs-' + pi + '-' + xi).classList.remove('active');
+      } else {
+        document.getElementById('gxs-' + pi + '-' + xi).classList.remove('active');
+        const done = document.getElementById('gxdone-' + pi);
+        if (done) { done.style.display = 'block'; showCompanionBubble(charSay('correct')); }
+      }
+    }, 900);
+  } else {
+    opts[sel].classList.add('gx-no');
+    fb.className = 'gc-xfb err';
+    fb.textContent = '✗ Not quite — look at the examples above and try again!';
+    setTimeout(() => {
+      opts.forEach(o => { o.disabled = false; o.classList.remove('gx-no','gx-ok'); });
+      fb.className = 'gc-xfb';
+    }, 1300);
+  }
+}
 
 // ═══════════════════════════════════════════
 //  READING
