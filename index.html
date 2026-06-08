@@ -568,27 +568,15 @@ body{font-family:var(--ff);background:var(--bg);color:var(--ink);min-height:100v
         <button class="tab" onclick="vocabTab('browse',this)">Browse</button>
       </div>
       <div id="vt-fc">
-        <!-- Category filter -->
-        <div id="fc-cat-filter" style="margin-bottom:16px">
-          <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--ink3);margin-bottom:8px">Study by category</div>
-          <div style="display:flex;gap:6px;flex-wrap:wrap" id="fc-cat-btns">
-            <button class="cat-pill active" onclick="setVocabCat('',this)">All</button>
-            <button class="cat-pill" onclick="setVocabCat('greeting',this)">👋 Expressions</button>
-            <button class="cat-pill" onclick="setVocabCat('number',this)">🔢 Numbers</button>
-            <button class="cat-pill" onclick="setVocabCat('time',this)">🕐 Time</button>
-            <button class="cat-pill" onclick="setVocabCat('family',this)">👨‍👩‍👧 Family</button>
-            <button class="cat-pill" onclick="setVocabCat('place',this)">🏠 Places</button>
-            <button class="cat-pill" onclick="setVocabCat('food',this)">🍱 Food</button>
-            <button class="cat-pill" onclick="setVocabCat('color',this)">🎨 Colors</button>
-            <button class="cat-pill" onclick="setVocabCat('body',this)">🫀 Body</button>
-            <button class="cat-pill" onclick="setVocabCat('noun',this)">🏷️ Nouns</button>
-            <button class="cat-pill" onclick="setVocabCat('verb',this)">⚡ Verbs</button>
-            <button class="cat-pill" onclick="setVocabCat('adj',this)">💬 Adjectives</button>
-          </div>
-          <div id="fc-cat-info" style="font-size:11.5px;color:var(--ink3);margin-top:8px"></div>
+        <!-- Category menu -->
+        <div id="vocab-cat-menu">
+          <div style="font-size:13px;color:var(--ink3);margin-bottom:14px">Choose a category to start learning.</div>
+          <div id="vocab-cat-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:10px"></div>
         </div>
-        
-        <!-- Learn session notice -->
+        <div id="vocab-cat-header" class="hidden" style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
+          <button class="btn btn-ghost btn-sm" onclick="backToVocabMenu()">&#8592; Categories</button>
+          <div style="font-size:13px;font-weight:600;color:var(--plum)" id="vocab-cat-title"></div>
+        </div>
         <div id="lc-notice" class="lc-session-notice"></div>
 
         <!-- Learn card (new words) -->
@@ -602,7 +590,7 @@ body{font-family:var(--ff);background:var(--bg);color:var(--ink);min-height:100v
             <div class="learn-example" id="lc-example"></div>
             <div class="learn-actions">
               <button class="btn-speak" onclick="speakJP('lc-word')">🔊 Hear it in Japanese</button>
-              <button class="btn btn-primary" style="width:100%" onclick="startLearnCheck()">Quiz me on this word →</button>
+              <button class="btn btn-primary" style="width:100%" onclick="nextLearnWord()" id="lc-next-btn">Got it, next word →</button>
             </div>
           </div>
         </div>
@@ -1547,7 +1535,7 @@ function setPage(page) {
   document.getElementById('topbar-sub').textContent = m.sub || '';
   if (page === 'home') renderHome();
   if (page === 'kana') renderKanaGrids();
-  if (page === 'vocab') initVocabFC();
+  if (page === 'vocab') { renderVocabCategoryMenu(); document.getElementById('vocab-cat-menu').classList.remove('hidden'); document.querySelector('.fc-wrap').classList.add('hidden'); }
   if (page === 'grammar') renderGrammar();
   if (page === 'reading') renderPassageList();
   if (page === 'quiz') renderQuizMenu();
@@ -1880,57 +1868,99 @@ function getDueVocab() {
   return [...all.filter(({ i }) => !VOCAB_P[i]), ...all.filter(({ i }) => !!VOCAB_P[i])].slice(0, 20);
 }
 
-function setVocabCat(cat, btn) {
-  fcActiveCat = cat;
-  // Update pill styles
-  document.querySelectorAll('.cat-pill').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  // Update info line
-  const catNames = { '':'All categories', greeting:'Expressions', number:'Numbers', time:'Time', family:'Family', place:'Places', food:'Food & Drink', color:'Colors', body:'Body', noun:'Nouns', verb:'Verbs', adj:'Adjectives' };
-  const filtered = VOCAB.filter(v => !cat || v.c === cat);
+const CAT_META = {
+  greeting: { icon: '👋', label: 'Greetings & Expressions' },
+  number:   { icon: '🔢', label: 'Numbers' },
+  time:     { icon: '🕐', label: 'Time & Dates' },
+  family:   { icon: '&#128106;', label: 'Family' },
+  place:    { icon: '🏠', label: 'Places' },
+  food:     { icon: '🍱', label: 'Food & Drink' },
+  color:    { icon: '🎨', label: 'Colors' },
+  body:     { icon: '&#129372;', label: 'Body' },
+  noun:     { icon: '&#127991;', label: 'Nouns' },
+  verb:     { icon: '⚡', label: 'Verbs' },
+  adj:      { icon: '💬', label: 'Adjectives' },
+};
+
+function renderVocabCategoryMenu() {
   const now = Date.now();
-  const due = filtered.filter((v, idx) => {
-    const i = VOCAB.indexOf(v);
-    const p = VOCAB_P[i];
-    return !p || p.next_review <= now;
-  }).length;
-  const info = document.getElementById('fc-cat-info');
-  if (info) info.textContent = due > 0
-    ? `${due} of ${filtered.length} words due for review in ${catNames[cat] || cat}`
-    : `All ${filtered.length} words in ${catNames[cat] || cat} are up to date ✓`;
+  const grid = document.getElementById('vocab-cat-grid');
+  if (!grid) return;
+  grid.innerHTML = Object.entries(CAT_META).map(([cat, meta]) => {
+    const words = VOCAB.map((v,i) => ({v,i})).filter(({v}) => v.c === cat);
+    const total = words.length;
+    const learned = words.filter(({i}) => !!VOCAB_P[i]).length;
+    const newCount = total - learned;
+    const pct = total ? Math.round(learned / total * 100) : 0;
+    const btnLabel = newCount > 0 ? 'Learn ' + newCount + ' new \u2192' : 'Review \u2192';
+    return '<div class="mode-card" style="cursor:pointer;text-align:center" onclick="openVocabCategory(\'' + cat + '\')">' +
+      '<div style="font-size:26px;margin-bottom:6px">' + meta.icon + '</div>' +
+      '<div style="font-size:13px;font-weight:600;margin-bottom:3px">' + meta.label + '</div>' +
+      '<div style="font-size:11px;color:var(--ink3);margin-bottom:8px">' + learned + '/' + total + ' learned</div>' +
+      '<div style="background:var(--border);border-radius:4px;height:5px;margin-bottom:10px;overflow:hidden">' +
+        '<div style="background:var(--plum);height:100%;width:' + pct + '%;border-radius:4px"></div>' +
+      '</div>' +
+      '<div style="font-size:12px;font-weight:600;color:var(--plum)">' + btnLabel + '</div>' +
+    '</div>';
+  }).join('');
+}
+
+function openVocabCategory(cat) {
+  fcActiveCat = cat;
+  const meta = CAT_META[cat] || { icon: '&#128218;', label: cat };
+  document.getElementById('vocab-cat-menu').classList.add('hidden');
+  const header = document.getElementById('vocab-cat-header');
+  header.classList.remove('hidden');
+  header.style.display = 'flex';
+  document.getElementById('vocab-cat-title').textContent = meta.icon + ' ' + meta.label;
   initVocabFC();
+}
+
+function backToVocabMenu() {
+  document.getElementById('vocab-cat-menu').classList.remove('hidden');
+  document.getElementById('vocab-cat-header').classList.add('hidden');
+  document.getElementById('fc-learn-card').classList.add('hidden');
+  document.getElementById('fc-learn-check').classList.add('hidden');
+  document.getElementById('lc-notice').style.display = 'none';
+  document.getElementById('fc-done').classList.add('hidden');
+  document.querySelector('.fc-wrap').classList.add('hidden');
+  renderVocabCategoryMenu();
+}
+
+function getDueVocab() {
+  const now = Date.now();
+  const all = VOCAB.map((v, i) => ({ v, i }))
+    .filter(({ v, i }) => {
+      if (fcActiveCat && v.c !== fcActiveCat) return false;
+      const p = VOCAB_P[i];
+      return !p || p.next_review <= now;
+    });
+  return [...all.filter(({ i }) => !VOCAB_P[i]), ...all.filter(({ i }) => !!VOCAB_P[i])].slice(0, 40);
 }
 
 function initVocabFC() {
   hideBubble('fc-bubble');
   fcSessionCorrect = 0;
   const due = getDueVocab();
-  // Separate new words (never seen) from review words
-  const newWords = due.filter(({v}) => {
-    const key = v.j || v.front;
-    return !window.VOCAB_P || !window.VOCAB_P[key];
-  }).slice(0, 8);
-  const dueWords = due.filter(({v}) => {
-    const key = v.j || v.front;
-    return window.VOCAB_P && window.VOCAB_P[key];
-  });
+  const newWords = due.filter(({i}) => !VOCAB_P[i]);
+  const dueWords = due.filter(({i}) => !!VOCAB_P[i]);
+  document.getElementById('fc-done').classList.add('hidden');
+  document.getElementById('fc-back').classList.add('hidden');
   if (newWords.length > 0) {
-    // Enter learn mode first
     lcMode = true;
     lcNewQueue = newWords.map(({v, i}) => ({...v, idx: i}));
     lcNewIdx = 0;
     showLearnCard(lcNewQueue[0]);
     return;
   }
-  // Standard SRS review
   const notice = document.getElementById('lc-notice');
   if (notice) notice.style.display = 'none';
   lcMode = false;
   fcQueue = dueWords.map(({ v, i }) => ({ ...v, idx: i }));
   fcIdx = 0; fcRevealed = false;
-  document.getElementById('fc-done').classList.add('hidden');
-  document.getElementById('fc-back').classList.add('hidden');
   document.getElementById('flashcard').style.display = 'flex';
+  document.getElementById('fc-learn-card').classList.add('hidden');
+  document.getElementById('fc-learn-check').classList.add('hidden');
   if (!fcQueue.length) {
     document.getElementById('flashcard').style.display = 'none';
     document.getElementById('fc-done').classList.remove('hidden');
@@ -1938,6 +1968,83 @@ function initVocabFC() {
     updateFC();
   }
 }
+
+function showLearnCard(card) {
+  lcCurrentWord = card;
+  document.getElementById('lc-word').textContent = card.j || '';
+  document.getElementById('lc-romaji').textContent = card.r || '';
+  const wt = WORD_TYPES[card.c] || WORD_TYPES.noun;
+  document.getElementById('lc-type').innerHTML = '<span class="fc-type-tag ' + wt.cls + '">' + wt.label + '</span>';
+  document.getElementById('lc-meaning').textContent = card.e || '';
+  document.getElementById('lc-example').textContent = card.x || '';
+  const notice = document.getElementById('lc-notice');
+  if (notice) { notice.textContent = '\u2728 Word ' + (lcNewIdx + 1) + ' of ' + lcNewQueue.length + ' — study it, then tap next'; notice.style.display = 'block'; }
+  const btn = document.getElementById('lc-next-btn');
+  if (btn) btn.textContent = lcNewIdx < lcNewQueue.length - 1 ? 'Got it, next word \u2192' : 'Done studying — quiz me! \u2192';
+  document.getElementById('fc-learn-card').classList.remove('hidden');
+  document.getElementById('fc-learn-check').classList.add('hidden');
+  document.querySelector('.fc-wrap').classList.add('hidden');
+}
+
+function nextLearnWord() {
+  lcNewIdx++;
+  if (lcNewIdx < lcNewQueue.length) { showLearnCard(lcNewQueue[lcNewIdx]); }
+  else { lcNewIdx = 0; startLearnCheck(); }
+}
+
+function startLearnCheck() {
+  if (!lcNewQueue.length) return;
+  const card = lcNewQueue[lcNewIdx];
+  lcCurrentWord = card;
+  const correct = card.e || '';
+  const pool = VOCAB.filter(v => v.e && v.j !== card.j && v.e !== correct && v.c !== card.c);
+  const fallback = VOCAB.filter(v => v.e && v.j !== card.j && v.e !== correct);
+  const src = (pool.length >= 3 ? pool : fallback).slice().sort(() => Math.random() - 0.5);
+  const opts = [correct, ...src.slice(0,3).map(v => v.e)].sort(() => Math.random() - 0.5);
+  const notice = document.getElementById('lc-notice');
+  if (notice) notice.textContent = '\uD83E\uDDE0 Quiz — ' + (lcNewIdx + 1) + ' of ' + lcNewQueue.length;
+  document.getElementById('lcc-word').textContent = card.j || '';
+  document.getElementById('lcc-opts').innerHTML = opts.map(o =>
+    '<button class="lc-opt" onclick="checkLearnAnswer(this,' + JSON.stringify(correct) + ',' + JSON.stringify(o) + ')">' + o + '</button>'
+  ).join('');
+  document.getElementById('lcc-fb').textContent = '';
+  document.getElementById('fc-learn-card').classList.add('hidden');
+  document.getElementById('fc-learn-check').classList.remove('hidden');
+}
+
+function checkLearnAnswer(btn, correct, selected) {
+  const fb = document.getElementById('lcc-fb');
+  document.querySelectorAll('.lc-opt').forEach(b => b.disabled = true);
+  if (selected === correct) {
+    btn.classList.add('lc-ok');
+    fb.textContent = '\u2705 Correct!';
+    fb.style.color = '#22c55e';
+    if (lcCurrentWord && !VOCAB_P[lcCurrentWord.idx]) {
+      VOCAB_P[lcCurrentWord.idx] = { correct: 0, wrong: 0, ease: 2.5, interval_ms: 0, next_review: Date.now() };
+    }
+    setTimeout(() => {
+      lcNewIdx++;
+      if (lcNewIdx < lcNewQueue.length) { startLearnCheck(); }
+      else {
+        lcMode = false;
+        const notice = document.getElementById('lc-notice');
+        if (notice) notice.textContent = '\uD83C\uDF89 All ' + lcNewQueue.length + ' words learned! Now reviewing with flashcards\u2026';
+        document.getElementById('fc-learn-card').classList.add('hidden');
+        document.getElementById('fc-learn-check').classList.add('hidden');
+        initVocabFC();
+      }
+    }, 800);
+  } else {
+    btn.classList.add('lc-no');
+    document.querySelectorAll('.lc-opt').forEach(b => { if (b.textContent === correct) b.classList.add('lc-ok'); });
+    fb.textContent = '\u274C ' + correct;
+    fb.style.color = '#ef4444';
+    const missed = lcNewQueue.splice(lcNewIdx, 1)[0];
+    lcNewQueue.push(missed);
+    setTimeout(startLearnCheck, 1400);
+  }
+}
+
 
 function updateFC() {
   hideBubble('fc-bubble');
