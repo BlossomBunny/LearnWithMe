@@ -196,6 +196,29 @@ body{font-family:var(--ff);background:var(--bg);color:var(--ink);min-height:100v
 .gc-chevron.open{transform:rotate(180deg)}
 
 /* ── READING ── */
+.rp-text ruby{display:inline-block;text-align:center;vertical-align:bottom}
+.rp-text rt{display:block;font-size:10px;color:var(--plum);font-family:var(--ffj);line-height:1.2;margin-bottom:2px;transition:opacity .2s}
+.rp-text.hide-furigana rt{opacity:0;pointer-events:none}
+.rd-controls{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:14px}
+.rd-toggle{padding:5px 14px;border:1.5px solid var(--border2);border-radius:20px;font-size:12px;cursor:pointer;background:var(--card);font-family:var(--ff);transition:all .14s;color:var(--ink2)}
+.rd-toggle:hover{border-color:var(--plum2);color:var(--plum)}
+.rd-toggle.active{background:var(--plum3);border-color:var(--plum);color:var(--plum);font-weight:600}
+.vocab-word{cursor:pointer;color:var(--plum);border-bottom:2px dotted var(--plum2);border-radius:2px;transition:background .12s;position:relative}
+.vocab-word:hover,.vocab-word.tapped{background:var(--plum3)}
+.rq-opt.rq-correct{background:var(--green3)!important;border-color:#86efac!important;color:var(--green)!important}
+.rq-opt.rq-wrong{background:var(--red3)!important;border-color:#fca5a5!important;color:var(--red)!important}
+.rq-explain{font-size:11.5px;color:var(--ink2);margin-top:8px;padding:7px 10px;background:var(--surface);border-radius:7px;border-left:3px solid var(--plum2)}
+.reading-mode-tabs{display:flex;gap:8px;margin-bottom:18px}
+.rm-tab{flex:1;padding:10px;background:var(--card);border:1.5px solid var(--border2);border-radius:var(--r);cursor:pointer;text-align:center;font-size:13px;font-weight:500;transition:all .14s;color:var(--ink2)}
+.rm-tab:hover{border-color:var(--plum2);color:var(--plum)}
+.rm-tab.active{background:var(--plum3);border-color:var(--plum);color:var(--plum)}
+.sp-card{background:var(--card);border:1.5px solid var(--plum2);border-radius:var(--r2);padding:22px 24px;margin-bottom:16px;box-shadow:var(--shadow)}
+.sp-jp{font-family:var(--ffj);font-size:26px;line-height:2.6;margin-bottom:4px}
+.sp-hint{font-size:11.5px;color:var(--ink3);margin-bottom:12px}
+.sp-reveal-btn{padding:7px 18px;background:var(--plum3);border:1.5px solid var(--plum2);border-radius:20px;font-size:12.5px;cursor:pointer;color:var(--plum);font-weight:600;font-family:var(--ff);transition:all .14s}
+.sp-reveal-btn:hover{background:var(--plum);color:#fff;border-color:var(--plum)}
+.sp-translation{font-size:16px;color:var(--ink);line-height:1.6;margin-top:12px;padding-top:12px;border-top:1px solid var(--border);animation:fadeIn .2s}
+.sp-counter{font-size:11px;color:var(--ink3);text-align:center;margin-bottom:12px}
 .rp-text{font-family:var(--ffj);font-size:18px;line-height:2.4;color:var(--ink)}
 .vocab-word{cursor:pointer;border-bottom:2px dotted var(--plum2);color:var(--plum);transition:background .12s;border-radius:2px}
 .vocab-word:hover{background:var(--plum3)}
@@ -672,20 +695,55 @@ body{font-family:var(--ff);background:var(--bg);color:var(--ink);min-height:100v
     <!-- READING -->
     <div class="page" id="page-reading">
       <div id="reading-menu">
-        <div style="margin-bottom:18px;font-size:13px;color:var(--ink3)">Click any word for instant translation.</div>
-        <div class="grid-2" id="passage-cards"></div>
+        <div style="margin-bottom:18px">
+          <div style="font-size:15px;font-weight:600;margin-bottom:4px">Reading Practice</div>
+          <div style="font-size:13px;color:var(--ink3)">Tap any word to see its meaning. Choose a passage to get started.</div>
+        </div>
+        <div class="reading-mode-tabs">
+          <div class="rm-tab active" id="tab-passages" onclick="setReadTab('passages')">&#128214; Passages</div>
+          <div class="rm-tab" id="tab-sentences" onclick="setReadTab('sentences')">&#128292; Sentence Practice</div>
+        </div>
+        <div id="passage-cards"></div>
+        <div id="sentence-list" class="hidden">
+          <div style="font-size:13px;color:var(--ink3);margin-bottom:14px">Pick a passage to practice sentence by sentence.</div>
+          <div id="sentence-passage-cards"></div>
+        </div>
       </div>
       <div id="reading-active" class="hidden">
-        <button class="btn btn-ghost btn-sm" onclick="backToPassages()" style="margin-bottom:16px">← Back</button>
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap">
+          <button class="btn btn-ghost btn-sm" onclick="backToPassages()">&#8592; Back</button>
+          <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.6px;color:var(--plum);flex:1" id="ra-title"></div>
+        </div>
+        <div class="rd-controls">
+          <button class="rd-toggle active" id="fg-toggle" onclick="toggleFurigana()">&#12354; Reading hints ON</button>
+          <button class="rd-toggle" id="audio-btn" onclick="readPassageAloud()">&#128266; Read aloud</button>
+        </div>
         <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--r2);padding:24px;margin-bottom:18px;box-shadow:var(--shadow)">
-          <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.6px;color:var(--plum);margin-bottom:10px" id="ra-title"></div>
           <div class="rp-text" id="ra-text"></div>
         </div>
         <div style="font-size:14px;font-weight:600;margin-bottom:12px">Comprehension Questions</div>
         <div id="ra-qs"></div>
       </div>
+      <div id="reading-sentences" class="hidden">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
+          <button class="btn btn-ghost btn-sm" onclick="backToPassages()">&#8592; Back</button>
+          <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.6px;color:var(--plum);flex:1" id="sp-title"></div>
+          <button class="rd-toggle" onclick="readSentenceAloud()">&#128266;</button>
+        </div>
+        <div class="sp-counter" id="sp-counter"></div>
+        <div class="progress-track" style="margin-bottom:16px"><div class="progress-fill" id="sp-progress" style="width:0%"></div></div>
+        <div class="sp-card">
+          <div class="sp-jp rp-text" id="sp-jp"></div>
+          <div class="sp-hint">Tap any word to see its reading and meaning</div>
+          <button class="sp-reveal-btn" id="sp-reveal-btn" onclick="revealSentence()">Show translation &#128065;</button>
+          <div class="sp-translation hidden" id="sp-translation"></div>
+        </div>
+        <div style="display:flex;gap:10px;margin-top:4px">
+          <button class="btn btn-ghost btn-sm" onclick="prevSentence()" id="sp-prev">&#8592; Prev</button>
+          <button class="btn btn-primary btn-sm" style="flex:1" onclick="nextSentence()" id="sp-next">Next sentence &#8594;</button>
+        </div>
+      </div>
     </div>
-
     <!-- QUIZ -->
     <div class="page" id="page-quiz">
       <div id="quiz-menu">
@@ -2054,63 +2112,197 @@ function checkGx(pi, xi, sel) {
 }
 
 // ═══════════════════════════════════════════
+// ═══════════════════════════════════════════
 //  READING
 // ═══════════════════════════════════════════
+let _rdFurigana = true, _rdPassage = null, _spSentences = [], _spIdx = 0;
+
+function setReadTab(tab) {
+  document.getElementById('tab-passages').classList.toggle('active', tab === 'passages');
+  document.getElementById('tab-sentences').classList.toggle('active', tab === 'sentences');
+  document.getElementById('passage-cards').classList.toggle('hidden', tab !== 'passages');
+  document.getElementById('sentence-list').classList.toggle('hidden', tab !== 'sentences');
+  if (tab === 'sentences' && !document.getElementById('sentence-passage-cards').innerHTML) {
+    document.getElementById('sentence-passage-cards').innerHTML = PASSAGES.map(p =>
+      `<div class="mode-card" onclick="openSentencePractice('${p.id}')">
+        <div class="mode-icon" style="background:#fce7f3">🔤</div>
+        <div class="mode-title">${p.title}</div>
+        <div class="mode-desc">Sentence-by-sentence practice</div>
+        <div class="mode-badge">${p.text.filter(t=>t==='\n').length + 1} sentences</div>
+      </div>`
+    ).join('');
+  }
+}
+
 function renderPassageList() {
   document.getElementById('passage-cards').innerHTML = PASSAGES.map(p =>
     `<div class="mode-card" onclick="openPassage('${p.id}')">
       <div class="mode-icon" style="background:var(--gold3)">📖</div>
       <div class="mode-title">${p.title}</div>
-      <div class="mode-desc">Click any word for instant translation.</div>
+      <div class="mode-desc">Tap words for instant translation</div>
       <div class="mode-badge">${p.qs.length} questions</div>
     </div>`
   ).join('');
 }
 
+function buildWordHtml(part) {
+  if (typeof part === 'string') return part === '\n' ? '<br>' : part;
+  const j = part.j.replace(/"/g, '&quot;');
+  const r = part.r.replace(/"/g, '&quot;');
+  const e = part.e.replace(/"/g, '&quot;');
+  return `<ruby class="vocab-word" data-j="${j}" data-r="${r}" data-e="${e}" onclick="tapWord(event,this)">${part.j}<rt>${part.r}</rt></ruby>`;
+}
+
 function openPassage(id) {
   const p = PASSAGES.find(x => x.id === id);
   if (!p) return;
+  _rdPassage = p;
   document.getElementById('reading-menu').classList.add('hidden');
   document.getElementById('reading-active').classList.remove('hidden');
+  document.getElementById('reading-sentences').classList.add('hidden');
   document.getElementById('ra-title').textContent = p.title;
-  let html = '';
-  p.text.forEach(part => {
-    if (typeof part === 'string') { html += part === '\
-' ? '<br>' : ' '; }
-    else html += `<span class="vocab-word" data-j="${part.j}" data-r="${part.r}" data-e="${part.e}" onmouseenter="showTip(event,this)" onmouseleave="hideTip()">${part.j}</span>`;
-  });
-  document.getElementById('ra-text').innerHTML = html;
+  const textEl = document.getElementById('ra-text');
+  textEl.innerHTML = p.text.map(buildWordHtml).join('');
+  textEl.classList.toggle('hide-furigana', !_rdFurigana);
+  const fgBtn = document.getElementById('fg-toggle');
+  fgBtn.classList.toggle('active', _rdFurigana);
+  fgBtn.textContent = _rdFurigana ? 'あ Reading hints ON' : 'あ Reading hints OFF';
+  const audioBtn = document.getElementById('audio-btn');
+  audioBtn.textContent = '🔊 Read aloud';
+  audioBtn.onclick = readPassageAloud;
   document.getElementById('ra-qs').innerHTML = p.qs.map((q, qi) =>
-    `<div style="background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:14px 16px;margin-bottom:10px">
-      <div style="font-size:13px;font-weight:500;margin-bottom:10px">${qi + 1}. ${q.q}</div>
-      <div style="display:flex;flex-direction:column;gap:5px">${q.opts.map((o, oi) =>
-        `<div class="rq-opt" style="padding:8px 12px;border:1.5px solid var(--border2);border-radius:8px;cursor:pointer;font-size:12.5px;transition:all .14s" onclick="checkRQ(this,${oi},${q.ans},'${q.explain.replace(/'/g, "'")}')">
-          ${String.fromCharCode(65 + oi)}. ${o}
+    `<div style="background:var(--card);border:1px solid var(--border);border-radius:var(--r2);padding:14px 16px;margin-bottom:12px;box-shadow:var(--shadow)">
+      <div style="font-size:13px;font-weight:600;margin-bottom:10px">${qi + 1}. ${q.q}</div>
+      <div style="display:flex;flex-direction:column;gap:6px">${q.opts.map((o, oi) =>
+        `<div class="rq-opt" style="padding:9px 13px;border:1.5px solid var(--border2);border-radius:8px;cursor:pointer;font-size:13px;transition:all .14s" onclick="checkRQ(this,${oi},${q.ans},${qi})">
+          <span style="font-weight:600;color:var(--plum);margin-right:6px">${String.fromCharCode(65+oi)}.</span> ${o}
         </div>`).join('')}
       </div>
+      <div class="rq-explain hidden" id="rq-ex-${qi}">${q.explain}</div>
     </div>`
   ).join('');
 }
 
-function showTip(e, el) {
+function tapWord(e, el) {
+  e.stopPropagation();
+  document.querySelectorAll('.vocab-word.tapped').forEach(w => { if (w !== el) w.classList.remove('tapped'); });
+  const wasActive = el.classList.contains('tapped');
+  el.classList.toggle('tapped');
+  if (wasActive) { hideTip(); return; }
   const t = document.getElementById('tooltip');
   document.getElementById('tt-jp').textContent = el.dataset.j;
   document.getElementById('tt-read').textContent = el.dataset.r;
   document.getElementById('tt-en').textContent = el.dataset.e;
   t.style.display = 'block';
-  t.style.left = Math.min(e.clientX + 10, window.innerWidth - 200) + 'px';
-  t.style.top = (e.clientY - 70) + 'px';
+  const rect = el.getBoundingClientRect();
+  t.style.left = Math.min(rect.left, window.innerWidth - 210) + 'px';
+  t.style.top = Math.max(10, rect.top - 90) + 'px';
 }
-function hideTip() { document.getElementById('tooltip').style.display = 'none'; }
-async function checkRQ(el, chosen, correct, explain) {
-  el.parentElement.querySelectorAll('.rq-opt').forEach(o => o.style.pointerEvents = 'none');
-  if (chosen === correct) { el.style.background = 'var(--green3)'; el.style.borderColor = '#86efac'; el.style.color = 'var(--green)'; await addXP(15); }
-  else { el.style.background = 'var(--red3)'; el.style.borderColor = '#fca5a5'; el.style.color = 'var(--red)'; el.parentElement.querySelectorAll('.rq-opt')[correct].style.background = 'var(--green3)'; }
-  document.getElementById('companion-msg').textContent = explain;
-}
-function backToPassages() { document.getElementById('reading-menu').classList.remove('hidden'); document.getElementById('reading-active').classList.add('hidden'); }
 
-// ═══════════════════════════════════════════
+document.addEventListener('click', (e) => {
+  if (!e.target.closest('.vocab-word') && !e.target.closest('#tooltip')) hideTip();
+});
+
+function showTip(e, el) { tapWord(e, el); }
+function hideTip() {
+  document.getElementById('tooltip').style.display = 'none';
+  document.querySelectorAll('.vocab-word.tapped').forEach(w => w.classList.remove('tapped'));
+}
+
+function toggleFurigana() {
+  _rdFurigana = !_rdFurigana;
+  document.querySelectorAll('.rp-text, .sp-jp').forEach(el => el.classList.toggle('hide-furigana', !_rdFurigana));
+  const btn = document.getElementById('fg-toggle');
+  if (btn) { btn.classList.toggle('active', _rdFurigana); btn.textContent = (_rdFurigana ? 'あ Reading hints ON' : 'あ Reading hints OFF'); }
+}
+
+function readPassageAloud() {
+  if (!_rdPassage || !window.speechSynthesis) return;
+  window.speechSynthesis.cancel();
+  const text = _rdPassage.text.filter(p => typeof p !== 'string' || p !== '\n').map(p => typeof p === 'string' ? p : p.j).join('');
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang = 'ja-JP'; u.rate = 0.82;
+  window.speechSynthesis.speak(u);
+  const btn = document.getElementById('audio-btn');
+  if (btn) { btn.textContent = '⏹ Stop'; btn.onclick = () => { window.speechSynthesis.cancel(); btn.textContent = '🔊 Read aloud'; btn.onclick = readPassageAloud; }; }
+  u.onend = () => { if (btn) { btn.textContent = '🔊 Read aloud'; btn.onclick = readPassageAloud; } };
+}
+
+async function checkRQ(el, chosen, correct, qi) {
+  const container = el.parentElement;
+  container.querySelectorAll('.rq-opt').forEach(o => { o.style.pointerEvents = 'none'; o.style.cursor = 'default'; });
+  const exEl = document.getElementById('rq-ex-' + qi);
+  if (chosen === correct) { el.classList.add('rq-correct'); await addXP(15); }
+  else { el.classList.add('rq-wrong'); container.querySelectorAll('.rq-opt')[correct].classList.add('rq-correct'); }
+  if (exEl) exEl.classList.remove('hidden');
+  if (_rdPassage && _rdPassage.qs[qi]) document.getElementById('companion-msg').textContent = _rdPassage.qs[qi].explain;
+}
+
+function openSentencePractice(id) {
+  const p = PASSAGES.find(x => x.id === id);
+  if (!p) return;
+  _rdPassage = p;
+  _spSentences = [];
+  let cur = [];
+  p.text.forEach(part => {
+    if (part === '\n') { if (cur.length) _spSentences.push(cur); cur = []; }
+    else cur.push(part);
+  });
+  if (cur.length) _spSentences.push(cur);
+  _spIdx = 0;
+  document.getElementById('reading-menu').classList.add('hidden');
+  document.getElementById('reading-active').classList.add('hidden');
+  document.getElementById('reading-sentences').classList.remove('hidden');
+  document.getElementById('sp-title').textContent = p.title;
+  showSentence();
+}
+
+function showSentence() {
+  const total = _spSentences.length;
+  document.getElementById('sp-counter').textContent = 'Sentence ' + (_spIdx + 1) + ' of ' + total;
+  document.getElementById('sp-progress').style.width = Math.round((_spIdx / total) * 100) + '%';
+  const jpEl = document.getElementById('sp-jp');
+  jpEl.innerHTML = _spSentences[_spIdx].map(buildWordHtml).join('');
+  jpEl.classList.toggle('hide-furigana', !_rdFurigana);
+  document.getElementById('sp-translation').classList.add('hidden');
+  document.getElementById('sp-translation').textContent = '';
+  const revBtn = document.getElementById('sp-reveal-btn');
+  revBtn.classList.remove('hidden');
+  revBtn.textContent = 'Show translation 👁';
+  document.getElementById('sp-prev').disabled = _spIdx === 0;
+  document.getElementById('sp-next').textContent = _spIdx === total - 1 ? 'Finish ✓' : 'Next sentence →';
+}
+
+function revealSentence() {
+  const translation = _spSentences[_spIdx].filter(p => typeof p !== 'string').map(p => p.e).filter(Boolean).join(' ');
+  const transEl = document.getElementById('sp-translation');
+  transEl.textContent = '→ ' + translation;
+  transEl.classList.remove('hidden');
+  document.getElementById('sp-reveal-btn').classList.add('hidden');
+}
+
+function readSentenceAloud() {
+  if (!_spSentences[_spIdx] || !window.speechSynthesis) return;
+  window.speechSynthesis.cancel();
+  const text = _spSentences[_spIdx].filter(p => typeof p !== 'string').map(p => p.j).join('');
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang = 'ja-JP'; u.rate = 0.8;
+  window.speechSynthesis.speak(u);
+}
+
+function nextSentence() {
+  if (_spIdx < _spSentences.length - 1) { _spIdx++; showSentence(); }
+  else backToPassages();
+}
+function prevSentence() { if (_spIdx > 0) { _spIdx--; showSentence(); } }
+
+function backToPassages() {
+  window.speechSynthesis && window.speechSynthesis.cancel();
+  hideTip();
+  document.getElementById('reading-menu').classList.remove('hidden');
+  document.getElementById('reading-active').classList.add('hidden');
+  document.getElementById('reading-sentences').classList.add('hidden');
+}
 //  QUIZ
 // ═══════════════════════════════════════════
 let qzQs = [], qzIdx = 0, qzScore = 0;
