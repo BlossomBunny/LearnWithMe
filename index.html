@@ -193,6 +193,34 @@ body{font-family:var(--ff);background:var(--bg);color:var(--ink);min-height:100v
 .gc-zone-hint{font-size:12px;color:var(--ink3);font-style:italic;pointer-events:none}
 .gc-check-btn{background:var(--plum);color:#fff;border:none;border-radius:8px;padding:7px 18px;font-size:13px;font-weight:600;cursor:pointer;margin-top:4px;opacity:0;pointer-events:none;transition:opacity .2s}
 .gc-check-btn.visible{opacity:1;pointer-events:auto}
+.kj-cat-hd{display:flex;align-items:center;gap:8px;margin:22px 0 6px;padding-bottom:8px;border-bottom:2px solid var(--border)}
+.kj-cat-title{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--ink2);flex:1}
+.kj-cat-prog{font-size:11px;color:var(--ink3)}
+.kj-cat-bar{height:3px;background:var(--border);border-radius:2px;margin:0 0 14px;overflow:hidden}
+.kj-cat-bar-fill{height:100%;background:var(--gold);border-radius:2px;transition:width .5s}
+.kj-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;margin-bottom:6px}
+.kj-card{background:var(--card);border:1.5px solid var(--border2);border-radius:12px;padding:14px 10px 12px;cursor:pointer;transition:all .15s;text-align:center;position:relative}
+.kj-card:hover{border-color:var(--gold);transform:translateY(-1px);box-shadow:0 3px 10px rgba(0,0,0,.07)}
+.kj-card.kj-known{border-color:#22c55e;background:#f0fdf4}
+.kj-char{font-size:38px;font-family:var(--ffj);line-height:1.1;margin-bottom:4px}
+.kj-en{font-size:11px;color:var(--ink2);margin-bottom:6px}
+.kj-check{position:absolute;top:6px;right:8px;font-size:13px;color:#22c55e;opacity:0;transition:opacity .2s}
+.kj-card.kj-known .kj-check{opacity:1}
+.kj-detail-char{font-size:64px;font-family:var(--ffj);text-align:center;margin-bottom:10px;line-height:1}
+.kj-detail-en{font-size:16px;font-weight:700;color:var(--ink);text-align:center;margin-bottom:14px}
+.kj-reading-row{display:flex;gap:12px;margin-bottom:12px;justify-content:center}
+.kj-reading{text-align:center}
+.kj-reading-lbl{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--ink3);margin-bottom:2px}
+.kj-reading-val{font-size:13px;font-family:var(--ffj);color:var(--ink);background:var(--card);border:1px solid var(--border2);border-radius:6px;padding:4px 10px}
+.kj-words-lbl{font-size:11px;font-weight:700;color:var(--ink2);margin-bottom:7px;text-transform:uppercase;letter-spacing:.4px}
+.kj-word-row{display:flex;align-items:baseline;gap:8px;padding:5px 0;border-bottom:1px solid var(--border)}
+.kj-word-row:last-child{border-bottom:none}
+.kj-word-k{font-size:15px;font-family:var(--ffj);color:var(--ink)}
+.kj-word-r{font-size:11px;color:var(--ink3);font-family:var(--ffj)}
+.kj-word-e{font-size:11px;color:var(--ink2);margin-left:auto}
+.kj-know-btn{width:100%;margin-top:12px;padding:9px;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s}
+.kj-know-btn.unknown{background:var(--plum);color:#fff}
+.kj-know-btn.known{background:#dcfce7;color:#16a34a;border:1.5px solid #22c55e}
 @keyframes gcShake{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-5px)}40%,80%{transform:translateX(5px)}}
 .gc-xopt{padding:8px 11px;border:1.5px solid var(--border2);border-radius:var(--r);background:var(--card);cursor:pointer;font-size:12px;font-family:var(--ffj);color:var(--ink);text-align:center;transition:all .13s;line-height:1.35}
 .gc-xopt:hover:not(:disabled){border-color:var(--plum);background:var(--plum3)}
@@ -501,7 +529,11 @@ body{font-family:var(--ff);background:var(--bg);color:var(--ink);min-height:100v
       <svg viewBox="0 0 24 24"><polyline points="4 7 4 4 20 4 20 7"/><line x1="9" y1="20" x2="15" y2="20"/><line x1="12" y1="4" x2="12" y2="20"/></svg>
       <span class="nav-label">Grammar</span>
     </button>
-    <button class="nav-btn" id="nb-reading" onclick="setPage('reading')">
+    <button class="nav-btn" id="nb-kanji" onclick="setPage('kanji')">
+<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+<span class="nav-label">Kanji</span>
+</button>
+<button class="nav-btn" id="nb-reading" onclick="setPage('reading')">
       <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
       <span class="nav-label">Read</span>
     </button>
@@ -731,7 +763,10 @@ body{font-family:var(--ff);background:var(--bg);color:var(--ink);min-height:100v
     </div>
 
     <!-- READING -->
-    <div class="page" id="page-reading">
+    <div class="page" id="page-kanji">
+  <div style="padding:4px 0 2px"><div id="kanji-list"></div></div>
+</div>
+<div class="page" id="page-reading">
       <div id="reading-menu">
         <div style="margin-bottom:18px">
           <div style="font-size:15px;font-weight:600;margin-bottom:4px">Reading Practice</div>
@@ -1633,6 +1668,7 @@ function setPage(page) {
   if (page === 'kana') renderKanaGrids();
   if (page === 'vocab') { renderVocabCategoryMenu(); document.getElementById('vocab-cat-menu').classList.remove('hidden'); document.querySelector('.fc-wrap').classList.add('hidden'); }
   if (page === 'grammar') renderGrammar();
+  if (page === 'kanji') renderKanji();
   if (page === 'reading') renderPassageList();
   if (page === 'quiz') renderQuizMenu();
   if (page === 'settings') renderSettings();
@@ -2205,6 +2241,92 @@ function renderVocabBrowse() {
 // ═══════════════════════════════════════════
 //  GRAMMAR
 // ═══════════════════════════════════════════
+const KANJI_CATS=[
+  {id:'numbers', name:'Numbers & Time', emoji:'🔢', desc:'Counting, money, dates and time'},
+  {id:'people',  name:'People & Body',  emoji:'👤', desc:'Family, body parts, people words'},
+  {id:'nature',  name:'Nature',          emoji:'🌿', desc:'Mountains, rivers, trees'},
+  {id:'place',   name:'Place & Direction',emoji:'🧭', desc:'Big, small, up, down, compass points'},
+  {id:'school',  name:'School & Language',emoji:'📚', desc:'Study, school, country, language'},
+  {id:'colors',  name:'Colors',           emoji:'🎨', desc:'White, black, red, blue'},
+  {id:'verbs',   name:'Action Verbs',     emoji:'🏃', desc:'Go, come, see, eat, read, write'},
+  {id:'daily',   name:'Daily Life',       emoji:'☀️', desc:'Now, what, I, electricity, car'},
+];
+const KANJI=[
+  {k:'一',on:'イチ・イツ',kun:'ひと(つ)',en:'one',cat:'numbers',w:[{w:'一月',r:'いちがつ',e:'January'},{w:'一人',r:'ひとり',e:'one person'}]},
+  {k:'二',on:'ニ',kun:'ふた(つ)',en:'two',cat:'numbers',w:[{w:'二月',r:'にがつ',e:'February'},{w:'二人',r:'ふたり',e:'two people'}]},
+  {k:'三',on:'サン',kun:'みっ(つ)',en:'three',cat:'numbers',w:[{w:'三月',r:'さんがつ',e:'March'},{w:'三時',r:'さんじ',e:"3 o'clock"}]},
+  {k:'四',on:'シ・ヨン',kun:'よっ(つ)・よ',en:'four',cat:'numbers',w:[{w:'四月',r:'しがつ',e:'April'},{w:'四時',r:'よじ',e:"4 o'clock"}]},
+  {k:'五',on:'ゴ',kun:'いつ(つ)',en:'five',cat:'numbers',w:[{w:'五月',r:'ごがつ',e:'May'},{w:'五分',r:'ごふん',e:'5 minutes'}]},
+  {k:'六',on:'ロク',kun:'むっ(つ)',en:'six',cat:'numbers',w:[{w:'六月',r:'ろくがつ',e:'June'},{w:'六時',r:'ろくじ',e:"6 o'clock"}]},
+  {k:'七',on:'シチ・ナナ',kun:'なな(つ)',en:'seven',cat:'numbers',w:[{w:'七月',r:'しちがつ',e:'July'},{w:'七時',r:'しちじ',e:"7 o'clock"}]},
+  {k:'八',on:'ハチ',kun:'やっ(つ)',en:'eight',cat:'numbers',w:[{w:'八月',r:'はちがつ',e:'August'},{w:'八時',r:'はちじ',e:"8 o'clock"}]},
+  {k:'九',on:'ク・キュウ',kun:'ここの(つ)',en:'nine',cat:'numbers',w:[{w:'九月',r:'くがつ',e:'September'},{w:'九時',r:'くじ',e:"9 o'clock"}]},
+  {k:'十',on:'ジュウ・ジッ',kun:'とお・と',en:'ten',cat:'numbers',w:[{w:'十月',r:'じゅうがつ',e:'October'},{w:'十分',r:'じゅっぷん',e:'10 minutes'}]},
+  {k:'百',on:'ヒャク',kun:'—',en:'hundred',cat:'numbers',w:[{w:'百円',r:'ひゃくえん',e:'100 yen'},{w:'三百',r:'さんびゃく',e:'300'}]},
+  {k:'千',on:'セン',kun:'ち',en:'thousand',cat:'numbers',w:[{w:'千円',r:'せんえん',e:'1000 yen'},{w:'三千',r:'さんぜん',e:'3000'}]},
+  {k:'万',on:'マン・バン',kun:'—',en:'ten-thousand',cat:'numbers',w:[{w:'一万円',r:'いちまんえん',e:'10,000 yen'},{w:'何万',r:'なんまん',e:'tens of thousands'}]},
+  {k:'円',on:'エン',kun:'まる',en:'yen / circle',cat:'numbers',w:[{w:'百円',r:'ひゃくえん',e:'100 yen'},{w:'円い',r:'まるい',e:'round'}]},
+  {k:'年',on:'ネン',kun:'とし',en:'year',cat:'numbers',w:[{w:'今年',r:'ことし',e:'this year'},{w:'来年',r:'らいねん',e:'next year'}]},
+  {k:'月',on:'ゲツ・ガツ',kun:'つき',en:'moon / month',cat:'numbers',w:[{w:'月曜日',r:'げつようび',e:'Monday'},{w:'今月',r:'こんげつ',e:'this month'}]},
+  {k:'日',on:'ニチ・ジツ',kun:'ひ・か',en:'sun / day',cat:'numbers',w:[{w:'今日',r:'きょう',e:'today'},{w:'日本',r:'にほん',e:'Japan'}]},
+  {k:'時',on:'ジ',kun:'とき',en:'time / hour',cat:'numbers',w:[{w:'何時',r:'なんじ',e:'what time'},{w:'時間',r:'じかん',e:'time / hours'}]},
+  {k:'分',on:'フン・プン・ブン',kun:'わ(かる)',en:'minute / understand',cat:'numbers',w:[{w:'五分',r:'ごふん',e:'5 minutes'},{w:'半分',r:'はんぶん',e:'half'}]},
+  {k:'間',on:'カン・ケン',kun:'あいだ・ま',en:'interval / between',cat:'numbers',w:[{w:'時間',r:'じかん',e:'time / hours'},{w:'人間',r:'にんげん',e:'human being'}]},
+  {k:'人',on:'ジン・ニン',kun:'ひと',en:'person',cat:'people',w:[{w:'日本人',r:'にほんじん',e:'Japanese person'},{w:'一人',r:'ひとり',e:'one person'}]},
+  {k:'口',on:'コウ・ク',kun:'くち',en:'mouth',cat:'people',w:[{w:'出口',r:'でぐち',e:'exit'},{w:'入口',r:'いりぐち',e:'entrance'}]},
+  {k:'手',on:'シュ',kun:'て',en:'hand',cat:'people',w:[{w:'上手',r:'じょうず',e:'skilled'},{w:'下手',r:'へた',e:'unskilled'}]},
+  {k:'目',on:'モク・ボク',kun:'め',en:'eye',cat:'people',w:[{w:'目上',r:'めうえ',e:'superior'},{w:'一目',r:'ひとめ',e:'a glance'}]},
+  {k:'耳',on:'ジ',kun:'みみ',en:'ear',cat:'people',w:[{w:'耳',r:'みみ',e:'ear'},{w:'中耳',r:'ちゅうじ',e:'middle ear'}]},
+  {k:'足',on:'ソク',kun:'あし・た(りる)',en:'foot / leg / enough',cat:'people',w:[{w:'足',r:'あし',e:'leg / foot'},{w:'一足',r:'いっそく',e:'one pair (shoes)'}]},
+  {k:'父',on:'フ',kun:'ちち',en:'father',cat:'people',w:[{w:'父',r:'ちち',e:'(my) father'},{w:'父母',r:'ふぼ',e:'parents'}]},
+  {k:'母',on:'ボ',kun:'はは',en:'mother',cat:'people',w:[{w:'母',r:'はは',e:'(my) mother'},{w:'母国語',r:'ぼこくご',e:'native language'}]},
+  {k:'子',on:'シ・ス',kun:'こ',en:'child',cat:'people',w:[{w:'子ども',r:'こども',e:'child'},{w:'女の子',r:'おんなのこ',e:'girl'}]},
+  {k:'男',on:'ダン・ナン',kun:'おとこ',en:'man / male',cat:'people',w:[{w:'男の人',r:'おとこのひと',e:'man'},{w:'男の子',r:'おとこのこ',e:'boy'}]},
+  {k:'女',on:'ジョ・ニョ',kun:'おんな',en:'woman / female',cat:'people',w:[{w:'女の人',r:'おんなのひと',e:'woman'},{w:'女の子',r:'おんなのこ',e:'girl'}]},
+  {k:'山',on:'サン',kun:'やま',en:'mountain',cat:'nature',w:[{w:'富士山',r:'ふじさん',e:'Mt. Fuji'},{w:'山川',r:'やまかわ',e:'mountains and rivers'}]},
+  {k:'川',on:'セン',kun:'かわ',en:'river',cat:'nature',w:[{w:'川',r:'かわ',e:'river'},{w:'小川',r:'おがわ',e:'stream'}]},
+  {k:'田',on:'デン',kun:'た・だ',en:'rice field',cat:'nature',w:[{w:'田んぼ',r:'たんぼ',e:'rice paddy'},{w:'田中',r:'たなか',e:'Tanaka (surname)'}]},
+  {k:'林',on:'リン',kun:'はやし',en:'forest / grove',cat:'nature',w:[{w:'林',r:'はやし',e:'forest / grove'},{w:'小林',r:'こばやし',e:'Kobayashi (surname)'}]},
+  {k:'森',on:'シン',kun:'もり',en:'forest',cat:'nature',w:[{w:'森',r:'もり',e:'forest'},{w:'森林',r:'しんりん',e:'forest / woodland'}]},
+  {k:'大',on:'ダイ・タイ',kun:'おお(きい)',en:'big / large',cat:'place',w:[{w:'大学',r:'だいがく',e:'university'},{w:'大きい',r:'おおきい',e:'big'}]},
+  {k:'小',on:'ショウ',kun:'ちい(さい)・こ',en:'small / little',cat:'place',w:[{w:'小学校',r:'しょうがっこう',e:'elementary school'},{w:'小さい',r:'ちいさい',e:'small'}]},
+  {k:'中',on:'チュウ',kun:'なか',en:'middle / inside',cat:'place',w:[{w:'中学校',r:'ちゅうがっこう',e:'middle school'},{w:'中に',r:'なかに',e:'inside'}]},
+  {k:'上',on:'ジョウ',kun:'うえ・あ(がる)',en:'up / above',cat:'place',w:[{w:'上手',r:'じょうず',e:'skilled'},{w:'上に',r:'うえに',e:'above'}]},
+  {k:'下',on:'カ・ゲ',kun:'した・さ(がる)',en:'down / below',cat:'place',w:[{w:'下手',r:'へた',e:'unskilled'},{w:'下に',r:'したに',e:'below'}]},
+  {k:'左',on:'サ',kun:'ひだり',en:'left',cat:'place',w:[{w:'左',r:'ひだり',e:'left'},{w:'左手',r:'ひだりて',e:'left hand'}]},
+  {k:'右',on:'ウ・ユウ',kun:'みぎ',en:'right',cat:'place',w:[{w:'右',r:'みぎ',e:'right'},{w:'右手',r:'みぎて',e:'right hand'}]},
+  {k:'東',on:'トウ',kun:'ひがし',en:'east',cat:'place',w:[{w:'東京',r:'とうきょう',e:'Tokyo'},{w:'東口',r:'ひがしぐち',e:'east exit'}]},
+  {k:'西',on:'セイ・サイ',kun:'にし',en:'west',cat:'place',w:[{w:'関西',r:'かんさい',e:'Kansai region'},{w:'西口',r:'にしぐち',e:'west exit'}]},
+  {k:'南',on:'ナン',kun:'みなみ',en:'south',cat:'place',w:[{w:'南口',r:'みなみぐち',e:'south exit'},{w:'南米',r:'なんべい',e:'South America'}]},
+  {k:'北',on:'ホク',kun:'きた',en:'north',cat:'place',w:[{w:'北口',r:'きたぐち',e:'north exit'},{w:'北海道',r:'ほっかいどう',e:'Hokkaido'}]},
+  {k:'学',on:'ガク',kun:'まな(ぶ)',en:'study / learn',cat:'school',w:[{w:'学校',r:'がっこう',e:'school'},{w:'大学',r:'だいがく',e:'university'}]},
+  {k:'校',on:'コウ',kun:'—',en:'school',cat:'school',w:[{w:'学校',r:'がっこう',e:'school'},{w:'高校',r:'こうこう',e:'high school'}]},
+  {k:'先',on:'セン',kun:'さき',en:'ahead / before',cat:'school',w:[{w:'先生',r:'せんせい',e:'teacher'},{w:'先に',r:'さきに',e:'ahead / first'}]},
+  {k:'生',on:'セイ・ショウ',kun:'い(きる)・う(まれる)',en:'life / birth',cat:'school',w:[{w:'先生',r:'せんせい',e:'teacher'},{w:'学生',r:'がくせい',e:'student'}]},
+  {k:'国',on:'コク',kun:'くに',en:'country / nation',cat:'school',w:[{w:'日本国',r:'にほんこく',e:'Japan (formal)'},{w:'外国',r:'がいこく',e:'foreign country'}]},
+  {k:'語',on:'ゴ',kun:'かた(る)',en:'language / speak',cat:'school',w:[{w:'日本語',r:'にほんご',e:'Japanese'},{w:'英語',r:'えいご',e:'English'}]},
+  {k:'本',on:'ホン',kun:'もと',en:'book / origin',cat:'school',w:[{w:'本',r:'ほん',e:'book'},{w:'日本',r:'にほん',e:'Japan'}]},
+  {k:'文',on:'ブン・モン',kun:'ふみ',en:'sentence / writing',cat:'school',w:[{w:'文字',r:'もじ',e:'character / letter'},{w:'文法',r:'ぶんぽう',e:'grammar'}]},
+  {k:'白',on:'ハク・ビャク',kun:'しろ・しら',en:'white',cat:'colors',w:[{w:'白い',r:'しろい',e:'white'},{w:'白黒',r:'しろくろ',e:'black and white'}]},
+  {k:'黒',on:'コク',kun:'くろ',en:'black',cat:'colors',w:[{w:'黒い',r:'くろい',e:'black'},{w:'黒板',r:'こくばん',e:'blackboard'}]},
+  {k:'赤',on:'セキ・シャク',kun:'あか',en:'red',cat:'colors',w:[{w:'赤い',r:'あかい',e:'red'},{w:'赤ちゃん',r:'あかちゃん',e:'baby'}]},
+  {k:'青',on:'セイ・ショウ',kun:'あお',en:'blue / green',cat:'colors',w:[{w:'青い',r:'あおい',e:'blue'},{w:'青信号',r:'あおしんごう',e:'green light'}]},
+  {k:'行',on:'コウ・ギョウ',kun:'い(く)・ゆ(く)',en:'go',cat:'verbs',w:[{w:'行きます',r:'いきます',e:'(I) go'},{w:'銀行',r:'ぎんこう',e:'bank'}]},
+  {k:'来',on:'ライ',kun:'く(る)・き',en:'come',cat:'verbs',w:[{w:'来ます',r:'きます',e:'(I) come'},{w:'来年',r:'らいねん',e:'next year'}]},
+  {k:'見',on:'ケン',kun:'み(る)',en:'see / look',cat:'verbs',w:[{w:'見ます',r:'みます',e:'(I) look'},{w:'見せる',r:'みせる',e:'show'}]},
+  {k:'聞',on:'ブン・モン',kun:'き(く)',en:'hear / listen / ask',cat:'verbs',w:[{w:'聞きます',r:'ききます',e:'(I) listen'},{w:'新聞',r:'しんぶん',e:'newspaper'}]},
+  {k:'食',on:'ショク',kun:'た(べる)',en:'eat / food',cat:'verbs',w:[{w:'食べます',r:'たべます',e:'(I) eat'},{w:'食事',r:'しょくじ',e:'meal'}]},
+  {k:'飲',on:'イン',kun:'の(む)',en:'drink',cat:'verbs',w:[{w:'飲みます',r:'のみます',e:'(I) drink'},{w:'飲み物',r:'のみもの',e:'beverage'}]},
+  {k:'読',on:'ドク',kun:'よ(む)',en:'read',cat:'verbs',w:[{w:'読みます',r:'よみます',e:'(I) read'},{w:'読書',r:'どくしょ',e:'reading hobby'}]},
+  {k:'書',on:'ショ',kun:'か(く)',en:'write',cat:'verbs',w:[{w:'書きます',r:'かきます',e:'(I) write'},{w:'教科書',r:'きょうかしょ',e:'textbook'}]},
+  {k:'話',on:'ワ',kun:'はな(す)・はなし',en:'speak / story',cat:'verbs',w:[{w:'話します',r:'はなします',e:'(I) speak'},{w:'電話',r:'でんわ',e:'telephone'}]},
+  {k:'今',on:'コン・キン',kun:'いま',en:'now / this',cat:'daily',w:[{w:'今日',r:'きょう',e:'today'},{w:'今',r:'いま',e:'now'}]},
+  {k:'何',on:'カ',kun:'なに・なん',en:'what',cat:'daily',w:[{w:'何時',r:'なんじ',e:'what time'},{w:'何月',r:'なんがつ',e:'what month'}]},
+  {k:'私',on:'シ',kun:'わたし・わたくし',en:'I / private',cat:'daily',w:[{w:'私',r:'わたし',e:'I / me'},{w:'私立',r:'しりつ',e:'private (school)'}]},
+  {k:'電',on:'デン',kun:'—',en:'electricity',cat:'daily',w:[{w:'電話',r:'でんわ',e:'telephone'},{w:'電車',r:'でんしゃ',e:'train'}]},
+  {k:'気',on:'キ・ケ',kun:'—',en:'spirit / feeling',cat:'daily',w:[{w:'元気',r:'げんき',e:'healthy / fine'},{w:'天気',r:'てんき',e:'weather'}]},
+  {k:'車',on:'シャ',kun:'くるま',en:'vehicle / car',cat:'daily',w:[{w:'電車',r:'でんしゃ',e:'train'},{w:'車',r:'くるま',e:'car'}]},
+];
 const GC_STAGES=[{name:'Stage 1 — First Steps',emoji:'🌱',patterns:[0,1,2,3]},{name:'Stage 2 — Core Particles',emoji:'🔑',patterns:[4,5,6,7,8]},{name:'Stage 3 — Pointers & More',emoji:'👆',patterns:[9,10,11,12,13,14]},{name:'Stage 4 — Questions',emoji:'❓',patterns:[15,16,17,18,19]},{name:'Stage 5 — Expressing Yourself',emoji:'💬',patterns:[20,21,22,23,24,25,26,27]}];
 function getGcMastered(){try{return JSON.parse(localStorage.getItem('gc_mastered')||'[]');}catch(e){return[];}}
 function markGcMastered(pi){const m=getGcMastered();if(!m.includes(pi)){m.push(pi);localStorage.setItem('gc_mastered',JSON.stringify(m));}renderGrammar();}
@@ -2316,6 +2438,10 @@ function buildGcFormula(g) {
   return '<div class="gc-formula">' + (html || '<span class="gcf-part">' + g.p + '</span>') + '</div>';
 }
 
+function getKjKnown(){try{return JSON.parse(localStorage.getItem('kj_known')||'[]');}catch(e){return[];}}
+function markKjKnown(idx,known){var m=getKjKnown();if(known&&!m.includes(idx)){m.push(idx);}else if(!known){m=m.filter(function(x){return x!==idx;});}localStorage.setItem('kj_known',JSON.stringify(m));renderKanji();}
+function openKjDetail(idx){var ov=document.getElementById('kj-overlay');if(ov)ov.remove();var k=KANJI[idx];var known=getKjKnown().includes(idx);var html='<div id="kj-overlay" style="position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:999;display:flex;align-items:flex-end;justify-content:center" onclick="if(event.target===this)this.remove()"><div style="background:var(--card);border-radius:16px 16px 0 0;padding:20px 18px 32px;width:100%;max-width:420px;max-height:80vh;overflow-y:auto"><div class="kj-detail-char">'+k.k+'</div><div class="kj-detail-en">'+k.en+'</div><div class="kj-reading-row"><div class="kj-reading"><div class="kj-reading-lbl">おんよみ (On)</div><div class="kj-reading-val">'+k.on+'</div></div><div class="kj-reading"><div class="kj-reading-lbl">くんよみ (Kun)</div><div class="kj-reading-val">'+k.kun+'</div></div></div><div class="kj-words-lbl">💬 Words using this kanji</div>'+k.w.map(function(ww){return '<div class="kj-word-row"><span class="kj-word-k">'+ww.w+'</span><span class="kj-word-r">'+ww.r+'</span><span class="kj-word-e">'+ww.e+'</span></div>';}).join('')+'<button class="kj-know-btn '+(known?'known':'unknown')+'" onclick="markKjKnown('+idx+','+(known?'false':'true')+');document.getElementById(\'kj-overlay\').remove()">'+(known?'✓ I know this — unmark':'Mark as learned ✓')+'</button></div></div>';document.body.insertAdjacentHTML('beforeend',html);}
+function renderKanji(){var known=getKjKnown();var html='';KANJI_CATS.forEach(function(cat){var inCat=KANJI.map(function(k,i){return {k:k,i:i};}).filter(function(x){return x.k.cat===cat.id;});var doneCount=inCat.filter(function(x){return known.includes(x.i);}).length;var pct=Math.round(doneCount/inCat.length*100);html+='<div class="kj-cat-hd"><span>'+cat.emoji+'</span><span class="kj-cat-title">'+cat.name+'</span><span class="kj-cat-prog">'+doneCount+'/'+inCat.length+'</span></div>';html+='<div class="kj-cat-bar"><div class="kj-cat-bar-fill" style="width:'+pct+'%"></div></div>';html+='<p style="font-size:12px;color:var(--ink3);margin:-8px 0 12px">'+cat.desc+'</p>';html+='<div class="kj-grid">';inCat.forEach(function(x){var isKnown=known.includes(x.i);html+='<div class="kj-card'+(isKnown?' kj-known':'')+'" onclick="openKjDetail('+x.i+')"><div class="kj-check">✓</div><div class="kj-char">'+x.k.k+'</div><div class="kj-en">'+x.k.en+'</div></div>';});html+='</div>';});document.getElementById('kanji-list').innerHTML=html;}
 function renderGrammar() {
   const mastered=getGcMastered();let html='';
   GC_STAGES.forEach((stage,si)=>{
