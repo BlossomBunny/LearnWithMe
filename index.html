@@ -200,11 +200,27 @@ body{font-family:var(--ff);background:var(--bg);color:var(--ink);min-height:100v
 .gc-ex-en{font-size:12px;color:var(--ink3)}
 .gc-chevron{transition:transform .18s;color:var(--ink3);flex-shrink:0}
 .gc-chevron.open{transform:rotate(180deg)}
+.gc-formula{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:14px 0 16px;padding:14px 16px;background:var(--surface);border-radius:10px;border:1px solid var(--border)}
+.gcf-slot{background:var(--plum3);color:var(--plum);font-size:12px;font-weight:700;padding:4px 12px;border-radius:20px;letter-spacing:.3px}
+.gcf-part{color:var(--ink);font-family:var(--ffj);font-size:16px;font-weight:600;padding:2px 4px}
+.gc-sect-lbl{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--ink3);margin:16px 0 8px;display:flex;align-items:center;gap:5px}
+.gc-intro{background:var(--plum3);border-left:3px solid var(--plum2);padding:10px 14px;border-radius:0 8px 8px 0;font-size:13px;color:var(--ink);margin:0 0 12px;line-height:1.6}
+.friend-char-wrap{width:52px;height:52px;flex-shrink:0;border-radius:50%;overflow:hidden;background:var(--surface);border:2px solid var(--border2)}
+.friend-char-portrait{width:100%;height:100%;border-radius:50%}
 
 /* ── READING ── */
 .rp-text ruby{display:inline-block;text-align:center;vertical-align:bottom}
 .rp-text rt{display:block;font-size:10px;color:var(--plum);font-family:var(--ffj);line-height:1.2;margin-bottom:2px;transition:opacity .2s}
 .rp-text.hide-furigana rt{opacity:0;pointer-events:none}
+.rd-prereading{background:var(--card);border:1px solid var(--border);border-radius:var(--r2);padding:20px 22px;margin-bottom:18px;box-shadow:var(--shadow)}
+.rdp-intro{font-size:13px;color:var(--ink2);line-height:1.7;margin-bottom:16px;padding:12px 14px;background:var(--plum3);border-left:3px solid var(--plum2);border-radius:0 8px 8px 0}
+.rdp-sect{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--ink3);margin:14px 0 8px}
+.rdp-vocab-grid{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:4px}
+.rdp-vc{background:var(--surface);border:1px solid var(--border2);border-radius:10px;padding:8px 12px;text-align:center;min-width:80px}
+.rdp-vc-jp{font-family:var(--ffj);font-size:16px;color:var(--ink);font-weight:600}
+.rdp-vc-ro{font-size:10px;color:var(--plum);margin:2px 0}
+.rdp-vc-en{font-size:11px;color:var(--ink3)}
+.rdp-grammar-note{background:var(--gold3);border-left:3px solid var(--gold);padding:10px 14px;border-radius:0 8px 8px 0;font-size:12px;color:var(--ink2);line-height:1.7}
 .rd-controls{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:14px}
 .rd-toggle{padding:5px 14px;border:1.5px solid var(--border2);border-radius:20px;font-size:12px;cursor:pointer;background:var(--card);font-family:var(--ff);transition:all .14s;color:var(--ink2)}
 .rd-toggle:hover{border-color:var(--plum2);color:var(--plum)}
@@ -714,6 +730,7 @@ body{font-family:var(--ff);background:var(--bg);color:var(--ink);min-height:100v
           <button class="btn btn-ghost btn-sm" onclick="backToPassages()">&#8592; Back</button>
           <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.6px;color:var(--plum);flex:1" id="ra-title"></div>
         </div>
+        <div id="ra-prereading" class="rd-prereading hidden"></div>
         <div class="rd-controls">
           <button class="rd-toggle active" id="fg-toggle" onclick="toggleFurigana()">&#12354; Reading hints ON</button>
           <button class="rd-toggle" id="audio-btn" onclick="readPassageAloud()">&#128266; Read aloud</button>
@@ -794,6 +811,7 @@ body{font-family:var(--ff);background:var(--bg);color:var(--ink);min-height:100v
         <button class="tab active" onclick="friendsTab('activity',this)">Activity</button>
         <button class="tab" onclick="friendsTab('list',this)">Friends</button>
         <button class="tab" onclick="friendsTab('add',this)">Add Friend</button>
+      </div>
       <div id="ft-activity">
         <div id="weekly-roundup" class="settings-section hidden" style="margin-bottom:16px"></div>
         <div class="settings-section" style="margin-bottom:16px">
@@ -805,7 +823,6 @@ body{font-family:var(--ff);background:var(--bg);color:var(--ink);min-height:100v
         </div>
         <div id="ft-feed"><div style="text-align:center;padding:40px;color:var(--ink3)"><div style="font-size:32px;margin-bottom:8px">🌸</div>Add friends to see their activity here!</div></div>
       </div>
-      <div id="ft-activity"><div style="text-align:center;padding:40px;color:var(--ink3)"><div class="spinner"></div></div></div>
       <div id="ft-list" class="hidden"><div id="friends-list"></div></div>
       <div id="ft-add" class="hidden">
         <div class="settings-section">
@@ -1251,7 +1268,7 @@ const PASSAGES=[
    qs:[
      {q:'Where does Tanaka study?',opts:['At home','At school','At the library','At a café'],ans:1,explain:'がっこうで = "at school"'},
      {q:'How does Tanaka feel about Japanese?',opts:['Easy and boring','Difficult but fun','Easy and fun','Too difficult'],ans:1,explain:'むずかしいですが、たのしいです = "Difficult but fun"'},
-   ]},
+   ], intro:'Tanaka introduces himself in Japanese. This is a classic self-introduction (自己紹介・じこしょうかい). You\'ll see the most important N5 pattern: は〜です.', grammarNote:'〜は〜です (I am~, this is~) · 〜で〜をべんきょうします (study ~ at ~) · 〜がたのしい (~ is fun)'},
   {id:'weather',title:'てんき — The Weather',
    text:[
      {j:'きょう',r:'kyou',e:'today'},' ',{j:'は',r:'wa',e:'(topic)'},' ',{j:'いい',r:'ii',e:'good'},' ',{j:'てんき',r:'tenki',e:'weather'},' ',{j:'です',r:'desu',e:'it is'},'. ',
@@ -1262,7 +1279,7 @@ const PASSAGES=[
    qs:[
      {q:'What is the weather like?',opts:['Rainy','Cold','Good / Fine','Cloudy'],ans:2,explain:'いいてんきです = "good weather"'},
      {q:'What will the narrator do?',opts:['Shopping','Go to school','Take a walk in the park','Cook dinner'],ans:2,explain:'こうえんでさんぽをします = "take a walk in the park"'},
-   ]},
+   ], intro:'A short weather report and outdoor plans. Japanese often uses は to state facts about the day. Watch for adjective + です patterns.', grammarNote:'〜は〜です (topic + description) · い-adjective + です · そとは〜 (outside is~)'},
   {id:'food',title:'レストランで — At the Restaurant',
    text:[
      {j:'レストラン',r:'resutoran',e:'restaurant'},' ',{j:'で',r:'de',e:'at'},' ',{j:'ひるごはん',r:'hirugohan',e:'lunch'},' ',{j:'を',r:'wo',e:'(object)'},' ',{j:'たべます',r:'tabemasu',e:'I eat'},'.',
@@ -1274,7 +1291,7 @@ const PASSAGES=[
    qs:[
      {q:'What meal is being eaten?',opts:['Breakfast','Lunch','Dinner','A snack'],ans:1,explain:'ひるごはん = "lunch"'},
      {q:'What is ordered?',opts:['Ramen','Tempura','Sushi','Bread'],ans:2,explain:'すしをひとつください = "one sushi please"'},
-   ]},
+   ], intro:'Ordering lunch at a Japanese restaurant. You\'ll learn polite phrases for ordering food and drinks. Notice を marking what is ordered.', grammarNote:'〜をたべます/のみます (eat/drink ~) · 〜をください (please give me~) · 〜はいかがですか (how about~?)'},
   {id:'morning',title:'わたしのあさ — My Morning Routine',
    text:[
      {j:'まいあさ',r:'maiasa',e:'every morning'},' ',{j:'ろくじ',r:'roku-ji',e:"six o'clock"},' ',{j:'に',r:'ni',e:'at'},' ',{j:'おきます',r:'okimasu',e:'I wake up'},'. ',
@@ -1292,7 +1309,7 @@ const PASSAGES=[
      {q:'What time does the narrator wake up?',opts:['5am','6am','7am','7:30am'],ans:1,explain:'まいあさろくじにおきます = "wake up at 6 every morning"'},
      {q:'What does the narrator have for breakfast?',opts:['Rice and tea','Eggs and juice','Toast and coffee','Sushi'],ans:2,explain:'トーストとコーヒー = "toast and coffee"'},
      {q:'How does the narrator get to school?',opts:['By bus','Walking','By car','By train'],ans:3,explain:'でんしゃで = "by train"'},
-   ]},
+   ], intro:'A busy morning routine from waking up to leaving for school. This passage uses many action verbs. Notice how に marks the time actions happen.', grammarNote:'〜に〜ます (do ~ at [time]) · 〜てから (after doing~) · 〜で (by means of, transport)'},
   {id:'shopping',title:'かいもの — Shopping',
    text:[
      {j:'きのう',r:'kinou',e:'yesterday'},' ',{j:'スーパー',r:'suupaa',e:'supermarket'},' ',{j:'に',r:'ni',e:'to'},' ',{j:'いきました',r:'ikimashita',e:'I went'},'.',
@@ -1308,7 +1325,7 @@ const PASSAGES=[
      {q:'Where did the narrator go yesterday?',opts:['The park','The station','The supermarket','The library'],ans:2,explain:'スーパーにいきました = "went to the supermarket"'},
      {q:'How much was one apple?',opts:['50 yen','100 yen','150 yen','500 yen'],ans:1,explain:'ひとつひゃくえん = "one hundred yen each"'},
      {q:'How much was the total?',opts:['1,000 yen','1,500 yen','2,000 yen','500 yen'],ans:1,explain:'ぜんぶでせんごひゃくえん = "1,500 yen in total"'},
-   ]},
+   ], intro:'A trip to the supermarket — buying vegetables, fruit, and fish. You\'ll see prices and quantities in Japanese. Notice how と connects items in a list.', grammarNote:'〜と〜 (and, listing) · 〜をください (please give me~) · 〜円 (yen amounts)'},
   {id:'plans',title:'よていは？ — Making Plans',
    text:[
      {j:'らいしゅうの',r:'raishuu no',e:"next weeks"},' ',{j:'どようび',r:'doyoubi',e:'Saturday'},' ',
@@ -1327,7 +1344,7 @@ const PASSAGES=[
      {q:'When are the plans?',opts:['This Saturday','Next Saturday','Next Sunday','This Sunday'],ans:1,explain:'らいしゅうのどようびに = "next Saturday"'},
      {q:'What activity is planned first?',opts:['Dinner','Shopping','A movie','Karaoke'],ans:2,explain:'えいがをみるつもりです = "I plan to watch a movie"'},
      {q:'What does the narrator want to do after the movie?',opts:['Go home','Go shopping','Eat dinner together','Go to karaoke'],ans:2,explain:'えいがのあとで、いっしょにばんごはんをたべたいです = "want to eat dinner together after the movie"'},
-   ]},
+   ], intro:'Yuki is making weekend plans with a friend. They discuss going to a movie on Saturday. Watch for the に particle marking time, and ましょうか for suggesting something together.', grammarNote:'〜に〜 (time marker) · 〜ましょうか (shall we~?) · 〜たいです (want to~)'},
 ];
 
 // ═══════════════════════════════════════════
@@ -2166,6 +2183,18 @@ function renderVocabBrowse() {
 // ═══════════════════════════════════════════
 //  GRAMMAR
 // ═══════════════════════════════════════════
+function buildGcFormula(g) {
+  const slots = [...g.e.matchAll(/\[([^\]]+)\]/g)].map(m => m[1]);
+  const parts = g.p.split('〜');
+  let html = '';
+  let si = 0;
+  for (let i = 0; i < parts.length; i++) {
+    if (i > 0) { html += '<span class="gcf-slot">' + (slots[si] || '…') + '</span>'; si++; }
+    if (parts[i]) html += '<span class="gcf-part">' + parts[i] + '</span>';
+  }
+  return '<div class="gc-formula">' + (html || '<span class="gcf-part">' + g.p + '</span>') + '</div>';
+}
+
 function renderGrammar() {
   document.getElementById('grammar-list').innerHTML = GRAMMAR.map((g, i) => {
     const exHtml = g.exercises ? `
@@ -2190,8 +2219,10 @@ function renderGrammar() {
         </div>
       </div>
       <div class="gc-body" id="gc-b-${i}">
-        <div class="gc-rule">${g.rule}</div>
-        ${g.ex.map(e => `<div class="gc-ex"><div class="gc-ex-jp">${e.j}</div><div class="gc-ex-read">${e.r}</div><div class="gc-ex-en">${e.e}</div></div>`).join('')}
+        ${buildGcFormula(g)}
+        <div class="gc-intro">${g.rule}</div>
+        <div class="gc-sect-lbl">💬 Examples</div>
+        ${g.ex.map(e => '<div class="gc-ex"><div class="gc-ex-jp">' + e.j + '</div><div class="gc-ex-read">' + e.r + '</div><div class="gc-ex-en">' + e.e + '</div></div>').join('')}
         ${exHtml}
       </div>
     </div>`;
@@ -2281,6 +2312,18 @@ function openPassage(id) {
   document.getElementById('reading-menu').classList.add('hidden');
   document.getElementById('reading-active').classList.remove('hidden');
   document.getElementById('reading-sentences').classList.add('hidden');
+  // Build pre-reading section
+  const preEl = document.getElementById('ra-prereading');
+  if (preEl) {
+    const keyWords = p.text.filter(w => typeof w === 'object' && w.j && w.r && w.e && w.e !== '(topic)' && w.e !== '(object)' && w.e !== '(subject)')
+      .filter((w,i,a) => a.findIndex(x => x.j === w.j) === i).slice(0,8);
+    const vocabHtml = keyWords.map(w => '<div class="rdp-vc"><div class="rdp-vc-jp">' + w.j + '</div><div class="rdp-vc-ro">' + w.r + '</div><div class="rdp-vc-en">' + w.e + '</div></div>').join('');
+    preEl.innerHTML =
+      (p.intro ? '<div class="rdp-intro">📖 ' + p.intro + '</div>' : '') +
+      '<div class="rdp-sect">📚 Key Vocabulary</div><div class="rdp-vocab-grid">' + vocabHtml + '</div>' +
+      (p.grammarNote ? '<div class="rdp-sect">🔧 Grammar Patterns in this Passage</div><div class="rdp-grammar-note">' + p.grammarNote + '</div>' : '');
+    preEl.classList.remove('hidden');
+  }
   document.getElementById('ra-title').textContent = p.title;
   const textEl = document.getElementById('ra-text');
   textEl.innerHTML = p.text.map(buildWordHtml).join('');
@@ -2422,6 +2465,7 @@ function backToPassages() {
   hideTip();
   document.getElementById('reading-menu').classList.remove('hidden');
   document.getElementById('reading-active').classList.add('hidden');
+  const pre = document.getElementById('ra-prereading'); if(pre) pre.classList.add('hidden');
   document.getElementById('reading-sentences').classList.add('hidden');
 }
 //  QUIZ
@@ -2604,12 +2648,23 @@ async function loadFriendsList() {
   ]);
   const ids = [...(s.data||[]).map(x=>x.friend_id), ...(r.data||[]).map(x=>x.user_id)].filter(Boolean);
   if (!ids.length) { el.innerHTML = '<div style="padding:24px;color:var(--ink3)">No friends yet — use Add Friend to connect! 🌸</div>'; return; }
-  const { data: profs } = await SB.from('profiles').select('id,username,display_name,avatar_emoji').in('id', ids);
-  el.innerHTML = (profs||[]).map(f =>
-    `<div class="friend-card"><div class="friend-av">${f.avatar_emoji||'🌸'}</div>` +
-    `<div><div style="font-size:14px;font-weight:600">${f.display_name||f.username}</div>` +
-    `<div style="font-size:11px;color:var(--ink3)">@${f.username}</div></div></div>`
-  ).join('');
+  const { data: profs } = await SB.from('profiles').select('id,username,display_name,avatar_emoji,active_character').in('id', ids);
+  el.innerHTML = (profs||[]).map(f => {
+    const charId = f.active_character || 'cyrene';
+    const charInfo = (typeof CHARACTERS !== 'undefined' && CHARACTERS.find(c => c.id === charId)) || {name: charId, emoji: '🌸'};
+    return '<div class="friend-card">' +
+      '<div class="friend-char-wrap"><div class="friend-char-portrait companion-portrait" id="fcp-' + f.id + '"></div></div>' +
+      '<div style="flex:1"><div style="font-size:14px;font-weight:600">' + (f.display_name||f.username) + '</div>' +
+      '<div style="font-size:11px;color:var(--ink3)">@' + f.username + '</div>' +
+      '<div style="font-size:11px;color:var(--plum);margin-top:3px">' + charInfo.emoji + ' ' + charInfo.name + '</div></div>' +
+      '</div>';
+  }).join('');
+  // Render character portraits
+  (profs||[]).forEach(f => {
+    const el2 = document.getElementById('fcp-' + f.id);
+    if (el2 && typeof drawCharacter === 'function') drawCharacter(f.active_character || 'cyrene', el2);
+  });
+}
 }
 
 async function loadFriendRequests() {
