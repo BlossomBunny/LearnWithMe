@@ -435,14 +435,14 @@ body{font-family:var(--ff);background:var(--bg);color:var(--ink);min-height:100v
     <div style="font-family:var(--ffj);font-size:96px;line-height:1;color:var(--ink);margin-bottom:8px" id="ks-char">あ</div>
     <div style="font-size:28px;font-weight:600;color:var(--plum);margin-bottom:12px" id="ks-romaji">a</div>
     <div style="font-size:13px;color:var(--ink3);line-height:1.6;margin-bottom:24px;min-height:40px" id="ks-tip"></div>
-    <button class="btn btn-primary" style="width:100%;margin-bottom:10px" onclick="markKanaSeen()">Got it! 覚えた →</button>
+    <button class="btn btn-primary" style="width:100%;margin-bottom:10px" onclick="markKanaSeen()">Got it! おぼえた →</button>
     <button class="btn btn-ghost btn-sm" style="width:100%" onclick="closeKanaStudy()">Skip for now</button>
   </div>
 </div>
 
 <div id="auth-screen">
   <div class="auth-card">
-    <div class="auth-logo">日</div>
+    <div class="auth-logo">JP</div>
     <div class="auth-title">Learn With Me — JP!</div>
     <div class="auth-sub">Your Japanese learning companion — N5 to N1</div>
     
@@ -484,7 +484,7 @@ body{font-family:var(--ff);background:var(--bg);color:var(--ink);min-height:100v
 
   <!-- SIDEBAR -->
   <nav class="sidebar">
-    <div class="nav-logo" onclick="setPage('home')">日</div>
+    <div class="nav-logo" onclick="setPage('home')">JP</div>
     <button class="nav-btn active" id="nb-home" onclick="setPage('home')">
       <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
       <span class="nav-label">Home</span>
@@ -788,7 +788,7 @@ body{font-family:var(--ff);background:var(--bg);color:var(--ink);min-height:100v
       <div id="quiz-menu">
         <div class="companion-bar" style="margin-bottom:22px">
           <div class="companion-portrait" id="quiz-portrait"></div>
-          <div><div class="companion-name" style="color:var(--plum)" id="quiz-char-name">Cyrene</div><div class="companion-msg">Ready for a challenge? 頑張って！</div></div>
+          <div><div class="companion-name" style="color:var(--plum)" id="quiz-char-name">Cyrene</div><div class="companion-msg">Ready for a challenge? がんばって！</div></div>
         </div>
         <div class="grid-3">
           <div class="mode-card" onclick="startQuiz('vocab')"><div class="mode-icon" style="background:#ede9fe">📝</div><div class="mode-title">Vocabulary MCQ</div><div class="mode-desc">Choose the correct meaning for each word</div><div class="mode-badge">10 questions</div></div>
