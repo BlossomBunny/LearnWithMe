@@ -182,6 +182,18 @@ body{font-family:var(--ff);background:var(--bg);color:var(--ink);min-height:100v
 .gc-xstep.active{display:block}
 .gc-xq{font-size:12.5px;font-weight:500;color:var(--ink);margin-bottom:9px;line-height:1.55;font-family:var(--ffj)}
 .gc-xopts{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:7px}
+.gc-scramble-zone{min-height:46px;border:2px dashed var(--border2);border-radius:10px;padding:8px 12px;margin:10px 0 6px;display:flex;flex-wrap:wrap;gap:6px;align-items:center;background:var(--surface);transition:border-color .2s}
+.gc-scramble-zone.sz-active{border-color:var(--plum2);background:var(--plum3)}
+.gc-scramble-bank{display:flex;flex-wrap:wrap;gap:7px;margin:4px 0 10px}
+.gc-tile{background:var(--card);border:1.5px solid var(--border2);border-radius:8px;padding:7px 13px;font-size:14px;font-family:var(--ffj);cursor:pointer;transition:transform .1s,border-color .15s,background .15s;user-select:none;display:inline-block}
+.gc-tile:hover{border-color:var(--plum);background:var(--plum3);transform:translateY(-1px)}
+.gc-tile.in-zone{background:var(--plum3);border-color:var(--plum2)}
+.gc-tile.tile-ok{background:#f0fdf4!important;border-color:#22c55e!important;color:#15803d}
+.gc-tile.tile-err{animation:gcShake .35s}
+.gc-zone-hint{font-size:12px;color:var(--ink3);font-style:italic;pointer-events:none}
+.gc-check-btn{background:var(--plum);color:#fff;border:none;border-radius:8px;padding:7px 18px;font-size:13px;font-weight:600;cursor:pointer;margin-top:4px;opacity:0;pointer-events:none;transition:opacity .2s}
+.gc-check-btn.visible{opacity:1;pointer-events:auto}
+@keyframes gcShake{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-5px)}40%,80%{transform:translateX(5px)}}
 .gc-xopt{padding:8px 11px;border:1.5px solid var(--border2);border-radius:var(--r);background:var(--card);cursor:pointer;font-size:12px;font-family:var(--ffj);color:var(--ink);text-align:center;transition:all .13s;line-height:1.35}
 .gc-xopt:hover:not(:disabled){border-color:var(--plum);background:var(--plum3)}
 .gc-xopt.gx-ok{border-color:#22c55e!important;background:#f0fdf4!important;color:#15803d!important;font-weight:600}
@@ -2199,6 +2211,99 @@ function markGcMastered(pi){const m=getGcMastered();if(!m.includes(pi)){m.push(p
 function gcStageUnlocked(si){if(si===0)return true;const m=getGcMastered();return GC_STAGES[si-1].patterns.every(p=>m.includes(p));}
 function gcStageComplete(si){const m=getGcMastered();return GC_STAGES[si]&&GC_STAGES[si].patterns.every(p=>m.includes(p));}
 
+window._gcTiles = {};
+function gcSplitAnswer(s) {
+  const endsP = /[。？！]$/.test(s);
+  const clean = s.replace(/[。？！]$/, '');
+  const punct = endsP ? s.slice(-1) : '';
+  const verbEnds = ['ですが','ませんでした','ましょうか','ましょう','ください','ています','ません','ました','でした','です','ます'];
+  for (const v of verbEnds) {
+    const idx = clean.indexOf(v);
+    if (idx > 1) {
+      const before = clean.slice(0, idx);
+      const after = clean.slice(idx) + punct;
+      for (const p of ['は','が','を','に','で','の','と','も','へ','より']) {
+        const pi = before.indexOf(p);
+        if (pi > 0 && pi < before.length - 1) {
+          const parts = [before.slice(0, pi + p.length), before.slice(pi + p.length), after].filter(x => x.length > 0);
+          return parts.length > 1 ? parts : [before, after];
+        }
+      }
+      return [before, after].filter(x => x.length > 0);
+    }
+  }
+  for (const p of ['は','が','を','に','で','の','と','も']) {
+    const idx = clean.indexOf(p);
+    if (idx > 0 && idx < clean.length - 2) return [clean.slice(0, idx + p.length), clean.slice(idx + p.length) + punct];
+  }
+  const mid = Math.ceil(clean.length / 2);
+  return [clean.slice(0, mid), clean.slice(mid) + punct];
+}
+function gcMakeTiles(ex) {
+  const answer = ex.opts[ex.ans];
+  if (ex.opts.every(o => o.length <= 7)) {
+    return { tiles: [...ex.opts].sort(() => Math.random() - 0.5), answer };
+  }
+  const parts = gcSplitAnswer(answer);
+  return { tiles: [...parts].sort(() => Math.random() - 0.5), answer };
+}
+function gcInitScramble(pi, xi) {
+  const ex = GRAMMAR[pi] && GRAMMAR[pi].exercises && GRAMMAR[pi].exercises[xi];
+  if (!ex) return;
+  const { tiles, answer } = gcMakeTiles(ex);
+  window._gcTiles[pi + '-' + xi] = { bank: tiles, zone: [], answer };
+  gcRenderTiles(pi, xi);
+}
+function gcRenderTiles(pi, xi) {
+  const st = window._gcTiles[pi + '-' + xi];
+  const zone = document.getElementById('gcsz-' + pi + '-' + xi);
+  const bank = document.getElementById('gcsb-' + pi + '-' + xi);
+  const chk  = document.getElementById('gcchk-' + pi + '-' + xi);
+  if (!zone || !bank) return;
+  zone.innerHTML = st.zone.length
+    ? st.zone.map((t, i) => '<span class="gc-tile in-zone" onclick="gcZoneTap(' + pi + ',' + xi + ',' + i + ')">' + t + '</span>').join('')
+    : '<span class="gc-zone-hint">Tap pieces to build the sentence →</span>';
+  zone.classList.toggle('sz-active', st.zone.length > 0);
+  bank.innerHTML = st.bank.map((t, i) => '<span class="gc-tile" onclick="gcBankTap(' + pi + ',' + xi + ',' + i + ')">' + t + '</span>').join('');
+  if (chk) chk.className = 'gc-check-btn' + (st.zone.length ? ' visible' : '');
+}
+function gcBankTap(pi, xi, idx) {
+  const st = window._gcTiles[pi + '-' + xi];
+  st.zone.push(st.bank.splice(idx, 1)[0]);
+  gcRenderTiles(pi, xi);
+}
+function gcZoneTap(pi, xi, idx) {
+  const st = window._gcTiles[pi + '-' + xi];
+  st.bank.push(st.zone.splice(idx, 1)[0]);
+  gcRenderTiles(pi, xi);
+}
+function gcCheckScramble(pi, xi) {
+  const st = window._gcTiles[pi + '-' + xi];
+  const ex = GRAMMAR[pi].exercises[xi];
+  const attempt = st.zone.join('');
+  const fb   = document.getElementById('gxfb-'  + pi + '-' + xi);
+  const zone = document.getElementById('gcsz-'  + pi + '-' + xi);
+  const chk  = document.getElementById('gcchk-' + pi + '-' + xi);
+  if (attempt === st.answer) {
+    zone.querySelectorAll('.gc-tile').forEach(t => t.classList.add('tile-ok'));
+    if (fb)  { fb.className = 'gc-xfb ok'; fb.textContent = '✓ ' + ex.explain; }
+    if (chk)   chk.style.display = 'none';
+    setTimeout(() => {
+      const cur  = document.getElementById('gxs-' + pi + '-' + xi);
+      const next = document.getElementById('gxs-' + pi + '-' + (xi + 1));
+      if (next) { next.classList.add('active'); if (cur) cur.classList.remove('active'); gcInitScramble(pi, xi + 1); }
+      else {
+        if (cur) cur.classList.remove('active');
+        const done = document.getElementById('gxdone-' + pi);
+        if (done) { done.style.display = 'block'; showCompanionBubble(charSay('correct')); markGcMastered(pi); }
+      }
+    }, 900);
+  } else {
+    zone.querySelectorAll('.gc-tile').forEach(t => { t.classList.add('tile-err'); setTimeout(() => t.classList.remove('tile-err'), 400); });
+    if (fb) { fb.className = 'gc-xfb err'; fb.textContent = '✗ Not quite — try rearranging the pieces!'; setTimeout(() => { if (fb) fb.className = 'gc-xfb'; }, 1500); }
+  }
+}
+
 function buildGcFormula(g) {
   const slots = [...g.e.matchAll(/\[([^\]]+)\]/g)].map(m => m[1]);
   const parts = g.p.split('〜');
@@ -2227,13 +2332,13 @@ function renderGrammar() {
     }
     stage.patterns.forEach(i=>{
       const g=GRAMMAR[i];const isMastered=mastered.includes(i);
-      const exHtml=g.exercises?('<div class="gc-practice"><div class="gc-practice-lbl">✏️ Practice</div>'+g.exercises.map((ex,xi)=>('<div class="gc-xstep'+(xi===0?' active':'')+'" id="gxs-'+i+'-'+xi+'"><div class="gc-prog">Question '+(xi+1)+' of '+g.exercises.length+'</div><div class="gc-xq">'+ex.q+'</div><div class="gc-xopts" id="gxo-'+i+'-'+xi+'">'+ex.opts.map((o,oi)=>'<button class="gc-xopt" onclick="checkGx('+i+','+xi+','+oi+')">'+o+'</button>').join('')+'</div><div class="gc-xfb" id="gxfb-'+i+'-'+xi+'"></div></div>')).join('')+'<div class="gc-done-badge" id="gxdone-'+i+'" style="'+(isMastered?'display:block':'')+'">🌸 Pattern practised! Keep going!</div></div>'):'';
+      const exHtml=g.exercises?('<div class="gc-practice"><div class="gc-practice-lbl">✏️ Practice</div>'+g.exercises.map((ex,xi)=>('<div class="gc-xstep'+(xi===0?' active':'')+'" id="gxs-'+i+'-'+xi+'"><div class="gc-prog">Question '+(xi+1)+' of '+g.exercises.length+'</div><div class="gc-xq">'+ex.q+'</div><div class="gc-scramble-zone" id="gcsz-'+i+'-'+xi+'"><span class="gc-zone-hint">Tap pieces to build the sentence →</span></div><div class="gc-scramble-bank" id="gcsb-'+i+'-'+xi+'"></div><button class="gc-check-btn" id="gcchk-'+i+'-'+xi+'" onclick="gcCheckScramble('+i+','+xi+')">Check ✓</button><div class="gc-xfb" id="gxfb-'+i+'-'+xi+'"></div></div>')).join('')+'<div class="gc-done-badge" id="gxdone-'+i+'" style="'+(isMastered?'display:block':'')+'">🌸 Pattern practised! Keep going!</div></div>'):'';
       html+='<div class="grammar-card"><div class="gc-head" onclick="toggleG('+i+')"><div><div class="gc-pattern">'+g.p+'</div><div class="gc-eng">'+g.e+'</div></div><div style="display:flex;gap:7px;align-items:center">'+(isMastered?'<span class="gc-mastered-tag">✓</span>':'')+'<svg class="gc-chevron" id="gc-cv-'+i+'" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></div></div><div class="gc-body" id="gc-b-'+i+'">'+buildGcFormula(g)+'<div class="gc-intro">'+g.rule+'</div><div class="gc-sect-lbl">💬 Examples</div>'+g.ex.map(e=>'<div class="gc-ex"><div class="gc-ex-jp">'+e.j+'</div><div class="gc-ex-read">'+e.r+'</div><div class="gc-ex-en">'+e.e+'</div></div>').join('')+exHtml+'</div></div>';
     });
   });
   document.getElementById('grammar-list').innerHTML=html;
 }
-function toggleG(i) { document.getElementById('gc-b-' + i).classList.toggle('open'); document.getElementById('gc-cv-' + i).classList.toggle('open'); }
+function toggleG(i) { var body=document.getElementById('gc-b-'+i); var opening=!body.classList.contains('open'); body.classList.toggle('open'); document.getElementById('gc-cv-'+i).classList.toggle('open'); if(!GRAMMAR[i].exercises){markGcMastered(i);}else if(opening){GRAMMAR[i].exercises.forEach(function(_,xi){var step=document.getElementById('gxs-'+i+'-'+xi);if(step&&step.classList.contains('active')&&!window._gcTiles[i+'-'+xi])gcInitScramble(i,xi);});} }
 
 function checkGx(pi, xi, sel) {
   const g = GRAMMAR[pi];
