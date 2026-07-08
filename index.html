@@ -200,6 +200,16 @@ body{font-family:var(--ff);background:var(--bg);color:var(--ink);min-height:100v
 .gc-ex-en{font-size:12px;color:var(--ink3)}
 .gc-chevron{transition:transform .18s;color:var(--ink3);flex-shrink:0}
 .gc-chevron.open{transform:rotate(180deg)}
+.gc-stage-hd{display:flex;align-items:center;gap:8px;margin:22px 0 6px;padding-bottom:8px;border-bottom:2px solid var(--border)}
+.gc-stage-title{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--ink2);flex:1}
+.gc-stage-prog{font-size:11px;color:var(--ink3)}
+.gc-stage-bar{height:3px;background:var(--border);border-radius:2px;margin:0 0 14px;overflow:hidden}
+.gc-stage-bar-fill{height:100%;background:var(--plum);border-radius:2px;transition:width .5s}
+.gc-locked-card .gc-head{opacity:.35;cursor:default!important;pointer-events:none}
+.gc-locked-card .gc-body{display:none!important}
+.gc-locked-row{text-align:center;font-size:12px;color:var(--ink3);padding:8px 0 14px;font-style:italic}
+.gc-mastered-tag{background:#dcfce7;color:#16a34a;font-size:10px;font-weight:700;padding:2px 7px;border-radius:8px;flex-shrink:0}
+.rd-locked{opacity:.5;pointer-events:none!important;cursor:default!important}
 .gc-formula{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:14px 0 16px;padding:14px 16px;background:var(--surface);border-radius:10px;border:1px solid var(--border)}
 .gcf-slot{background:var(--plum3);color:var(--plum);font-size:12px;font-weight:700;padding:4px 12px;border-radius:20px;letter-spacing:.3px}
 .gcf-part{color:var(--ink);font-family:var(--ffj);font-size:16px;font-weight:600;padding:2px 4px}
@@ -2183,6 +2193,12 @@ function renderVocabBrowse() {
 // ═══════════════════════════════════════════
 //  GRAMMAR
 // ═══════════════════════════════════════════
+const GC_STAGES=[{name:'Stage 1 — First Steps',emoji:'🌱',patterns:[0,1,2,3]},{name:'Stage 2 — Core Particles',emoji:'🔑',patterns:[4,5,6,7,8]},{name:'Stage 3 — Pointers & More',emoji:'👆',patterns:[9,10,11,12,13,14]},{name:'Stage 4 — Questions',emoji:'❓',patterns:[15,16,17,18,19]},{name:'Stage 5 — Expressing Yourself',emoji:'💬',patterns:[20,21,22,23,24,25,26,27]}];
+function getGcMastered(){try{return JSON.parse(localStorage.getItem('gc_mastered')||'[]');}catch(e){return[];}}
+function markGcMastered(pi){const m=getGcMastered();if(!m.includes(pi)){m.push(pi);localStorage.setItem('gc_mastered',JSON.stringify(m));}renderGrammar();}
+function gcStageUnlocked(si){if(si===0)return true;const m=getGcMastered();return GC_STAGES[si-1].patterns.every(p=>m.includes(p));}
+function gcStageComplete(si){const m=getGcMastered();return GC_STAGES[si]&&GC_STAGES[si].patterns.every(p=>m.includes(p));}
+
 function buildGcFormula(g) {
   const slots = [...g.e.matchAll(/\[([^\]]+)\]/g)].map(m => m[1]);
   const parts = g.p.split('〜');
@@ -2196,37 +2212,26 @@ function buildGcFormula(g) {
 }
 
 function renderGrammar() {
-  document.getElementById('grammar-list').innerHTML = GRAMMAR.map((g, i) => {
-    const exHtml = g.exercises ? `
-      <div class="gc-practice">
-        <div class="gc-practice-lbl">✏️ Practice</div>
-        ${g.exercises.map((ex, xi) => `
-          <div class="gc-xstep${xi===0?' active':''}" id="gxs-${i}-${xi}">
-            <div class="gc-prog">Question ${xi+1} of ${g.exercises.length}</div>
-            <div class="gc-xq">${ex.q}</div>
-            <div class="gc-xopts" id="gxo-${i}-${xi}">
-              ${ex.opts.map((o,oi) => `<button class="gc-xopt" onclick="checkGx(${i},${xi},${oi})">${o}</button>`).join('')}
-            </div>
-            <div class="gc-xfb" id="gxfb-${i}-${xi}"></div>
-          </div>`).join('')}
-        <div class="gc-done-badge" id="gxdone-${i}">🌸 Pattern practised! Keep going!</div>
-      </div>` : '';
-    return `<div class="grammar-card">
-      <div class="gc-head" onclick="toggleG(${i})">
-        <div><div class="gc-pattern">${g.p}</div><div class="gc-eng">${g.e}</div></div>
-        <div style="display:flex;gap:7px;align-items:center"><span class="gc-lvl">${g.l}</span>
-          <svg class="gc-chevron" id="gc-cv-${i}" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
-        </div>
-      </div>
-      <div class="gc-body" id="gc-b-${i}">
-        ${buildGcFormula(g)}
-        <div class="gc-intro">${g.rule}</div>
-        <div class="gc-sect-lbl">💬 Examples</div>
-        ${g.ex.map(e => '<div class="gc-ex"><div class="gc-ex-jp">' + e.j + '</div><div class="gc-ex-read">' + e.r + '</div><div class="gc-ex-en">' + e.e + '</div></div>').join('')}
-        ${exHtml}
-      </div>
-    </div>`;
-  }).join('');
+  const mastered=getGcMastered();let html='';
+  GC_STAGES.forEach((stage,si)=>{
+    const unlocked=gcStageUnlocked(si);
+    const doneCount=stage.patterns.filter(p=>mastered.includes(p)).length;
+    const pct=Math.round(doneCount/stage.patterns.length*100);
+    html+='<div class="gc-stage-hd"><span>'+stage.emoji+'</span><span class="gc-stage-title">'+stage.name+'</span><span class="gc-stage-prog">'+doneCount+'/'+stage.patterns.length+(unlocked?'':' 🔒')+'</span></div>';
+    html+='<div class="gc-stage-bar"><div class="gc-stage-bar-fill" style="width:'+pct+'%"></div></div>';
+    if(!unlocked){
+      const prev=GC_STAGES[si-1];const pd=prev.patterns.filter(p=>mastered.includes(p)).length;
+      html+='<div class="gc-locked-row">🔒 Complete Stage '+si+' ('+pd+'/'+prev.patterns.length+' done) to unlock these patterns</div>';
+      stage.patterns.forEach(i=>{const g=GRAMMAR[i];html+='<div class="grammar-card gc-locked-card"><div class="gc-head"><div><div class="gc-pattern">'+g.p+'</div><div class="gc-eng">'+g.e+'</div></div><span>🔒</span></div></div>';});
+      return;
+    }
+    stage.patterns.forEach(i=>{
+      const g=GRAMMAR[i];const isMastered=mastered.includes(i);
+      const exHtml=g.exercises?('<div class="gc-practice"><div class="gc-practice-lbl">✏️ Practice</div>'+g.exercises.map((ex,xi)=>('<div class="gc-xstep'+(xi===0?' active':'')+'" id="gxs-'+i+'-'+xi+'"><div class="gc-prog">Question '+(xi+1)+' of '+g.exercises.length+'</div><div class="gc-xq">'+ex.q+'</div><div class="gc-xopts" id="gxo-'+i+'-'+xi+'">'+ex.opts.map((o,oi)=>'<button class="gc-xopt" onclick="checkGx('+i+','+xi+','+oi+')">'+o+'</button>').join('')+'</div><div class="gc-xfb" id="gxfb-'+i+'-'+xi+'"></div></div>')).join('')+'<div class="gc-done-badge" id="gxdone-'+i+'" style="'+(isMastered?'display:block':'')+'">🌸 Pattern practised! Keep going!</div></div>'):'';
+      html+='<div class="grammar-card"><div class="gc-head" onclick="toggleG('+i+')"><div><div class="gc-pattern">'+g.p+'</div><div class="gc-eng">'+g.e+'</div></div><div style="display:flex;gap:7px;align-items:center">'+(isMastered?'<span class="gc-mastered-tag">✓</span>':'')+'<svg class="gc-chevron" id="gc-cv-'+i+'" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></div></div><div class="gc-body" id="gc-b-'+i+'">'+buildGcFormula(g)+'<div class="gc-intro">'+g.rule+'</div><div class="gc-sect-lbl">💬 Examples</div>'+g.ex.map(e=>'<div class="gc-ex"><div class="gc-ex-jp">'+e.j+'</div><div class="gc-ex-read">'+e.r+'</div><div class="gc-ex-en">'+e.e+'</div></div>').join('')+exHtml+'</div></div>';
+    });
+  });
+  document.getElementById('grammar-list').innerHTML=html;
 }
 function toggleG(i) { document.getElementById('gc-b-' + i).classList.toggle('open'); document.getElementById('gc-cv-' + i).classList.toggle('open'); }
 
@@ -2249,7 +2254,7 @@ function checkGx(pi, xi, sel) {
       } else {
         document.getElementById('gxs-' + pi + '-' + xi).classList.remove('active');
         const done = document.getElementById('gxdone-' + pi);
-        if (done) { done.style.display = 'block'; showCompanionBubble(charSay('correct')); }
+        if (done) { done.style.display = 'block'; showCompanionBubble(charSay('correct')); markGcMastered(pi); }
       }
     }, 900);
   } else {
@@ -2275,26 +2280,22 @@ function setReadTab(tab) {
   document.getElementById('passage-cards').classList.toggle('hidden', tab !== 'passages');
   document.getElementById('sentence-list').classList.toggle('hidden', tab !== 'sentences');
   if (tab === 'sentences' && !document.getElementById('sentence-passage-cards').innerHTML) {
-    document.getElementById('sentence-passage-cards').innerHTML = PASSAGES.map(p =>
-      `<div class="mode-card" onclick="openSentencePractice('${p.id}')">
-        <div class="mode-icon" style="background:#fce7f3">🔤</div>
-        <div class="mode-title">${p.title}</div>
-        <div class="mode-desc">Sentence-by-sentence practice</div>
-        <div class="mode-badge">${p.text.filter(t=>t==='\n').length + 1} sentences</div>
-      </div>`
-    ).join('');
+    const spLocked=[false,false,!gcStageComplete(0),!gcStageComplete(0),!gcStageComplete(1),!gcStageComplete(1)];
+    document.getElementById('sentence-passage-cards').innerHTML = PASSAGES.map((p,idx) => {
+      const lk=spLocked[idx];const cls=lk?' rd-locked':'';
+      const clk=lk?'':`onclick="openSentencePractice('${p.id}')"`;
+      const cnt=p.text.filter(t=>t==='\n').length+1;
+      return `<div class="mode-card${cls}" ${clk}><div class="mode-icon" style="background:#fce7f3">${lk?'🔒':'🔤'}</div><div class="mode-title">${p.title}</div><div class="mode-desc">${lk?'🔒 Complete earlier stages to unlock':'Sentence-by-sentence practice'}</div><div class="mode-badge">${cnt} sentences</div></div>`;
+    }).join('');
   }
 }
 
 function renderPassageList() {
-  document.getElementById('passage-cards').innerHTML = PASSAGES.map(p =>
-    `<div class="mode-card" onclick="openPassage('${p.id}')">
-      <div class="mode-icon" style="background:var(--gold3)">📖</div>
-      <div class="mode-title">${p.title}</div>
-      <div class="mode-desc">Tap words for instant translation</div>
-      <div class="mode-badge">${p.qs.length} questions</div>
-    </div>`
-  ).join('');
+  const passLocked=[false,false,!gcStageComplete(0),!gcStageComplete(0),!gcStageComplete(1),!gcStageComplete(1)];
+  document.getElementById('passage-cards').innerHTML=PASSAGES.map((p,idx)=>{
+    const lk=passLocked[idx];
+    return `<div class="mode-card${lk?' rd-locked':''}" ${lk?'':`onclick="openPassage('${p.id}')"`}><div class="mode-icon" style="background:var(--gold3)">${lk?'🔒':'📖'}</div><div class="mode-title">${p.title}</div><div class="mode-desc">${lk?'🔒 Complete earlier stages to unlock':'Tap words for instant translation'}</div><div class="mode-badge">${p.qs.length} questions</div></div>`;
+  }).join('');
 }
 
 function buildWordHtml(part) {
